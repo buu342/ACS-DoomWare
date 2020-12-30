@@ -480,8 +480,13 @@ Weapon Sprites and Code - Skulltag
 Credits Part 5 (Final Boss)
 ==================================
 
+Big explosion sound - Mystical Ninja 2: Starring Goemon - Konami
 Sky laser warning sound - Tyrant laser sound - Doom Eternal
 Sky laser sprites - Dragon Ball Z: Legendary Super Warrior - Bandai Namco
 Bouncing Projectiles - Heresiarch lava head projectiles - Hexen
 Eye laser sounds - Dochuki Battle Phase 2 - Mystical Ninja 2: Starring Goemon
 Flame breath sound - Dochuki Battle Phase 2 - Mystical Ninja 2: Starring Goemon
+Invisibility sound - Arachnotron Death Sound - Doom 64
+Boss Music - Too Black Too String - Sonic Rush
+Boss Win Music - Yes, We Did it! - Mystical Ninja 2: Starring Goemon
+Boss Death Sound - Umibōzu - Mystical Ninja 2: Starring Goemon

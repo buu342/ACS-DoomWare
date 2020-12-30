@@ -324,6 +324,7 @@ DoomWare/BuuWoo					DSBUWOO
 DoomWare/BuuPant				DSBUPANT
 DoomWare/BuuNoProblem			DSBUNOPM
 DoomWare/BuuAwwYeah				DSBUAWYE
+DoomWare/BuuRoar				DSBUROAR
 
 
 // Bossfight sounds
@@ -335,6 +336,7 @@ DoomWare/BuuLaser2				DSBULSR2
 DoomWare/BuuEyeLaser			DSEYELAS
 DoomWare/BuuEyeLaserExplosion   DSEYEEXP
 DoomWare/BuuFlameBreath  		DSFLMBRT
+DoomWare/BuuInvisible	  		DSBUINVS
 
 DoomWare/StarSparkle			DSSTSPKL
 

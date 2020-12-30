@@ -16,7 +16,7 @@
 
 // Game selection
 
-#define NUMBEROFGAMES 89		// Number Of minigames
+#define NUMBEROFGAMES 13// Number Of minigames
 
 
 // Game settings
@@ -32,9 +32,10 @@
 #define STATUS_PHASE1     3 // Fight phase 1
 #define STATUS_PHASE1OVER 4 // Fight phase 1 over
 #define STATUS_PHASE2     5 // Fight phase 2
-#define STATUS_PHASE3     6 // Fight phase 2
-#define STATUS_MINIGAME   7 // Minigame
-#define STATUS_GAMEOVER   8 // The game has ended
+#define STATUS_PHASE2OVER 6 // Fight phase 2
+#define STATUS_PHASE3     7 // Fight phase 2
+#define STATUS_MINIGAME   8 // Minigame
+#define STATUS_GAMEOVER   9 // The game has ended
 
 
 // Message ID's
@@ -190,9 +191,9 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.95b\n\
-What's new in the Beta?\n\n\
-Fixes some bugs\n\
+Version 666\n\
+What's new?\n\n\
++ You are going to die\n\
 "
 
 // Menu Text
@@ -204,8 +205,8 @@ faster and harder the game gets...\n\n\
 Before you get started, make sure you have mouselook and jump bound, as you're going\n\
 to need them. Also, make sure you have DoomWare specific binds setup as well (you\n\
 should see them at the bottom of 'Options->Customize Controls' in your ESC menu). You\n\
-can alternatively bind them manually via 'puke 257' (highscore), 'puke 998' (observation)\n\
-and 'puke 999' (this menu).\n\n\
+can alternatively bind them manually via '+dwscores' (highscore), '+dwobserve'\n\
+(observation) and '+dwmenu' (this menu).\n\n\
 You can navigate this menu either using your movement keys or mouse, and you can select\n\
 buttons via your USE or ATTACK key. You can close this menu via your menu button.\n\n\
 If you are having trouble reading this or any other text due to a large resolution, you\n\
@@ -250,21 +251,23 @@ int  game_status;                   // A number containing the status of the gam
 int  game_over;                     // The reason the game ended
 bool game_solo;                     // Is someone playing alone?
 int  game_alive;					// How many people are alive
+int  game_phase2health;				// The last phase 2 fight health check
 
 bool round_winifmid;                // Allow a player to win if he is in the midround array (like in games where you don't do anything to win)
 bool round_winifsuicide;            // Pass the player if he killed himself
 int  round_noforceend;              // Prevent the game from ending prematurely (unless everyone lost). Useful so people can collect 1ups.
 int  round_tiebreaker;              // Which tiebreaker round are we playing
 int  round_observers[NUMOBSERVERS]; // An array containing all the possible observer TID's
-bool round_forceobservers; 		    // Does this round need observers to work? Only used for game_solo.
+int  round_current[NUMBEROFGAMES];  // The currently playing round
+int  round_nextgame;				// The next mid-phase minigame
 
 int  minigame_wincondition1;            // A generic global variable for minigames
 int  minigame_wincondition2;            // A generic global variable for minigames
 int  minigame_wincondition3;            // A generic global variable for minigames
 int  minigame_timer;                    // A timer that is displayed during the minigame
-bool minigame_canmove;                  // Used to signal players can play in tiebreaker rounds
 bool minigame_canobserve;               // Can this minigame be observed?
 bool minigame_fragpoints;               // Can you get points for frags?
+bool minigame_duringphase;
 str  minigame_instruction1[MAXPLAYERS]; // Center text during minigame
 str  minigame_instruction2[MAXPLAYERS]; // Center text below center text during minigame
 str  minigame_instruction3[MAXPLAYERS]; // Center text below center text below center text during minigame
@@ -289,6 +292,7 @@ script "DoomWare_Server_Boot" OPEN
     // Initialize some global variables
     game_status = STATUS_NOTSTARTED;
     game_solo = false;
+	game_phase2health = 0;
 
     // Create a "thread" that continually updates the hats and handles the database
     ACS_NamedExecute("DoomWare_Server_Hats", 0);
@@ -400,7 +404,31 @@ Script "DoomWare_Server_Initialize" (void)
 
 Script "DoomWare_Server_InitMap" (void)
 {
-	// Other
+	// Lava color and damage
+	Sector_SetColor(4, 255, 105, 0, 0);
+	Sector_SetDamage(4, 99999, mod_lava);
+	
+	// Rotating spikes arena fog
+	Sector_SetFade(150, 255, 106, 0);
+	Sector_SetFade(151, 255, 106, 0);
+	Sector_SetFade(152, 255, 106, 0);
+	Sector_SetFade(153, 255, 106, 0);
+	Sector_SetFade(154, 255, 106, 0);
+	Sector_SetFade(155, 255, 106, 0);
+	Sector_SetFade(156, 255, 106, 0);
+	Sector_SetFade(157, 255, 106, 0);
+	Sector_SetFade(158, 255, 106, 0);
+	
+	// Bouncy arena walls
+	if (GetCVar("doomware_bouncywalls"))
+	{
+		SetLineSpecial(255, 226, 18, 0, 255, 64);
+		SetLineSpecial(254, 226, 18, 0, 254, 128);
+		SetLineSpecial(253, 226, 18, 0, 253, 192);
+		SetLineSpecial(252, 226, 18, 0, 252, 0);
+	}
+	
+	// OpenGL red lights
 	SpawnSpotForced("RedPoint", 88, TID_REMOVE, 0.0);
 	Thing_remove(88);
 	Thing_ChangeTID(TID_REMOVE, 88);
@@ -436,6 +464,28 @@ Script "DoomWare_Server_InitRounds" (void)
     int i, j, k;
     game_roundnum = 1;
     game_over = OVER_NONE;
+	
+	// If we are not allowed repeats
+    if (!GetCVar("doomware_duplicates"))
+    {
+        // Initialize the array with all the rounds
+        for (i=0; i<NUMBEROFGAMES; i++)
+            round_current[i] = i+1;
+
+        // Shuffle the rounds array
+        for (i=0; i<NUMBEROFGAMES; i++)
+        {
+            j = random(i, NUMBEROFGAMES-1);
+            k = round_current[i];
+            round_current[i] = round_current[j];
+            round_current[j] = k;
+        }
+    }
+    else // Otherwise just pick a bunch of games at random
+    {
+        for (i=0; i<NUMBEROFGAMES; i++)
+            round_current[i] = random(1, NUMBEROFGAMES);
+    }
 }
 
 Script "DoomWare_Server_InitHighscores" (void)
@@ -493,15 +543,18 @@ Script "DoomWare_Server_GameLogic" (void)
 {
     // Initialize some global variables
 	int i;
+	str plyname;
+	bool buuingame;
+	str gametoplay = "";
     round_winifmid = false;
     round_winifsuicide = false;
     round_noforceend = false;
-	round_forceobservers = false;
     minigame_wincondition1 = 0;
     minigame_wincondition2 = 0;
     minigame_wincondition3 = 0;
     minigame_fragpoints = false;
     minigame_timer = TIMER_OFF;
+	minigame_duringphase = true;
 	
 	// Start phase 1
 	if (game_status == STATUS_WAITING)
@@ -561,11 +614,207 @@ Script "DoomWare_Server_GameLogic" (void)
 		game_status = STATUS_PHASE2;
 	}
 	
-	// Start phase 3 when Buu342 is at low health
-	if (game_status == STATUS_PHASE2 && GetActorProperty(TID_BUU3422, APROP_HEALTH) < 60000)
+	// Handle phase 2 minigames
+	if (game_status == STATUS_PHASE2 && ClassifyActor(TID_BUU3422)&ACTOR_ALIVE)
 	{
-		game_status = STATUS_PHASE3;
-		SetMusic("D_WRAPDR");
+		bool dominigame = false;
+		
+		// Check the phase 2 health
+		switch (game_phase2health)
+		{
+			case 0:
+				if (GetActorProperty(TID_BUU3422, APROP_HEALTH) <= 60000)
+				{
+					game_phase2health++;
+					dominigame = true;
+					SetActorState(TID_BUU3422, "TurnInvisible", true);
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: you FOOLS! This is MY WAD, MY GAMEMODE.");
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: I'M THE ONE IN CONTROL HERE. WATCH!");
+					delay(SECOND*3);
+					Log(s:"The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"");
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Lets see how good you are at DoomWare!");
+					delay(SECOND*3);
+				}
+				break;
+			case 1:
+				if (GetActorProperty(TID_BUU3422, APROP_HEALTH) <= 50000)
+				{
+					game_phase2health++;
+					dominigame = true;
+					SetActorState(TID_BUU3422, "TurnInvisible", true);
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: You're a persistent bunch. Lets try this then.");
+					delay(SECOND*3);
+				}
+				break;
+			case 2:
+				if (GetActorProperty(TID_BUU3422, APROP_HEALTH) <= 40000)
+				{
+					game_phase2health++;
+					dominigame = true;
+					SetActorState(TID_BUU3422, "TurnInvisible", true);
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Gosh, you're annoying. How about this?");
+					delay(SECOND*3);
+				}
+				break;
+			case 3:
+				if (GetActorProperty(TID_BUU3422, APROP_HEALTH) <= 30000)
+				{
+					game_phase2health++;
+					dominigame = true;
+					SetActorState(TID_BUU3422, "TurnInvisible", true);
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Why won't you die already!?");
+					delay(SECOND*3);
+				}
+				break;
+			case 4:
+				if (GetActorProperty(TID_BUU3422, APROP_HEALTH) <= 20000)
+				{
+					game_phase2health++;
+					dominigame = true;
+					SetActorState(TID_BUU3422, "TurnInvisible", true);
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: fuckfuckfuckfuck!!!!!");
+					delay(SECOND*3);
+				}
+				break;
+			case 5:
+				if (GetActorProperty(TID_BUU3422, APROP_HEALTH) <= 10000)
+				{
+					game_phase2health++;
+					dominigame = true;
+					SetActorState(TID_BUU3422, "TurnInvisible", true);
+					game_status = STATUS_PHASE2OVER;
+					SetMusic("D_WRAPDR");
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: I");
+					delay(SECOND);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: WONT");
+					delay(SECOND);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: FUCKING");
+					delay(SECOND);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: LOSE!!!!!!!!!!!!!!!");
+					delay(SECOND*3);
+					AmbientSound("misc/chat", 127);
+					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!");
+					delay(SECOND*3);
+					round_nextgame = random(SECOND*8, SECOND*12);
+				}
+				break;
+		}
+
+		// Do a minigame
+		if (dominigame)
+		{
+			int laststatus = game_status;
+			gametoplay = StrParam(s:"DoomWare_Server_Minigame", d:round_current[(game_phase2health-1)%NUMBEROFGAMES]);
+			game_status = STATUS_MINIGAME;
+			ClearInventory();
+			ACS_NamedExecute(gametoplay, 0);
+			NamedScriptWait(gametoplay);
+			Thing_remove(TID_REMOVE);
+			if (laststatus == STATUS_PHASE2)
+				game_status = STATUS_PHASE2;
+			else if(laststatus == STATUS_PHASE2OVER)
+				game_status = STATUS_PHASE3;
+			Delay(SECOND);
+			SetActorState(TID_BUU3422, "TurnVisible", true);
+		}
+	}
+	
+	// Handle phase 3 minigames
+	if (game_status == STATUS_PHASE3 && ClassifyActor(TID_BUU3422)&ACTOR_ALIVE)
+	{
+		if (round_nextgame <= 0)
+		{
+			gametoplay = StrParam(s:"DoomWare_Server_Minigame", d:random(1, NUMBEROFGAMES));
+			ACS_NamedExecute(gametoplay, 0);
+			round_nextgame = random(SECOND*8, SECOND*12);
+		}
+		round_nextgame--;
+	}
+
+	// Handle ending
+	if (game_status >= STATUS_PHASE1 && ClassifyActor(TID_BUU3422)&ACTOR_DEAD)
+	{		
+		int tx, ty, ang;
+		// Clear the arena and make players invul (in case of minigame stuff)
+		thing_remove(TID_REMOVE);
+		for (i=0; i<MAXPLAYERS; i++)
+			if (player_lostround[i] == false)
+				SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
+		
+		// Stop the music and flash the screen
+		SetMusic("");
+		FadeTo(255, 255, 255, 1.0, 0);
+		delay(1);
+		FadeTo(255, 255, 255, 0.0, 0.5);
+		Delay(SECOND*3);
+		
+		// Say the last words
+		AmbientSound("misc/chat", 127);
+		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Heh, looks like you really are...");
+		Delay(SECOND*2);
+		AmbientSound("misc/chat", 127);
+		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Too strong...");
+		Delay(SECOND*2);
+		Radius_Quake(3, SECOND*7, 0, 255, 1);
+		
+		// Final death
+		Delay(SECOND*9);
+		ang = FixedMul(VectorAngle(GetActorX(TID_BUU3422), GetActorY(TID_BUU3422)), 255.0)>>16;
+		ThrustThing(ang+64, 10, 1, TID_BUU3422);
+		FadeTo(255, 255, 255, 1.0, 0);
+		delay(1);
+		FadeTo(255, 255, 255, 0.0, 0.5);
+		Radius_Quake(9, SECOND , 0, 255, 1);
+		Delay(SECOND*3);
+
+		// Check if buu342 is ingame
+		for (i=0; i<MAXPLAYERS; i++)
+		{
+			plyname = StrParam(n:i);
+			if (strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
+				buuingame = true;
+		}
+		
+		// If he isn't, disconnect him from the game
+		if (!buuingame)
+			Log(s:"Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.");
+		else
+			Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.");
+		thing_remove(TID_BUU3422);
+		Delay(SECOND*3);
+		
+		// End the game
+		game_status = STATUS_GAMEOVER;
+		game_over = OVER_WINNER;
+		SetMusic("D_BOSWIN");
+		for (i=0; i<MAXPLAYERS; i++)
+			if (player_lostround[i] == false)
+				Give_Achievement(i, ACHIEVE_ID_BOSS);
+		delay(SECOND*6 + 15);
+		
+		// Update the database and exit to the original map
+		ACS_NamedExecute("DoomWare_Server_UpdateDB", 0);
+		NamedScriptWait("DoomWare_Server_UpdateDB");
+		ChangeLevel("map01", 0, 0, 0);
 	}
 
 	// Check if everyone is dead
@@ -574,15 +823,17 @@ Script "DoomWare_Server_GameLogic" (void)
 		if (player_lostround[i] == false)
 			game_alive++;
 	
-	// If someone is dead, then end the game
+	// If everone is dead, then end the game
 	if (game_alive == 0 && game_status != STATUS_GAMEOVER)
 	{
-		bool buuingame = false;
+		buuingame = false;
 		game_status = STATUS_GAMEOVER;
 		game_over = OVER_LOST;
 		
 		// Game over transition
 		SetMusic("");
+		delay(15);
+		SetActorState(TID_BUU3422, "Laugh", true);
 		delay(SECOND*3);
 		AmbientSound("misc/chat", 127);
 		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you think you stood a chance");
@@ -591,7 +842,7 @@ Script "DoomWare_Server_GameLogic" (void)
 		// Check if buu342 is ingame
 		for (i=0; i<MAXPLAYERS; i++)
 		{
-			str plyname = StrParam(n:i);
+			plyname = StrParam(n:i);
 			if (strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
 				buuingame = true;
 		}
@@ -616,6 +867,8 @@ Script "DoomWare_Server_GameLogic" (void)
 	{
 		SetMusic("");
 		game_status = STATUS_GAMEOVER;
+		thing_remove(TID_BUU342);
+		thing_remove(TID_BUU3422);
 		delay(MUSICDUR_GAMEOVER);
 		
 		// Update the database and exit to the original map
@@ -849,45 +1102,6 @@ Script "DoomWare_Server_ReturnPlayers" (int move_if_lost, int fog)
 	}
 }
 
-function void Check_LMS(void)
-{
-    int alivecount = 0;
-    int winid = -1;
-    for (int i=0; i<MAXPLAYERS; i++)
-    {
-        if (player_midround[i])
-        {
-            winid = i;
-            alivecount++;
-        }
-    }
-
-    // If only one person is alive, make them win and give them the achievement
-    if (alivecount == 1)
-        Player_Win(winid);
-}
-
-function void Check_LMS_MVMTie(void)
-{
-    int alivecount = 0;
-    int winid = -1;
-    for (int i=0; i<MAXPLAYERS; i++)
-    {
-        if (player_midround[i])
-        {
-            winid = i;
-            alivecount++;
-        }
-    }
-
-    // If only one person is alive, make them win and give them the achievement
-    if (alivecount == 1)
-    {
-        Player_Win(winid);
-        Give_Achievement(winid, ACHIEVE_ID_MVMWIN);
-    }
-}
-
 Script "DoomWare_Server_UpdateDB" (void)
 {
     int i;
@@ -989,7 +1203,6 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Player_SetCVar("__clientsync_minigametimer", minigame_timer);
     Player_SetCVar("__clientsync_wincondition1", minigame_wincondition1);
     Player_SetCVar("__clientsync_canobserve", minigame_canobserve);
-    Player_SetCVar("__clientsync_canmove", minigame_canmove);
     Player_SetCVar("__clientsync_gamesolo", game_solo);
     Player_SetCVar("__clientsync_roundcurrent", game_alive);
 
@@ -1175,22 +1388,7 @@ Script "DoomWare_Client_GameLogic" (void)
 	if (!strcmp(GetCVarString("doomware_mode"), "halloween"))
 		extra = "Halloween/";
 	
-
-    // Check if the game's over
-    if (game_status == STATUS_GAMEOVER)
-    {
-		// Play the game over music
-        if (player_musicgameover[PlayerNumber()] == false)
-        {
-            if (GetUserCVar(PlayerNumber(), "doomware_music"))
-                LocalAmbientSound("DoomWare/GameOver", 127);
-            player_musicgameover[PlayerNumber()] = true;
-
-            // TODO: Give winner achievement
-        }
-    }
-	
-	// Play Waiting/Speedup music
+	// Play Waiting music
     if (player_musicwaiting[PlayerNumber()] == false)
     {
         // Check if the game is speeding up
@@ -1204,24 +1402,33 @@ Script "DoomWare_Client_GameLogic" (void)
         }
     }
 	
-	// Give weapons at the start of Phase 1 and Phase 2
-	if (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2)
+	// Give weapons at the start of Phase 1 to 3
+	if (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2 || game_status == STATUS_PHASE3)
 	{
-		GiveInventory("Fist", 1);
 		GiveInventory("CoopPistol", 1);
 		GiveInventory("CoopShotgun", 1);
 		GiveInventory("CoopChaingun", 1);
 		GiveInventory("Backpack", 1);
 		GiveInventory("Clip", 400);
 		GiveInventory("Shell", 100);
-		GiveInventory("Medikit", 5);
+		SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Health, 100);
 		SetWeapon("CoopShotgun");
 	}
 	
-	// Phase 1 and Phase 2
-	while (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2)
+	// Phase 1 to 3
+	while (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2 || game_status == STATUS_PHASE2OVER || game_status == STATUS_PHASE3)
 	{
-		minigame_instruction1[PlayerNumber()] = "Kill \cqB\csu\cdu\cq3\cs4\cd2\c-";
+		if (ClassifyActor(TID_BUU3422)&ACTOR_ALIVE)
+			minigame_instruction1[PlayerNumber()] = "Kill \cqB\csu\cdu\cq3\cs4\cd2\c-";
+		else
+			minigame_instruction1[PlayerNumber()] = "";
+		delay(1);
+	}
+	
+	// Minigame
+	while (game_status == STATUS_MINIGAME)
+	{
+		minigame_instruction1[PlayerNumber()] = "Survive";
 		delay(1);
 	}
 	
@@ -1238,6 +1445,463 @@ Script "DoomWare_Client_GameLogic" (void)
 function bool Check_Player_Lost(int plynum)
 {
     return (player_lostround[plynum] || (player_midround[plynum] && !round_winifmid));
+}
+
+
+/*===================================================================================================
+                                    Minigames (Serverside)
+===================================================================================================*/
+
+Script "DoomWare_Server_Minigame1" (void) // The floor is lava
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    HUDMessage(s:"The Floor Is Lava"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    floor_lowerbyvalue(20, 8, 10);
+    floor_lowerbyvalue(21, 8, 8);
+    floor_lowerbyvalue(22, 8, 8);
+    floor_lowerbyvalue(691, 8, 10);
+    floor_lowerbyvalue(692, 8, 8);
+    floor_lowerbyvalue(693, 8, 8);
+    SetThingSpecial(88, 0, 0, 0, 0, 0, 0);
+    SetThingSpecial(147, 0, 0, 0, 0, 0, 0);
+    delay(SECOND);
+
+    // Make the floor lava
+    Sector_setDamage(2, 200000, MOD_LAVA);
+    Sector_setDamage(20, 200000, MOD_LAVA);
+    Sector_setDamage(21, 200000, MOD_LAVA);
+    Sector_setDamage(22, 200000, MOD_LAVA);
+    Sector_setDamage(691, 200000, MOD_LAVA);
+    Sector_setDamage(692, 200000, MOD_LAVA);
+    Sector_setDamage(693, 200000, MOD_LAVA);
+    ChangeFloor(2, "WFLAVA1");
+    ChangeFloor(20, "WFLAVA1");
+    ChangeFloor(21, "WFLAVA1");
+    ChangeFloor(22, "WFLAVA1");
+    ChangeFloor(691, "WFLAVA1");
+    ChangeFloor(692, "WFLAVA1");
+    ChangeFloor(693, "WFLAVA1");
+    delay(SECOND);
+
+    // Make everything safe again
+	if (!strcmp(GetCVarString("doomware_mode"), "halloween"))
+		SetThingSpecial(147, 0, 255, 105, 0, 8, 0);
+	else
+		SetThingSpecial(147, 0, 0, 0, 255, 8, 0);
+	SetThingSpecial(88, 0, 255, 0, 0, 8, 0);
+    Sector_setDamage(2, 0, MOD_UNKNOWN);
+    Sector_setDamage(20, 0, MOD_UNKNOWN);
+    Sector_setDamage(21, 0, MOD_UNKNOWN);
+    Sector_setDamage(22, 0, MOD_UNKNOWN);
+    Sector_setDamage(691, 0, MOD_UNKNOWN);
+    Sector_setDamage(692, 0, MOD_UNKNOWN);
+    Sector_setDamage(693, 0, MOD_UNKNOWN);
+    ChangeFloor(2, "SLIME15");
+    ChangeFloor(20, "N_BRGR13");
+    ChangeFloor(691, "N_BRGR13");
+    ChangeFloor(21, "TLITE6_5");
+    ChangeFloor(692, "TLITE6_5");
+	if (!strcmp(GetCVarString("doomware_mode"), "halloween"))
+	{
+		ChangeFloor(22, "TLITE6_8");
+		ChangeFloor(693, "TLITE6_8");
+	}
+	else
+	{
+		ChangeFloor(22, "TLITE6_7");
+		ChangeFloor(693, "TLITE6_7");
+	}
+	
+    floor_raisebyvalue(20, 8, 10);
+    floor_raisebyvalue(21, 8, 8);
+    floor_raisebyvalue(22, 8, 8);
+    floor_raisebyvalue(691, 8, 10);
+    floor_raisebyvalue(692, 8, 8);
+    floor_raisebyvalue(693, 8, 8);
+    delay(SECOND);
+}
+
+Script "DoomWare_Server_Minigame2" (void) // Survive (Cyberdemon)
+{
+    HUDMessage(s:"Survive (Cyberdemon)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Spawn Cyberdemons
+    SpawnSpotForced("TeleportFog", 1, TID_REMOVE, 0);
+    SpawnSpotForced("Cyberdemon", 1, TID_REMOVE, random(0, 359));
+	SpawnSpotForced("Cyberdemon", 7+random(0, 3), TID_REMOVE, random(0, 359));
+    NoiseAlert(TID_PLAYER+random(0, PlayerCount()-1), TID_PLAYER+random(0, PlayerCount()-1));
+
+    // Let the players survive
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*7);
+	Thing_remove(TID_REMOVE);
+}
+
+Script "DoomWare_Server_Minigame3" (void) // Survive (ghouls)
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    HUDMessage(s:"Survive (Ghouls)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 440, false, true);
+
+    // Spawn a bunch of Jitterskulls
+    SpawnSpotForced("Jitterskull", 45, TID_REMOVE, random(0, 359));
+
+    // Let the players survive
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*10);
+
+    // Move the players back if they didn't die
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+}
+
+Script "DoomWare_Server_Minigame4" (void) // Evade the Kamikazi
+{
+    int time=0;
+    HUDMessage(s:"Evade the Kamikazi"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Spawn a Kamikaze
+    SpawnSpotForced("TeleportFog", 1, TID_REMOVE, 0);
+    SpawnSpotForced("Jihad", 1, TID_REMOVE , random(0, 359));
+    SpawnSpotForced("AvoidDecoration", 1, TID_AVOID, 0);
+    NoiseAlert(TID_PLAYER+random(0, PlayerCount()-1), TID_PLAYER+random(0, PlayerCount()-1));
+
+    // Move the AVOID item to follow the Kamikaze
+    while (time < (SECOND*2 - 10))
+    {
+        time++;
+        SetActorPosition(TID_AVOID, GetActorX(TID_REMOVE), GetActorY(TID_REMOVE), GetActorZ(TID_REMOVE)+64.0, 0);
+        delay(1);
+    }
+
+    // Blow up the Kamikaze
+    thing_remove(TID_AVOID);
+    thing_damage(TID_REMOVE, 50, 0);
+
+    delay(10);
+}
+
+Script "DoomWare_Server_Minigame5" (void) // Survive (Grenades)
+{
+    HUDMessage(s:"Survive (Grenades)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Raise the floor
+    ChangeFloor(17, "SHAWN2");
+	floor_raisebyvalue(17, 16, 64);
+    delay(SECOND);
+
+    // Shoot grenades
+    SpawnProjectile(87, "DWGrenade", 0, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 32, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 64, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 96, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 128, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 160, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 192, 90, 4, 0.25, 0);
+    SpawnProjectile(87, "DWGrenade", 224, 90, 4, 0.25, 0);
+    delay(SECOND + 10);
+
+    // Lower the floor
+    ChangeFloor(17, "NFMBGY01");
+    floor_lowerbyvalue(17, 16, 64);
+    delay(SECOND*2);
+}
+
+Script "DoomWare_Server_Minigame6" (void) // Survive (Terry)
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    HUDMessage(s:"Survive (Terry)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Teleport players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 127, true, true);
+
+	// Summon our lord and saviour
+    SpawnSpotForced("dickfail", 129, TID_REMOVE, 0);
+
+    // Start a timer
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*10);
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+}
+
+Script "DoomWare_Server_Minigame7" (void) // Get on the Colored Circle
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    int color = random(0, 3);
+    int i;
+    HUDMessage(s:"Get on the Colored Circle"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 248, true, true);
+
+    // Display the color after a while
+    delay(35);
+    switch (color)
+    {
+        case 0:
+            SetLineTexture(1, SIDE_FRONT, TEXTURE_BOTTOM, "TRANBLUE");
+            break;
+        case 1:
+            SetLineTexture(1, SIDE_FRONT, TEXTURE_BOTTOM, "TRANGRN");
+            break;
+        case 2:
+            SetLineTexture(1, SIDE_FRONT, TEXTURE_BOTTOM, "TRANRED");
+            break;
+        case 3:
+            SetLineTexture(1, SIDE_FRONT, TEXTURE_BOTTOM, "TRANYEL");
+            break;
+    }
+    delay(SECOND*2);
+
+    // Lower the floors
+    for (i=0; i<5; i++)
+    {
+        if (i == color)
+            continue;
+        Floor_LowerInstant(111+i, 0, 16);
+        Sector_setDamage(111+i, 200000, MOD_LAVA);
+        ChangeFloor(111+i, "WFLAVA1");
+    }
+    delay(70);
+
+    // Return the players
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+
+    // Raise the floors back up
+    for (i=0; i<5; i++)
+    {
+        if (i == color)
+            continue;
+        Floor_RaiseInstant(111+i, 0, 16);
+        Sector_setDamage(111+i, 0, MOD_UNKNOWN);
+        switch (i)
+        {
+            case 0:
+                ChangeFloor(111, "TRANBLUE");
+                break;
+            case 1:
+                ChangeFloor(112, "TRANGRN");
+                break;
+            case 2:
+                ChangeFloor(113, "TRANRED");
+                break;
+            case 3:
+                ChangeFloor(114, "TRANYEL");
+                break;
+            case 4:
+                ChangeFloor(115, "PURE");
+                break;
+        }
+
+    }
+    SetLineTexture(1, SIDE_FRONT, TEXTURE_BOTTOM, "PURE");
+}
+
+Script "DoomWare_Server_Minigame8" (void) // Go To The Light
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    int i;
+    hudmessage(s:"Go To The Light"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 206, true, true);
+
+    // Pick a random sector to mark as safe
+    int ceil = random(0, 11);
+    Light_ChangeToValue(116+ceil, 256);
+    delay(SECOND);
+
+    // Lower the ceiling
+    for (i=0; i<13; i++)
+        if (i != ceil)
+            Ceiling_LowerAndCrush(116+i, 20, 100, 1);
+    delay(SECOND*3+17);
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+
+    // Raise the ceiling back up
+    for (i=0; i<13; i++)
+        if (ceil != i)
+            Ceiling_RaiseByValue(116+i, 16, 256);
+    Light_ChangeToValue(116+ceil, 16);
+}
+
+Script "DoomWare_Server_Minigame9" (void) // Survive (Banana)
+{
+    HUDMessage(s:"Survive (Banana)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Spawn some warnings
+    SpawnSpotForced("Avoid", 1, TID_REMOVE, random(0, 359));
+	SpawnSpotForced("Avoid", 57, TID_REMOVE, random(0, 359));
+    NoiseAlert(TID_PLAYER+random(0, PlayerCount()-1), TID_PLAYER+random(0, PlayerCount()-1));
+    delay(SECOND*4);
+
+    // Spawn the banana
+    SpawnSpotForced("Banana", TID_REMOVE, TID_REMOVE+1, random(0, 359));
+    thing_destroy(TID_REMOVE, 0);
+    delay(SECOND*2);
+}
+
+Script "DoomWare_Server_Minigame10" (void) // Survive (Spike)
+{
+    HUDMessage(s:"Survive (Banana)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Spawn some warnings
+	SpawnSpotForced("Avoid", 1, TID_REMOVE+1, random(0, 359));
+	SpawnSpotForced("Avoid", 58, TID_REMOVE+1, random(0, 359));
+	SpawnSpotForced("Avoid", 59, TID_REMOVE+1, random(0, 359));
+	SpawnSpotForced("Avoid", 60, TID_REMOVE+1, random(0, 359));
+	SpawnSpotForced("Avoid", 57, TID_REMOVE+1, random(0, 359));
+    NoiseAlert(TID_PLAYER+random(0, PlayerCount()-1), TID_PLAYER+random(0, PlayerCount()-1));
+    delay(SECOND*3);
+
+    // Spawn the spikes
+    SpawnSpotForced("LilithSpikeSpawner", TID_REMOVE+1, TID_REMOVE, random(0, 359));
+    thing_destroy(TID_REMOVE+1, 0);
+    delay(SECOND + 17);
+}
+
+Script "DoomWare_Server_Minigame11" (void) // Survive (Chilli)
+{
+    HUDMessage(s:"Survive (Chilli)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Create some warnings
+    SpawnSpotForced("Avoid", 1, TID_REMOVE+1, random(0, 359));
+	SpawnSpotForced("Avoid", 57, TID_REMOVE+1, random(0, 359));
+    NoiseAlert(TID_PLAYER+random(0, PlayerCount()-1), TID_PLAYER+random(0, PlayerCount()-1));
+    delay(SECOND*4);
+
+    // Spawn the chilli
+    SpawnSpotForced("Chilli", TID_REMOVE+1, TID_REMOVE, random(0, 359));
+    thing_destroy(TID_REMOVE+1, 0);
+    delay(SECOND + 18);
+
+    // Make the world tremble at the sight of it's spicyness
+    Radius_Quake2(1, 5, SECOND*3+21, 0, 512, "DoomWare/IceMove");
+    delay(SECOND*3+21);
+}
+
+Script "DoomWare_Server_Minigame12" (void) // Survive (Spike Circle)
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    HUDMessage(s:"Survive (Spike Circle)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 460, false, true);
+
+    // Activate the rotaty dead spikes of doom
+    thing_activate(64);
+    thing_activate(65);
+
+    // Start a timer
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*8);
+
+    // Give the spikes a break
+    thing_deactivate(64);
+    thing_deactivate(65);
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+}
+
+Script "DoomWare_Server_Minigame13" (void) // Survive (Disappearing Floor)
+{
+	if (game_status == STATUS_PHASE3)
+		terminate;
+    int i;
+    int dropped = 0;
+    int state = 0;
+    bool firstdrop = true;
+    HUDMessage(s:"Survive (Disappearing Floor)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+
+    // We'll make use of the player_answer variables to save up on making more globals
+    // Start by filling in a list of all numbers from 1 to 9
+    for (i=0; i<9; i++)
+        player_answer1[i] = i;
+
+    // Shuffle that array
+    for (i=0; i<9; i++)
+    {
+        int j = random(i, 8);
+        int k = player_answer1[i];
+        player_answer1[i] = player_answer1[j];
+        player_answer1[j] = k;
+    }
+
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 519, true, true);
+
+    // Start the timer
+    int time = SECOND*2 + 6*6*8 + (SECOND-4)*8;
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, time);
+    time = SECOND*2;
+
+    // Handle the floors
+    do
+    {
+        time--;
+        if (time == 0 && dropped != 8)
+        {
+            switch(state)
+            {
+                case 4:
+                case 2:
+                case 0:
+                    changefloor(193+player_answer1[dropped], "TRANYEL");
+                    SectorSound("doomware/blip", 127);
+                    time = 6;
+                    if (firstdrop)
+                    {
+                        // Warn newcomers to avoid the color
+                        int sector = player_answer1[dropped];
+                        SpawnSpotForced("Avoid", 519, TID_REMOVE, 0);
+                        SetActorPosition(TID_REMOVE, GetActorX(TID_REMOVE)-213.0+213.0*(sector%3), GetActorY(TID_REMOVE)+213.0-213.0*(sector/3), GetActorZ(TID_REMOVE), false);
+                        Thing_Destroy(TID_REMOVE, false, 0);
+                        firstdrop = false;
+                    }
+                    break;
+                case 5:
+                case 3:
+                case 1:
+                    changefloor(193+player_answer1[dropped], "PURE");
+                    time = 6;
+                    break;
+                case 6:
+                    SectorSound("doomware/bloop", 127);
+                    Floor_LowerInstant(193+player_answer1[dropped], 0, 16);
+                    Sector_setDamage(193+player_answer1[dropped], 200000, MOD_LAVA);
+                    ChangeFloor(193+player_answer1[dropped], "WFLAVA1");
+                    dropped++;
+                    time = SECOND-4;
+                    break;
+            }
+            state = (state+1)%7;
+        }
+        delay(1);
+    }
+    while (minigame_timer != TIMER_OFF);
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+
+    // Put the floors back to normal
+    for (i=0;i<9;i++)
+    {
+        if (i < dropped)
+        {
+            Floor_RaiseInstant(193+player_answer1[i], 0, 16);
+            Sector_setDamage(193+player_answer1[i], 0, MOD_LAVA);
+        }
+        ChangeFloor(193+player_answer1[i], "PURE");
+    }
 }
 
 
@@ -1279,6 +1943,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
     int hud_spindex = 0;
     int hud_time    = 0;
     int lasttimertime   = -1;
+	bool gameovermusic = false;
     if (GetCvar("__clientsync_gamestatus") <= STATUS_STARTING)
         hud_toppos = -95.0;
 
@@ -1354,6 +2019,14 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER2, CR_GREEN, 0.5, 0.3, 1);
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER3, CR_GREEN, 0.5, 0.3, 1);
 
+			// Play game over music
+			if (!gameovermusic)
+			{
+				if (GetUserCVar(plynum, "doomware_music"))
+					LocalAmbientSound("DoomWare/GameOver", 127);
+				gameovermusic = true;
+			}
+
             // State why the game ended
             switch (syncdata_gameover)
             {
@@ -1368,7 +2041,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
                     break;
             }
         }
-        else if (syncdata_gamestatus == STATUS_MINIGAME || syncdata_gamestatus == STATUS_PHASE1 || syncdata_gamestatus == STATUS_PHASE2)
+        else if (syncdata_gamestatus == STATUS_MINIGAME || (syncdata_gamestatus >= STATUS_PHASE1 && syncdata_gamestatus <= STATUS_PHASE3) )
         {
             HUDMessage(s:syncdata_insctruction1; HUDMSG_PLAIN, MSGID_CENTER, CR_ORANGE, w/2, FixedMul(h, 0.25), 1);
             HUDMessage(s:"\n\n", s:syncdata_insctruction2; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
@@ -1533,7 +2206,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
 // This is using a number rather than a named script to make binding the puke easier
 Script 257 (void) NET
 {
-
+	// Not used in boss arena
 }
 
 
@@ -1543,16 +2216,13 @@ Script 257 (void) NET
 
 function void Add_Observer(int TID)
 {
-    if (!game_solo || (game_solo && round_forceobservers))
-    {
-        minigame_canobserve = true;
-        for (int i=0; i<NUMOBSERVERS; i++)
-            if (round_observers[i] == -1)
-            {
-                round_observers[i] = TID;
-                break;
-            }
-    }
+	minigame_canobserve = true;
+	for (int i=0; i<NUMOBSERVERS; i++)
+		if (round_observers[i] == -1)
+		{
+			round_observers[i] = TID;
+			break;
+		}
 }
 
 function void Force_Observe(int plynum)
@@ -2087,6 +2757,41 @@ Script "DoomWare_Console_ForceEnd" (void)
 /*===================================================================================================
                                           Miscellaneous
 ===================================================================================================*/
+
+int linealpha[4];
+Script 18 (int lineid, int angle) // Arena wall bumping
+{
+	int linealpha_max = 75;
+	int linealpha_speed = 5;
+	int lineslot = 255-lineid;
+	
+	// Push the player
+	ThrustThing(angle, 8);
+	
+	// If there's no other script running
+	if (linealpha[lineslot] == 0)
+	{
+		// Change the line to FIREBLU
+		linealpha[lineslot] = linealpha_max;
+		setlinetexture(lineid, SIDE_FRONT, TEXTURE_MIDDLE, "FIREBLU1");
+		setlinetexture(lineid, SIDE_BACK, TEXTURE_MIDDLE, "FIREBLU1");
+		
+		// Decrease the line alpha over time
+		while (linealpha[lineslot] > 0)
+		{
+			linealpha[lineslot] = linealpha[lineslot]-linealpha_speed;
+			TranslucentLine(lineid, linealpha[lineslot], 0);
+			delay(1);
+		}
+		
+		// Remove the texture entirely
+		setlinetexture(lineid, SIDE_FRONT, TEXTURE_MIDDLE, "-");
+		setlinetexture(lineid, SIDE_BACK, TEXTURE_MIDDLE, "-");	
+		linealpha[lineslot] = 0;
+	}
+	else
+		linealpha[lineslot] = linealpha_max;
+}
 
 Script 666 (void) // Create a death laser on a random player
 {
