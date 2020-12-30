@@ -1,4 +1,4 @@
-<img src="http://imgur.com/B5FB6sA.png" width="475" height="186">
+<img src="wiki_assets/logo.png" width="475" height="186">
 
 ---
 
