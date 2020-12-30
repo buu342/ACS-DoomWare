@@ -1,0 +1,5 @@
+IWAD = "doom2.wad"
+STARTUPTYPE = "Hexen"
+STARTUPTITLE = "DoomWare"
+STARTUPCOLORS = "00 11 ff","ff a5 00"
+STARTUPSONG = "D_LOAD"

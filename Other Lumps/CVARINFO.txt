@@ -1,0 +1,66 @@
+/*===================================================================================================
+									  Serverside Configuration
+===================================================================================================*/
+
+server string doomware_mode = "";           // "" or "halloween"
+server string doomware_banlist = "";		// TODO: List of banned minigame numbers (separated by spaces)
+server bool   doomware_duplicates = false;	// Allow duplicate games
+server bool   doomware_easymode = false;    // TODO: Show people the minigame instructions before it starts?
+server bool   doomware_wackymods = true;    // Allow wacky modifiers?
+server int    doomware_wackymodschance = 5; // Odds of a wacky mod? (The higher, the less chance. 0 means always)
+server bool   doomware_bossfight = false;	// Allow the boss fight wacky mod?
+
+
+/*===================================================================================================
+									  Clientside Configuration
+===================================================================================================*/
+
+user bool doomware_hudscale = false;    // Scale the HUD to 800x600
+user bool doomware_hudwide = false;     // Widescreen HUD
+user bool doomware_hudsounds = true;    // HUD plays sounds
+user bool doomware_huddynamic = true;   // Allows the HUD to move dynamically
+user bool doomware_hudshowbinds = true; // Show binds under the HUD
+user bool doomware_loginwarn = true;    // Warn that you're not logged in
+user bool doomware_music = true;        // Music between rounds and during win/lose/speeedup
+user bool doomware_invertfly = false;   // Invert flight controls
+
+
+/*===================================================================================================
+									     Extra, don't touch
+===================================================================================================*/
+
+// To show the DoomWare menu when connecting for the first time
+user bool __doomware_firstjoin = true;
+
+// Sync global variables for CLIENTSIDE scripts
+server noarchive int __clientsync_round = 0;
+server noarchive int __clientsync_gamestatus = 0;
+server noarchive int __clientsync_gameover = 0;
+server noarchive int __clientsync_minigametimer = 0;
+server noarchive int __clientsync_highscore1 = 0;
+server noarchive int __clientsync_highscore2 = 0;
+server noarchive string __clientsync_highname = "";
+server noarchive string __clientsync_speeduphint = "";
+server noarchive int __clientsync_canobserve = 1;
+server noarchive int __clientsync_canmove = 1;
+server noarchive int __clientsync_gamesolo = 0;
+server noarchive int __clientsync_roundcurrent = 0;
+server noarchive int __clientsync_wincondition1 = 0;
+server noarchive int __clientsync_wackymod = 0;
+
+// Replacement for GetUserCVar's
+server noarchive string __clientsync_player_score = "";
+server noarchive string __clientsync_player_datascore = "";
+server noarchive string __clientsync_player_datawins = "";
+server noarchive string __clientsync_player_datadeaths = "";
+server noarchive string __clientsync_player_data1ups = "";
+server noarchive string __clientsync_player_dataroles = "";
+server noarchive string __clientsync_player_dataachieve = "";
+server noarchive string __clientsync_player_loggedin = "";
+server noarchive string __clientsync_player_checklost = "";
+server noarchive string __clientsync_player_lostround = "";
+server noarchive string __clientsync_player_viewingmenu = "";
+server noarchive string __clientsync_player_instruction1 = "";
+server noarchive string __clientsync_player_instruction2 = "";
+server noarchive string __clientsync_player_instruction3 = "";
+server noarchive string __clientsync_player_viewsprite = "";

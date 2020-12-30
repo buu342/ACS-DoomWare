@@ -1,0 +1,21 @@
+[en default] 
+
+QUITMSG = "Are you sure you want to\nquit this party?";
+TXT_YES = "Please";
+TXT_NO = "Nah";
+
+OB_SUICIDE = "%o became bored with life.";
+OB_KILLEDSELF = "%o did a fucky wucky.";
+OB_FALLING = "%o broke his legs.";
+OB_WATER = "%o thought he could breathe underwater.";
+OB_LAVA = "%o didn't realize fire is hot.";
+OB_BARREL = "%o poked a barrel.";
+OB_R_SPLASH = "%o can't aim at all.";
+OB_VILE = "%o didn't hide properly.";
+OB_CYBORG = "%o has to learn to dodge.";
+OB_DEFAULT = "%o was killed to death.";
+OB_SLIME = "%o grew extra limbs.";
+OB_CRUSH = "%o became a fine, thick, red paste.";
+OB_MPTELEFRAG = "%o stood at the wrong place at the wrong time.";
+GOTHTHBONUS = "retrieved a stolen potion.";
+OB_MPSSHOTGUN = "%o tasted %k's pellets.";

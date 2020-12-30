@@ -1,0 +1,46 @@
+gameinfo
+{
+	cursorpic = "M_CURSOR"
+	dimcolor = "ff 00 ff"
+	dimamount = 0.2
+	menufontcolor_title = "GRAY"
+	menufontcolor_label = "GRAY"
+	menufontcolor_selection = "GOLD"
+	intermissionmusic = "D_INTERM"
+	quitmessages = 	"Aww come on, the fun is just getting started!\n\nAre you sure you want to leave?", 
+					"One more round won't hurt ya!\n\nAre you sure you want to leave?", 
+					"Getting exhausted already?\n\nAre you sure you want to leave?", 
+					"The game master will be displeased.\n\nAre you sure you want to leave?"
+}
+
+map TITLEMAP "TITLEMAP"
+{
+	sky1 = STSKY2
+}
+
+map map01 "DoomWare"
+{
+	sky1 = STSKY2
+	NoCrouch
+	EnterPic = "DW_ENTER"
+	ExitPic = "DW_EXIT"
+}
+
+map map30 "Icon of DoomWare"
+{
+	sky1 = SKY3
+	NoCrouch
+	EnterPic = "DW_ENTER"
+	ExitPic = "DW_EXIT"
+}
+
+clearskills
+
+skill hard
+{
+	SpawnFilter = Hard
+	PicName = "M_ULTRA"
+	Name = "$SKILL_HARD"
+	Key = "u"
+	ACSReturn = 3
+}

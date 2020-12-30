@@ -1,0 +1,298 @@
+#include "zcommon.acs"
+
+script 1 Enter
+{
+	int i=0;
+	
+	// Initialize the area and screen
+	SetFont("M_BLKBAR");
+	HudMessage(s:"A"; HUDMSG_PLAIN, 23, CR_BLUE, 0.5, 0.0, 1000000.0);
+	SetFont("M_BLKBR2");
+	HudMessage(s:"A"; HUDMSG_PLAIN, 22, CR_BLUE, 0.5, 0.99999999999, 1000000.0);
+	Thing_ChangeTID(0,1);
+	ChangeCamera(2,0,0);
+	//FadeTo (0, 0, 0, 1.0, 0);
+	Delay(35);
+	
+	// Print "Buu342 presents"
+	SetFont("M_BLKBR3");
+	HudMessage(s:"A"; HUDMSG_FADEINOUT, 24, CR_BLUE, 0.5, 0.5, 5.0,1.0,1.0);
+	SetFont("BIGFONT");
+	HudMessage(s:"\cqB\csu\cdu\cq3\cs4\cd2\c- Presents";	HUDMSG_TYPEON, 0, CR_BLUE, 0.5, 0.5, 3.0, 0.1, 3.0);
+	Delay(35 * 5);
+	//FadeTo (0, 0, 0, 00, 2.0);
+	
+	// Teleport the player 
+	thing_move(1,3,0);
+	delay(35);
+	
+	// Player dialogue (Unusual)
+	SetFont("DW_FONT5");
+	hudmessage (s:"Well, this is unusual... Typically I'm teleported to hell but now I'm in some sort of tower?"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(35);
+	
+	// Looking around during dialogue
+	SetActorAngle(1, 0.375);
+	delay(5);
+	SetActorAngle(1, 0.5);
+	delay(15);
+	SetActorAngle(1, 0.375);
+	delay(5);
+	SetActorAngle(1, 0.25);
+	delay(5);
+	SetActorAngle(1, 0.125);
+	delay(5);
+	SetActorAngle(1, 0.0);
+	delay(15);
+	SetActorAngle(1, 0.125);
+	delay(5);
+	SetActorAngle(1, 0.25);
+	delay(15);
+	SetActorAngle(1, 0.375);
+	delay(5);
+	SetActorAngle(1, 0.5);
+	delay(5);
+	SetActorAngle(1, 0.625);
+	delay(5);
+	SetActorAngle(1, 0.75);
+	delay(15);
+	
+	// Teleport Buu342 in, player dialogue (Huh?)
+	hudmessage (s:"Huh?"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	thing_move(5,4,0);
+	
+	// Make the player jump and spin
+	SetActorVelocity(1, 0, 0, 5.0, true, false);
+	delay(8);
+	SetActorAngle(1, 0.625);
+	delay(2);
+	SetActorAngle(1, 0.5);
+	delay(2);
+	SetActorAngle(1, 0.375);
+	delay(2);
+	SetActorAngle(1, 0.25);
+	delay(56);
+	
+	// Show Buu342 from the ground
+	hudmessage (s:""; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	SetMusic("d_title1");
+	ChangeCamera(6,0,0);
+	Thing_Activate(9);
+	Thing_Activate(11);
+	delay(105);
+	
+	// Show Buu342's ass
+	ChangeCamera(36,0,0);
+	Thing_Deactivate(9);
+	delay(35);
+	
+	// Continue upwards
+	ChangeCamera(14,0,0);
+	delay(145);
+	
+	// Move the camera a ton
+	ChangeCamera(2,0,0);
+	delay(23);
+	ChangeCamera(15,0,0);
+	delay(23);
+	ChangeCamera(16,0,0);
+	delay(23);
+	ChangeCamera(17,0,0);
+	delay(23);
+	ChangeCamera(18,0,0);
+	delay(23);
+	ChangeCamera(19,0,0);
+	delay(15);
+	ChangeCamera(20,0,0);
+	delay(15);
+	ChangeCamera(21,0,0);
+	delay(15);
+	ChangeCamera(23,0,0);
+	delay(15);
+	ChangeCamera(22,0,0);
+	delay(10);
+	ChangeCamera(17,0,0);
+	delay(10);
+	ChangeCamera(21,0,0);
+	delay(10);
+	ChangeCamera(2,0,0);
+	delay(10);
+	ChangeCamera(19,0,0);
+	delay(10);
+	ChangeCamera(22,0,0);
+	delay(10);
+	ChangeCamera(10,0,0);
+	delay(10);
+	Thing_Activate(24);
+	ChangeCamera(25,0,0);
+	
+	// Print BUU342
+	SetFont("BIGFONT");
+	hudmessage (s:"Game Master\n \n \n"; HUDMSG_TYPEON | HUDMSG_LOG, 20, CR_RED, 0.5, 0.5, 7.0);
+	delay(20);
+	hudmessage (s:"\n \n \n\cqB\csu\cdu\cq3\cs4\cd2\c-"; HUDMSG_TYPEON | HUDMSG_LOG, 19, CR_RED, 0.5, 0.5, 6.0);
+	delay(40);
+	
+	// Make Buu spin
+	for (i=1; i<=20; i++)
+	{
+		int angle = 270.0+FixedMul(18.0, i<<16);
+		if (angle > 360.0)
+			angle = angle+360.0;
+		SetActorAngle(5, FixedDiv(angle, 360.0));
+		delay(1);
+		if (i == 10)
+		{
+			SetActorState(5, "Dance");
+			LocalAmbientSound("DoomWare/BuuAwwYeah", 127);
+		}
+	}
+	SpawnSpotForced("StarSparkleEmitter", 5, 0, 0);
+	delay(60);
+	
+	// Player dialogue (Cool intro)
+	SetMusic("d_title2");
+	hudmessage (s:""; HUDMSG_TYPEON | HUDMSG_LOG, 19, CR_RED, 0.5, 0.9, 6.0);
+	SetFont("DW_FONT5");
+	ChangeCamera(34,0,0);
+	hudmessage (s:"That was a cool intro and all, but can you explain to me where I am?"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	SetActorState(5, "Spawn");
+	delay(160);
+
+	// Buu dialogue (foolish mortal)
+	SetFont("BIGFONT");
+	ChangeCamera(35,0,0);
+	hudmessage (s:"FOOLISH MORTAL! I AM THE WAD DEVELOPER AND YOU ARE A MERE PAWN FOR MY ENTERTAINMENT!"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_RED, 0.5, 0.9, 7.0);
+	delay(180);
+	
+	// Player dialogue (uhh sure)
+	SetFont("DW_FONT5");
+	ChangeCamera(34,0,0);
+	hudmessage (s:"Uhh, sure... Listen I gotta get back to..."; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	SetActorAngle(1, 0.125);
+	delay(20);
+	SetActorAngle(1, 0.25);
+	delay(15);
+	
+	// Buu dialogue (SILENCE)
+	SetFont("BIGFONT");
+	SetMusic("");
+	LocalAmbientSound("Doomware/Thunder",127);
+	ChangeCamera(35,0,0);
+	SetActorVelocity(5, 0, 0, 5.0, true, false);
+	hudmessage (s:"SILENCE!"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_RED, 0.5, 0.9, 7.0);
+	Light_ForceLightning(1);
+	delay(70);
+	
+	// Buu dialogue (Torture)
+	hudmessage (s:"YOUR SITUATION IS NO JOKE! YOU ARE GOING TO BE TORTURED FOR ALL ETERNITY!"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_RED, 0.5, 0.9, 7.0);
+	delay(180);
+	
+	// Player dialogue (Hell?)
+	SetFont("DW_FONT5");
+	ChangeCamera(34,0,0);
+	hudmessage (s:"So... I am in hell?"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(70);
+	
+	// Buu dialogue (kinda)
+	ChangeCamera(35,0,0);
+	hudmessage (s:"Kinda, things work a little differently around here."; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_RED, 0.5, 0.9, 7.0);
+	delay(140);
+	
+	// Player dialogue (How?)
+	ChangeCamera(34,0,0);
+	hudmessage (s:"How so?"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(70);
+	
+	// Buu dialogue (Players join)
+	ChangeCamera(35,0,0);
+	hudmessage (s:"Soon some players will join you, and you will be pitted against them in a number of games."; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_RED, 0.5, 0.9, 7.0);
+	delay(175);
+	
+	// Player dialogue (Fun!)
+	ChangeCamera(34,0,0);
+	hudmessage (s:"Oh! That sounds like fun!"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	SetActorVelocity(1, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(1, 0, 0, 4.0, true, false);
+	delay(95);
+
+	// Buu dialogue (HAHAHA)
+	SetFont("BIGFONT");
+	ChangeCamera(35,0,0);
+	hudmessage (s:"EXCEPT IT WILL BE FOR ALL ETERNITY AND YOU WILL BE MURDERED CONSTANTLY!"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_RED, 0.5, 0.9, 7.0);
+	//hudmessage (s:"\nHAHAHAHAHAHHAHAHAHAHA!!!!!11!!!1!!11one!"; HUDMSG_fadeout | HUDMSG_LOG, 12, CR_RED, 0.5, 0.9, 7.0);
+	
+	// Make Buu laugh
+	LocalAmbientSound("Doomware/Laugh",127);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(10);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(15);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(15);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(40);
+	SetActorVelocity(5, 0, 0, 4.0, true, false);
+	delay(20);
+	
+	// Player dialogue (What?)
+	SetFont("DW_FONT5");
+	ChangeCamera(34,0,0);
+	SetActorVelocity(1, 0, 0, 5.0, true, false);
+	hudmessage (s:"Wait what???"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(70);
+	
+	// Buu teleports away
+	SpawnSpotForced("TeleportFog",5,0,0);
+	thing_remove(5);
+	ChangeCamera(25,0,0);
+	
+	// Player dialogue (He left)
+	hudmessage (s:"aaaannnnd he left..."; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(105);
+	
+	// Zoom out
+	ChangeCamera(2,0,0);
+	hudmessage (s:""; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(35);
+	
+	// Look around again
+	SetActorAngle(1, 0.375);
+	delay(5);
+	SetActorAngle(1, 0.5);
+	delay(15);
+	SetActorAngle(1, 0.375);
+	delay(5);
+	SetActorAngle(1, 0.25);
+	delay(5);
+	SetActorAngle(1, 0.125);
+	delay(5);
+	SetActorAngle(1, 0.0);
+	delay(15);
+	SetActorAngle(1, 0.125);
+	delay(5);
+	SetActorAngle(1, 0.25);
+	delay(15);
+	
+	// Player dialogue (Now what?)
+	hudmessage (s:"Now what???"; HUDMSG_fadeout | HUDMSG_LOG, 20, CR_green, 0.5, 0.9, 7.0);
+	delay(105);
+	
+	// Titlecard and music change
+	SetFont("M_DOOMBG");
+	SetMusic("d_title2");
+	HudMessage(s:"A";	HUDMSG_FADEINOUT, 20, CR_BLUE, 0.5, 0.5, 1000000.0, 1.0,2.0);
+}

@@ -1,0 +1,54 @@
+pointlight ORANGELIGHT
+{
+    color 1.0 0.5 0.0
+    size 64
+    offset 0 0 0
+}
+
+pointlight ORANGEPOINT
+{
+    color 1.0 0.5 0.0
+    size 8
+    offset 0 0 0
+}
+
+pointlight BLUEPOINT
+{
+    color 0.0 0.0 1.0
+    size 8
+    offset 0 0 0
+}
+
+pointlight REDPOINT
+{
+    color 1.0 0.0 0.0
+    size 8
+    offset 0 0 0
+}
+
+object OrangeTorch
+{
+    frame TORG { light ORANGELIGHT }
+    frame TORGA { light ORANGELIGHT }
+    frame TORGB { light ORANGELIGHT }
+    frame TORGC { light ORANGELIGHT }
+    frame TORGD { light ORANGELIGHT }
+}
+
+object OrangePoint
+{
+    frame TNT1 { light ORANGEPOINT }
+    frame TNT1A { light ORANGEPOINT }
+}
+
+object BluePoint
+{
+    frame TNT1 { light BLUEPOINT }
+    frame TNT1A { light BLUEPOINT }
+}
+
+object RedPoint
+{
+    frame TNT1 { light REDPOINT }
+    frame TNT1A { light REDPOINT }
+}

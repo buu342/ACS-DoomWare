@@ -1,0 +1,26 @@
+weaponsection DW
+
+setslot 1 Fist Chainsaw BoxingGlove MaceWeapon SnowSpeederWeapon PushStaff
+setslot 2 pistol suicide clean Raygun NESZapper CoopPistol BowArrow
+setslot 3 Shotgun SuperShotgun SimpsonsShotgun CoopShotgun
+setslot 4 Chaingun Minigun CoopChaingun
+setslot 5 RocketLauncher GrenadeLauncher
+setslot 6 PlasmaRifle RailGun
+setslot 7 BFG9000 BFG10k
+
+addkeysection "DoomWare" DoomWare
+
+Alias +dwscores "puke 257"
+Alias -dwscores ""
+addmenukey "Toggle Scoreboard" +dwscores
+defaultbind P +dwscores
+
+Alias +dwobserve "puke 988"
+Alias -dwobserve ""
+addmenukey "Observe Minigame" +dwobserve
+defaultbind O +dwobserve
+
+Alias +dwmenu "puke 999"
+Alias -dwmenu ""
+addmenukey "Toggle Menu" +dwmenu
+defaultbind I +dwmenu

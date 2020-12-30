@@ -1,0 +1,31 @@
+warp flat wfwater1
+warp flat wflava1
+warp flat wfNuke1
+warp flat SONCWATR
+warp flat WFBlood1
+
+texture N_LFALL1
+pic 1 tics 8
+pic 2 tics 8
+pic 3 tics 8
+pic 4 tics 8
+
+texture WFALL1
+pic 1 tics 8
+pic 2 tics 8
+pic 3 tics 8
+pic 4 tics 8
+
+texture FAN1
+pic 1 tics 1
+pic 2 tics 1
+pic 3 tics 1
+pic 4 tics 1
+
+texture WALL57_1
+pic 1 tics 4
+pic 2 tics 4
+pic 3 tics 4
+
+switch SOTESCHN on pic SOTESCHY tics 0 
+switch SOTESCHY off pic SOTESCHN tics 0 	
