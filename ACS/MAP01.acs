@@ -278,15 +278,15 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.95C\n\
+Version Beta 1.95d\n\
 What's new in the Beta?\n\n\
-+ Added Wacky Modifiers\n\
-+ Gave Buu342 a skin\n\
-+ Made the arena walls bouncy\n\
-+ Added more server CVars\n\
-* Various miscellaneous minigame fixes and tweaks\n\
-* Replaced Wario heads with DoomGuy\n\
-* Replaced grenades target minigame\n\
++ Added more pokemon\n\
++ Added more dickfails\n\
+* Gave more time to submit numerical answers\n\
+* Fixed a bug with the archvile pillars\n\
+* Fixed minor lighting bug in car tunnel\n\
+* Fixed issue with boss fight networking\n\
+* Fixed inverted controls on some minigames\n\
 "
 
 // Menu Text
@@ -4797,7 +4797,8 @@ Script "DoomWare_Client_Minigame80" (void) // Survive (Pyoro)
 	Force_Observe(813);
 
 	// Invert the player's controls and make him unable to jump
-	SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
+	if (game_wackymod != WACKYMOD_INVERT)
+		SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
 	SetActorProperty(0 ,APROP_JumpZ, 0<<16);
 
     // Wait until the game's over
@@ -5001,7 +5002,8 @@ Script "DoomWare_Client_Minigame88" (void) // Choose a side
 	Force_Observe(898);
 
 	// Invert the player's controls and make him unable to jump
-	SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
+	if (game_wackymod != WACKYMOD_INVERT)
+		SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
 	SetActorProperty(0 ,APROP_JumpZ, 0<<16);
 
     // Wait until the game's over
@@ -5460,7 +5462,7 @@ Script "DoomWare_Server_Minigame4" (void) // Survive (archviles)
 	do
 	{
 		// Randomly drop a pillar if the game speed is high enough
-		if (game_speed > 2 && minigame_timer < SECOND*5 && dropped == 0)
+		if (game_speed > 2 && minigame_timer < SECOND*3 && dropped == 0)
 		{
 			dropped = random(1, 2);
 			if (dropped == 1)
@@ -6513,7 +6515,7 @@ Script "DoomWare_Server_Minigame38" (void) // Repeat the Pattern
 
     // Give time for the players to spit their answers
     minigame_canmove = true;
-    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*4);
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*5 + 15);
 
     do
     {
@@ -7203,7 +7205,7 @@ Script "DoomWare_Server_Minigame60" (void) // Count the Lost Souls
         thing_move(TID_PLAYER+i, 400+i, false);
 
     // Start a timer
-    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*3-(game_speed*7));
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*5+15-(game_speed*7));
 
     // Check if the user spat out the correct answer
     do

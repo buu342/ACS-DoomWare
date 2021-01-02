@@ -187,6 +187,10 @@
 #define TIMER_OFF       -1  // Not using the timer
 #define TIMER_EARLY     -2  // Timer ended early
 
+#define CHATSOUND_NONE 0
+#define CHATSOUND_MSG  1
+#define CHATSOUND_CON  2
+
 
 // Game changelog
 
@@ -251,6 +255,8 @@ int  game_status;                   // A number containing the status of the gam
 int  game_over;                     // The reason the game ended
 bool game_solo;                     // Is someone playing alone?
 int  game_alive;					// How many people are alive
+str  game_fakechat; 				// Fake chat log messages
+str  game_fakechatsound; 			// Fake chat log sound
 int  game_phase2health;				// The last phase 2 fight health check
 
 bool round_winifmid;                // Allow a player to win if he is in the midround array (like in games where you don't do anything to win)
@@ -269,8 +275,6 @@ bool minigame_canobserve;               // Can this minigame be observed?
 bool minigame_fragpoints;               // Can you get points for frags?
 bool minigame_duringphase;
 str  minigame_instruction1[MAXPLAYERS]; // Center text during minigame
-str  minigame_instruction2[MAXPLAYERS]; // Center text below center text during minigame
-str  minigame_instruction3[MAXPLAYERS]; // Center text below center text below center text during minigame
 
 int data_points[MAXPLAYERS];    // List of points each player has received in total
 int data_wins[MAXPLAYERS];      // List of wins each player has achieved in total
@@ -293,6 +297,8 @@ script "DoomWare_Server_Boot" OPEN
     game_status = STATUS_NOTSTARTED;
     game_solo = false;
 	game_phase2health = 0;
+	game_fakechat = "";
+	game_fakechatsound = CHATSOUND_NONE;
 
     // Create a "thread" that continually updates the hats and handles the database
     ACS_NamedExecute("DoomWare_Server_Hats", 0);
@@ -320,18 +326,19 @@ script "DoomWare_Server_Boot" OPEN
 	// If he isn't, connect him to the game
 	if (!buuingame)
 	{
-		AmbientSound("zandronum/connect", 127);
-		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\c- has connected. (from: pt)");
+		game_fakechatsound = CHATSOUND_CON;
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- has connected. (from: pt)";
 		Delay(SECOND*2);
 	}
 	
 	// Make buu342 say something edgy
-	AmbientSound("misc/chat", 127);
-	Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: I hope you've made your prayers");
+	game_fakechatsound = CHATSOUND_MSG;
+	game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: I hope you've made your prayers";
 	delay(SECOND);
 	
 	// Make buu342 join the game
-	Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\c- joined the game.");
+	game_fakechatsound = CHATSOUND_NONE;
+	game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the game.";
 	SpawnSpotForced("Buu342Phase1", 1, TID_BUU342, 192);
 	SpawnSpotForced("TeleportFog", 1, 0, 0.25);
 	Thing_Deactivate(TID_BUU342);
@@ -514,8 +521,6 @@ Script "DoomWare_Client_Initialize" (void)
     player_achievement[PlayerNumber()] = "";
     player_wonround[PlayerNumber()] = false;
     minigame_instruction1[PlayerNumber()] = "";
-    minigame_instruction2[PlayerNumber()] = "";
-    minigame_instruction3[PlayerNumber()] = "";
     player_viewsprite[PlayerNumber()] = "";
 	player_midround[PlayerNumber()] = true;
 	player_lostround[PlayerNumber()] = false;
@@ -572,11 +577,11 @@ Script "DoomWare_Server_GameLogic" (void)
 		delay(SECOND*3);
 		
 		// Make buu342 say some more edgy things
-		AmbientSound("misc/chat", 127);
-		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you really think it'd be that easy?");
+		game_fakechatsound = CHATSOUND_MSG;
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you really think it'd be that easy?";
 		delay(SECOND*3);
-		AmbientSound("misc/chat", 127);
-		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: This is just the beginning.");
+		game_fakechatsound = CHATSOUND_MSG;
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: This is just the beginning.";
 		delay(SECOND*3);
 		
 		// Start the floor shake
@@ -629,16 +634,17 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: you FOOLS! This is MY WAD, MY GAMEMODE.");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: you FOOLS! This is MY WAD, MY GAMEMODE.";
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: I'M THE ONE IN CONTROL HERE. WATCH!");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'M THE ONE IN CONTROL HERE. WATCH!";
 					delay(SECOND*3);
-					Log(s:"The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"");
+					game_fakechatsound = CHATSOUND_NONE;
+					game_fakechat = "The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"";
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Lets see how good you are at DoomWare!");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Lets see how good you are at DoomWare!";
 					delay(SECOND*3);
 				}
 				break;
@@ -649,8 +655,8 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: You're a persistent bunch. Lets try this then.");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're a persistent bunch. Lets try this then.";
 					delay(SECOND*3);
 				}
 				break;
@@ -661,8 +667,8 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Gosh, you're annoying. How about this?");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Gosh, you're annoying. How about this?";
 					delay(SECOND*3);
 				}
 				break;
@@ -673,8 +679,8 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Why won't you die already!?");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Why won't you die already!?";
 					delay(SECOND*3);
 				}
 				break;
@@ -685,8 +691,8 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: fuckfuckfuckfuck!!!!!");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: fuckfuckfuckfuck!!!!!";
 					delay(SECOND*3);
 				}
 				break;
@@ -699,20 +705,20 @@ Script "DoomWare_Server_GameLogic" (void)
 					game_status = STATUS_PHASE2OVER;
 					SetMusic("D_WRAPDR");
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: I");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: I";
 					delay(SECOND);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: WONT");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: WONT";
 					delay(SECOND);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: FUCKING");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: FUCKING";
 					delay(SECOND);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: LOSE!!!!!!!!!!!!!!!");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: LOSE!!!!!!!!!!!!!!!";
 					delay(SECOND*3);
-					AmbientSound("misc/chat", 127);
-					Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!");
+					game_fakechatsound = CHATSOUND_MSG;
+					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!";
 					delay(SECOND*3);
 					round_nextgame = random(SECOND*8, SECOND*12);
 				}
@@ -769,10 +775,12 @@ Script "DoomWare_Server_GameLogic" (void)
 		
 		// Say the last words
 		AmbientSound("misc/chat", 127);
-		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Heh, looks like you really are...");
+		game_fakechatsound = CHATSOUND_MSG;
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Heh, looks like you really are...";
 		Delay(SECOND*2);
 		AmbientSound("misc/chat", 127);
-		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: Too strong...");
+		game_fakechatsound = CHATSOUND_MSG;
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Too strong...";
 		Delay(SECOND*2);
 		Radius_Quake(3, SECOND*7, 0, 255, 1);
 		
@@ -795,10 +803,11 @@ Script "DoomWare_Server_GameLogic" (void)
 		}
 		
 		// If he isn't, disconnect him from the game
+		game_fakechatsound = CHATSOUND_NONE;
 		if (!buuingame)
-			Log(s:"Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.");
+			game_fakechat = "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.";
 		else
-			Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.");
+			game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.";
 		thing_remove(TID_BUU3422);
 		Delay(SECOND*3);
 		
@@ -835,8 +844,8 @@ Script "DoomWare_Server_GameLogic" (void)
 		delay(15);
 		SetActorState(TID_BUU3422, "Laugh", true);
 		delay(SECOND*3);
-		AmbientSound("misc/chat", 127);
-		Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you think you stood a chance");
+		game_fakechatsound = CHATSOUND_MSG;
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you think you stood a chance";
 		delay(SECOND*2);
 		
 		// Check if buu342 is ingame
@@ -848,10 +857,11 @@ Script "DoomWare_Server_GameLogic" (void)
 		}
 		
 		// If he isn't, disconnect him from the game
+		game_fakechatsound = CHATSOUND_NONE;
 		if (!buuingame)
-			Log(s:"Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.");
+			game_fakechat = "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.";
 		else
-			Log(s:"\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.");
+			game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.";
 		thing_remove(TID_BUU342);
 		thing_remove(TID_BUU3422);
 		delay(SECOND*2);
@@ -1150,8 +1160,6 @@ Script "DoomWare_Server_InitGlobals" (void)
         player_lostround[i] = 0;
         player_viewingmenu[i] = 0;
         minigame_instruction1[i] = "";
-        minigame_instruction2[i] = "";
-        minigame_instruction3[i] = "";
         player_viewsprite[i] = "";
         player_wonround[i] = false;
         player_midround[i] = false;
@@ -1205,6 +1213,12 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Player_SetCVar("__clientsync_canobserve", minigame_canobserve);
     Player_SetCVar("__clientsync_gamesolo", game_solo);
     Player_SetCVar("__clientsync_roundcurrent", game_alive);
+    Player_SetCVarString("__clientsync_highname", game_fakechat);
+	if (ClassifyActor(TID_BUU342)&ACTOR_ALIVE)
+		Player_SetCVar("__clientsync_highscore1", GetActorProperty(TID_BUU342, APROP_HEALTH));
+	else
+		Player_SetCVar("__clientsync_highscore1", GetActorProperty(TID_BUU3422, APROP_HEALTH));
+	Player_SetCVar("__clientsync_highscore2", game_fakechatsound);
 
     Pack_Global_Array("__clientsync_player_score");
     Pack_Global_Array("__clientsync_player_loggedin");
@@ -1265,8 +1279,6 @@ function void Pack_Global_Array(str cvar) // Replacement for Get/SetUserCVar
     else if (!StrCmp(cvar, "__clientsync_player_lostround"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_lostround[i], s:"\n");
     else if (!StrCmp(cvar, "__clientsync_player_viewingmenu"))  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_viewingmenu[i], s:"\n");
     else if (!StrCmp(cvar, "__clientsync_player_instruction1")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction1[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_instruction2")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction2[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_instruction3")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction3[i], s:"\n");
     else if (!StrCmp(cvar, "__clientsync_player_viewsprite"))   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:player_viewsprite[i], s:"\n");
 
     if (GetCVarString(cvar) != final)
@@ -1373,6 +1385,13 @@ Script "DoomWare_Client_Disconnect" (int gone) DISCONNECT
     data_achieve[gone] = 0;
 	player_midround[gone] = false;
 	player_lostround[gone] = true;
+	
+	// Zandronum kills clientside scripts on spectation, so execute it again...
+	if (PlayerIsSpectator(gone))
+	{
+		ACS_NamedTerminate("DoomWare_Client_DrawHUD", 0);
+		ACS_NamedExecuteAlways("DoomWare_Client_DrawHUD", 0);
+	}
 }
 
 Script "DoomWare_Client_Respawn" RESPAWN
@@ -1405,14 +1424,34 @@ Script "DoomWare_Client_GameLogic" (void)
 	// Give weapons at the start of Phase 1 to 3
 	if (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2 || game_status == STATUS_PHASE3)
 	{
+		int wep = random(1, 2);
+		
+		// If someone is by themselves, give them stronger weapons
+		if (game_alive == 1)
+		{
+			GiveInventory("CoopShotgunDD", 1);
+			GiveInventory("CoopChaingunDD", 1);
+			if (wep == 1)
+				SetWeapon("CoopShotgunDD");
+			else
+				SetWeapon("CoopChaingunDD");
+		}
+		else
+		{
+			GiveInventory("CoopShotgun", 1);
+			GiveInventory("CoopChaingun", 1);
+			if (wep == 1)
+				SetWeapon("CoopShotgun");
+			else
+				SetWeapon("CoopChaingun");
+		}
+		
+		// Give them more stuff and reset their health
 		GiveInventory("CoopPistol", 1);
-		GiveInventory("CoopShotgun", 1);
-		GiveInventory("CoopChaingun", 1);
 		GiveInventory("Backpack", 1);
 		GiveInventory("Clip", 400);
 		GiveInventory("Shell", 100);
 		SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Health, 100);
-		SetWeapon("CoopShotgun");
 	}
 	
 	// Phase 1 to 3
@@ -1434,8 +1473,6 @@ Script "DoomWare_Client_GameLogic" (void)
 	
     // Clear out the minigame instructions
     minigame_instruction1[PlayerNumber()] = "";
-    minigame_instruction2[PlayerNumber()] = "";
-    minigame_instruction3[PlayerNumber()] = "";
 
     delay(1);
     if (PlayerInGame(PlayerNumber()) && !PlayerIsSpectator(PlayerNumber())) // Unless the player disconnected
@@ -1916,7 +1953,8 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
         terminate;
 
     int plynum = ConsolePlayerNumber();
-    SetActivator(TID_PLAYER+plynum);
+	if (!PlayerIsSpectator(plynum))
+		SetActivator(TID_PLAYER+plynum);
 
     // Open the menu if this is the player's first time joining
     if (GetUserCVar(plynum, "__doomware_firstjoin") == true)
@@ -1937,6 +1975,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
     w = w << 16;
     h = h << 16;
 
+	str lastchat = "";
     bool remind_login = true;
     int hud_toppos  = 0.0;
     int hud_botpos  = h+64.0;
@@ -1963,25 +2002,43 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
         // Obtain the value of all global variables
         int syncdata_gamestatus = GetCvar("__clientsync_gamestatus");
         int syncdata_gameover = GetCvar("__clientsync_gameover");
-        int syncdata_highscore1 = GetCvar("__clientsync_highscore1");
-        int syncdata_highscore2 = GetCvar("__clientsync_highscore2");
         int syncdata_wincondition1 = GetCvar("__clientsync_wincondition1");
-        str syncdata_highname = GetCVarString("__clientsync_highname");
         str syncdata_insctruction1 = Unpack_CVar_Array_String("__clientsync_player_instruction1");
-        str syncdata_insctruction2 = Unpack_CVar_Array_String("__clientsync_player_instruction2");
-        str syncdata_insctruction3 = Unpack_CVar_Array_String("__clientsync_player_instruction3");
         str syncdata_hint = GetCVarString("__clientsync_speeduphint");
         str syncdata_gamesolo = GetCvar("__clientsync_gamesolo");
         str syncdata_roundnum = GetCvar("__clientsync_round");
         str syncdata_canobserve = GetCvar("__clientsync_canobserve");
         str syncdata_timer = GetCvar("__clientsync_minigametimer");
         str syncdata_alive = GetCvar("__clientsync_roundcurrent");
-
-        int syncdata_score = Unpack_CVar_Array("__clientsync_player_score");
-        str syncdata_checklost = Unpack_CVar_Array("__clientsync_player_checklost");
         str syncdata_lostround = Unpack_CVar_Array("__clientsync_player_lostround");
         str syncdata_loggedin = Unpack_CVar_Array("__clientsync_player_loggedin");
-        str syncdata_viewsprite = Unpack_CVar_Array_String("__clientsync_player_viewsprite");
+		
+		// Boss fight stuff
+        int syncdata_buuhealth = GetCvar("__clientsync_highscore1");
+        str syncdata_buuchat = GetCVarString("__clientsync_highname");
+        str syncdata_buuchatsound = GetCVar("__clientsync_highscore2");
+
+
+		/*==============================
+                   Fake Chat
+        ==============================*/
+
+		if (syncdata_buuchat != lastchat)
+		{
+			switch(syncdata_buuchatsound)
+			{
+				case CHATSOUND_MSG:
+					AmbientSound("misc/chat", 127);
+					break;
+				case CHATSOUND_CON:
+					AmbientSound("zandronum/connect", 127);
+					break;
+				case CHATSOUND_NONE:
+					break;
+			}
+			Log(s:syncdata_buuchat);
+			lastchat = syncdata_buuchat;
+		}
 
 
         /*==============================
@@ -2044,14 +2101,10 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
         else if (syncdata_gamestatus == STATUS_MINIGAME || (syncdata_gamestatus >= STATUS_PHASE1 && syncdata_gamestatus <= STATUS_PHASE3) )
         {
             HUDMessage(s:syncdata_insctruction1; HUDMSG_PLAIN, MSGID_CENTER, CR_ORANGE, w/2, FixedMul(h, 0.25), 1);
-            HUDMessage(s:"\n\n", s:syncdata_insctruction2; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
-            HUDMessage(s:"\n\n\n\n", s:syncdata_insctruction3; HUDMSG_PLAIN, MSGID_CENTER3, CR_RED, w/2, FixedMul(h, 0.25), 1);
         }
         else
         {
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER, CR_BLACK, 0, 0, 1);
-            HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER2, CR_BLACK, 0, 0, 1);
-            HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER3, CR_BLACK, 0, 0, 1);
         }
 
 
@@ -2066,12 +2119,12 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
 		if (syncdata_gamestatus == STATUS_PHASE1 && ThingCount(0, TID_BUU342) > 0)
 		{
 			SetFont("DW_FONT1");
-			HUDMessage(d:GetActorProperty(TID_BUU342, APROP_HEALTH); HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
+			HUDMessage(d:syncdata_buuhealth; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
 		}
 		else if (syncdata_gamestatus >= STATUS_PHASE2 && ThingCount(0, TID_BUU3422) > 0)
 		{
 			SetFont("DW_FONT1");
-			HUDMessage(d:GetActorProperty(TID_BUU3422, APROP_HEALTH); HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
+			HUDMessage(d:syncdata_buuhealth; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
 		}
 		else
 			HUDMessage(s:""; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
@@ -2191,7 +2244,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
 
         lasttimertime = syncdata_timer;
 
-        if (PlayerInGame(plynum))
+        if (PlayerInGame(plynum) || PlayerIsSpectator(plynum))
             delay(1);
         else
             break;
