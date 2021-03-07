@@ -1,11 +1,11 @@
 weaponsection DW
 
-setslot 1 Fist Chainsaw BoxingGlove MaceWeapon SnowSpeederWeapon PushStaff
+setslot 1 Fist Chainsaw BoxingGlove MaceWeapon SnowSpeederWeapon PushStaff 
 setslot 2 pistol suicide clean Raygun NESZapper CoopPistol BowArrow
 setslot 3 Shotgun SuperShotgun SimpsonsShotgun CoopShotgun
 setslot 4 Chaingun Minigun CoopChaingun
-setslot 5 RocketLauncher GrenadeLauncher
-setslot 6 PlasmaRifle RailGun
+setslot 5 RocketLauncher GrenadeLauncher BBallLauncher
+setslot 6 PlasmaRifle RailGun 
 setslot 7 BFG9000 BFG10k
 
 addkeysection "DoomWare" DoomWare

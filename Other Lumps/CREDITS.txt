@@ -1,4 +1,4 @@
-==================================
+﻿==================================
              Credits
 ==================================
 
@@ -111,7 +111,7 @@ Muisc - Congo Jungle Theme - Super Smash Bros 64
 Music - E3M2 (Donna To The Rescue) - Doom
 Weapon Sprites and Code - Skulltag
 
-**Kamikazi**
+**Survive (Kamikazi)**
 Sprites - Capitain Toenail
 Sound - Trouble In Terrorist Town (Unsure of the source)
 Music - Primary Colored Suicide Bombing Love Song - Ishii Yasushi

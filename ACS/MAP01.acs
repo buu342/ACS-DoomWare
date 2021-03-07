@@ -278,15 +278,14 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.95d\n\
+Version Beta 1.95E\n\
 What's new in the Beta?\n\n\
-+ Added more pokemon\n\
-+ Added more dickfails\n\
-* Gave more time to submit numerical answers\n\
-* Fixed a bug with the archvile pillars\n\
-* Fixed minor lighting bug in car tunnel\n\
-* Fixed issue with boss fight networking\n\
-* Fixed inverted controls on some minigames\n\
++Added Unsafe database option\n\
+*Optimized server and client code\n\
+*Fixed arena walls blocking projectiles\n\
+*Miscellaneous minigame rebalancing and fixes\n\
+*Boss fight balance changes and fixes\n\
+*Beta tester hats should work now\n\
 "
 
 // Menu Text
@@ -521,7 +520,7 @@ Script "DoomWare_Server_InitMap" (void)
 	
 	Ceiling_Waggle(109, 32, 64, 0, 0);
 	Floor_Waggle(133, 32, 64, 0, 0);
-	Floor_Waggle(254, 256, 16, 0, 0);
+	Floor_Waggle(254, 256, 24, 0, 0);
 
 	Scroll_Floor(3, 300, 2, 240);
 	Scroll_Ceiling(3, 300, 2, 90);
@@ -646,7 +645,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[29] = "Spoiler, after round 25 the game says 'Game Over'.";
 	temp_hint[30] = "Griffith did nothing wrong.";
 	temp_hint[31] = "When the game speeds up it both gets faster and harder.";
-	temp_hint[32] = "Wanna help me out with making this WAD? Get in touch!";
+	temp_hint[32] = "Wanna make suggestions for new minigames? Get in touch, or open an issue on GitHub!";
 	temp_hint[33] = "Coming Soon: Complex DoomWare vs Ghouls vs Megaman vs Unholy bosses - Push + Jumpmaze edition.";
 	temp_hint[34] = "This WAD encourages and rewards suicide, sometimes.";
 	temp_hint[35] = "This WAD contains memes older than the average internet user.";
@@ -671,7 +670,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[54] = "Please stop asking me for feet pics, Jennifer.";
 	temp_hint[55] = "This WAD may be sold to Korean gangsters.";
 	temp_hint[56] = "Doom 3 is fun.";
-	temp_hint[57] = "Did I ever tell you the definition of Insanity?";
+	temp_hint[57] = "Still trying to figure out why the Major was a cyborg.";
 	temp_hint[58] = "I finished Super Sonic Doom with a score of 2,282,450.";
 	temp_hint[59] = "I beat Dark Souls 1 and 2.";
 	temp_hint[60] = "Keikaku means plan.";
@@ -823,7 +822,7 @@ Script "DoomWare_Client_Initialize" (void)
 
 
     // Check the player's role or warn if they're not logged in
-    if (playerIsLoggedIn(PlayerNumber()))
+    if (!GetCVar("doomware_unsafedb") && playerIsLoggedIn(PlayerNumber()))
         Load_PlayerDB(PlayerNumber());
     else
         data_role[PlayerNumber()] = ROLE_UNLOGGED;
@@ -918,9 +917,8 @@ Script "DoomWare_Server_GameLogic" (void)
             game_status = STATUS_GAMEOVER;
             HUDMessage(s:"Game Over"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
 			str printscore = "Final score tally:";
-			for (i=0; i<MAXPLAYERS; i++)
-				if (PlayerInGame(i))
-					printscore = StrParam(s:printscore, s:"\n", d:game_highscores[i], s:" - ", n:game_highnames[i]+1);
+			for (i=0; i<PlayerCount(); i++)
+				printscore = StrParam(s:printscore, s:"\n", d:game_highscores[i], s:" - ", n:game_highnames[i]+1);
 			HUDMessage(s:printscore; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
 
 			delay(MUSICDUR_GAMEOVER);
@@ -1320,34 +1318,40 @@ Script "DoomWare_Server_UpdateDB" (void)
 
     // Check for people who have played too much DoomWare
     for (i=0; i<MAXPLAYERS; i++)
-        if (playerIsLoggedIn(i) && playerInGame(i) && data_role[i] == ROLE_NONE)
-            if (GetDBEntry("Points", getPlayerAccountName(i)) + game_score[i] >= 200)
+        if ((GetCVar("doomware_unsafedb") || playerIsLoggedIn(i)) && playerInGame(i) && data_role[i] == ROLE_NONE)
+            if ((GetCVar("doomware_unsafedb") && GetDBEntry("Points", StrParam(n:i+1) + game_score[i] >= 200)) || GetDBEntry("Points", getPlayerAccountName(i)) + game_score[i] >= 200)
                 data_role[i] = ROLE_REGULAR;
 
     // Begin the Database Transaction
     BeginDBTransaction();
 
     for (i=0; i<MAXPLAYERS; i++)
-        if (playerIsLoggedIn(i) && playerInGame(i))
+	{
+        if ((PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")) && playerInGame(i))
         {
+			str plyname = getPlayerAccountName(i);
+			if (GetCVar("doomware_unsafedb"))
+				plyname = StrParam(n:i+1);
+			
             // Log the wins
-            SetDBEntry("Wins", getPlayerAccountName(i), data_wins[i]);
+            SetDBEntry("Wins", plyname, data_wins[i]);
 
             // Log the total points
-            incrementDBEntry("Points", getPlayerAccountName(i), game_score[i]);
+            incrementDBEntry("Points", plyname, game_score[i]);
 
             // Log the number of deaths
-            SetDBEntry("Deaths", getPlayerAccountName(i), data_deaths[i]);
+            SetDBEntry("Deaths", plyname, data_deaths[i]);
 
             // Log the number of 1ups caught
-            SetDBEntry("1Ups", getPlayerAccountName(i), data_1ups[i]);
+            SetDBEntry("1Ups", plyname, data_1ups[i]);
 
             // Log the achievements
-            SetDBEntry("Achievements", getPlayerAccountName(i), data_achieve[i]);
+            SetDBEntry("Achievements", plyname, data_achieve[i]);
 
             // Log the player's roles
-            SetDBEntry("Role", getPlayerAccountName(i), data_role[i]);
+            SetDBEntry("Role", plyname, data_role[i]);
         }
+	}
 
     // Update the Database
     EndDBTransaction();
@@ -1460,43 +1464,51 @@ function void Player_SetCVar(str cvar, int value) // Efficient SetCVar function
 
 function void Player_SetCVarString(str cvar, str value) // Efficient SetCVarString function
 {
-    if (GetCVarString(cvar) != value)
+    if (StrCmp(GetCVarString(cvar), value))
         SetCVarString(cvar, value);
 }
 
 function void Player_SetCVarStringPacked(str cvar, str value) // Efficient SetCVarString function
 {
-    if (GetCVarString(cvar) != value)
+    if (StrCmp(GetCVarString(cvar), value))
         SetCVarString(cvar, value);
 }
 
 function void Pack_Global_Array(str cvar) // Replacement for Get/SetUserCVar
 {
     /*
-        Since GetUserCVar is broken on Zandornum, instead I fill everyone's data into a single
+        Since GetUserCVar is broken on Zandronum, instead I fill everyone's data into a single
         string and make it a server cvar. A new line represents a different player, so the data
         in line 3 of the string corresponds to the data of PlayerNumber() == 3
     */
     int i;
     str final = "";
+	
+	/* 
+		Super ugly hack!
+		Strings in ACS are pretty much just integers that point to a string table. This means that
+		You can do string comparisons in a switch statement! Literally O(1) string comparisons!
+	*/
+	switch (cvar)
+	{
+		case "__clientsync_player_score":        for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:game_score[i], s:"\n"); break;
+		case "__clientsync_player_loggedin":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:(PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")), s:"\n"); break;
+		case "__clientsync_player_datascore":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_points[i], s:"\n"); break;
+		case "__clientsync_player_datawins":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_wins[i], s:"\n"); break;
+		case "__clientsync_player_datadeaths":   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_deaths[i], s:"\n"); break;
+		case "__clientsync_player_data1ups":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_1ups[i], s:"\n"); break;
+		case "__clientsync_player_dataroles":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_role[i], s:"\n"); break;
+		case "__clientsync_player_dataachieve":  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_achieve[i], s:"\n"); break;
+		case "__clientsync_player_checklost":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:Check_Player_Lost(i), s:"\n"); break;
+		case "__clientsync_player_lostround":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_lostround[i], s:"\n"); break;
+		case "__clientsync_player_viewingmenu":  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_viewingmenu[i], s:"\n"); break;
+		case "__clientsync_player_instruction1": for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction1[i], s:"\n"); break;
+		case "__clientsync_player_instruction2": for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction2[i], s:"\n"); break;
+		case "__clientsync_player_instruction3": for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction3[i], s:"\n"); break;
+		case "__clientsync_player_viewsprite":   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:player_viewsprite[i], s:"\n"); break;
+	}
 
-         if (!StrCmp(cvar, "__clientsync_player_score"))        for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:game_score[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_loggedin"))     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:PlayerIsLoggedIn(i), s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_datascore"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_points[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_datawins"))     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_wins[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_datadeaths"))   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_deaths[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_data1ups"))     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_1ups[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_dataroles"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_role[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_dataachieve"))  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_achieve[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_checklost"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:Check_Player_Lost(i), s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_lostround"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_lostround[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_viewingmenu"))  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_viewingmenu[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_instruction1")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction1[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_instruction2")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction2[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_instruction3")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction3[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_viewsprite"))   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:player_viewsprite[i], s:"\n");
-
-    if (GetCVarString(cvar) != final)
+    if (StrCmp(GetCVarString(cvar), final))
         SetCVarString(cvar, final);
 }
 
@@ -2417,6 +2429,10 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
             hudmessage(s:"";HUDMSG_PLAIN, MSGID_STBAR, cR_ORANGE, 0.5, 0.5, 1);
             hudmessage(s:"";HUDMSG_PLAIN, MSGID_STFACE, cR_ORANGE, 0.5, 0.5, 1);
         }
+		
+		// Rope tug line texture
+		if (syncdata_gamestatus == STATUS_TIEBREAK)
+			Line_SetTextureOffset(27, 3.0*syncdata_wincondition1, NO_CHANGE, SIDE_FRONT, 10);
 
         // View sprite
         if (StrCmp(syncdata_viewsprite, "") != 0)
@@ -2952,7 +2968,7 @@ function void Handle_Menu_Achievement(int achieve_data, int number, str name, st
 
 function void Give_Achievement(int plynum, int achievement)
 {
-    if (PlayerIsLoggedIn(plynum) && game_status != STATUS_NOTSTARTED && !game_solo && (data_achieve[plynum] & (1<<achievement)) == 0)
+    if ((PlayerIsLoggedIn(plynum) || GetCVar("doomware_unsafedb")) && game_status != STATUS_NOTSTARTED && !game_solo && (data_achieve[plynum] & (1<<achievement)) == 0)
     {
         data_achieve[plynum] = data_achieve[plynum] | (1<<achievement);
         switch(achievement)
@@ -3009,14 +3025,19 @@ function void Give_Achievement(int plynum, int achievement)
                                             Hats
 ===================================================================================================*/
 
-#define BETATESTERSIZE 4
+#define BETATESTERSIZE 9
 str BetaTesterList[BETATESTERSIZE];
 function bool IsBetaTester(int plynum)
 {
-    BetaTesterList[0] = "[I] Asriel";
-    BetaTesterList[1] = "Marcaek";
-    BetaTesterList[2] = "Doomer9000";
-    BetaTesterList[3] = "DeanYktRu";
+    BetaTesterList[0] = "asriel";
+    BetaTesterList[1] = "margsabl";
+    BetaTesterList[2] = "marcaek";
+    BetaTesterList[3] = "doomer9000";
+    BetaTesterList[4] = "deanyktru";
+    BetaTesterList[5] = "dsparil";
+    BetaTesterList[6] = "flambeau";
+    BetaTesterList[7] = "dastan";
+    BetaTesterList[8] = "combinebobnt";
 
     for (int i=0; i<BETATESTERSIZE; i++)
         if (!StrCmp(BetaTesterList[i], GetPlayerAccountName(i)))
@@ -3071,7 +3092,7 @@ Script "DoomWare_Server_Hats" (void)
             Thing_Remove(TID_HATROLE+i);
 
         // Check if the player logged in recently
-        if (data_role[i] == ROLE_UNLOGGED && PlayerIsLoggedIn(i))
+        if (data_role[i] == ROLE_UNLOGGED && (PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")))
             Load_PlayerDB(i);
 
         // Give Buu342 his role if he doesn't have one
@@ -3164,7 +3185,10 @@ Script "DoomWare_Client_Minigame4" (void) // Survive (Archviles)
 
 Script "DoomWare_Client_Minigame5" (void) // Stop Moving
 {
-    minigame_instruction1[PlayerNumber()] = "Stop Moving";
+	if (game_speed != 4)
+		minigame_instruction1[PlayerNumber()] = "Stop Moving";
+	else
+		minigame_instruction1[PlayerNumber()] = "Don't Not Stop Moving";
 
     // Wait until the minigame is over
     while (game_status == STATUS_MINIGAME)
@@ -3173,7 +3197,10 @@ Script "DoomWare_Client_Minigame5" (void) // Stop Moving
 
 Script "DoomWare_Client_Minigame6" (void) // Don't Stop Moving
 {
-    minigame_instruction1[PlayerNumber()] = "Don't Stop Moving";
+	if (game_speed != 4)
+		minigame_instruction1[PlayerNumber()] = "Don't Stop Moving";
+	else
+		minigame_instruction1[PlayerNumber()] = "Don't Not Keep Moving";
 
     // Wait until the minigame is over
     while (game_status == STATUS_MINIGAME)
@@ -3275,11 +3302,11 @@ Script "DoomWare_Client_Minigame13" (void) // Enter the door
     if (minigame_wincondition1 == 0)
         minigame_instruction1[PlayerNumber()] = "Enter the No Key Door";
     else if (minigame_wincondition1 == 1)
-        minigame_instruction1[PlayerNumber()] = "Enter the Blue Key Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \chBlue Key\cl Door";
     else if (minigame_wincondition1 == 2)
-        minigame_instruction1[PlayerNumber()] = "Enter the Red Key Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \cgRed Key\cl Door";
     else if (minigame_wincondition1 == 3)
-        minigame_instruction1[PlayerNumber()] = "Enter the Yellow Key Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \ckYellow Key\cl Door";
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -4131,7 +4158,7 @@ Script "DoomWare_Client_Minigame52" (void) // The Air is Lava
     // Wait until the minigame is over
     while (game_status == STATUS_MINIGAME)
     {
-        if (minigame_wincondition1 == 1 && GetActorZ(0) > -54.0 && !player_lostround[PlayerNumber()])
+        if (minigame_wincondition1 == 1 && GetActorZ(0) > -44.0 && !player_lostround[PlayerNumber()])
 			Thing_damage(0, 10000, MOD_LAVA);
         delay(1);
     }
@@ -4412,7 +4439,7 @@ Script "DoomWare_Client_Minigame65" (void) // Spam the Indicated Button
         switch (minigame_wincondition2)
         {
             case 0:
-                minigame_instruction1[PlayerNumber()] = "Spam Shoot";
+                minigame_instruction1[PlayerNumber()] = "Spam \cdShoot";
                 if( (curinput & BT_ATTACK) && !(oldinput & BT_ATTACK) )
                     player_answer1[PlayerNumber()]++;
                 else if (((curinput & BT_JUMP) && !(oldinput & BT_JUMP)) || ((curinput & BT_USE) && !(oldinput & BT_USE)))
@@ -4423,7 +4450,7 @@ Script "DoomWare_Client_Minigame65" (void) // Spam the Indicated Button
 							errbuff--;
                 break;
             case 1:
-                minigame_instruction1[PlayerNumber()] = "Spam Use";
+                minigame_instruction1[PlayerNumber()] = "Spam \cgUse";
                 if( (curinput & BT_USE) && !(GetPlayerInput(-1, INPUT_OLDBUTTONS) & BT_USE) )
                     player_answer1[PlayerNumber()]++;
                 else if (((curinput & BT_JUMP) && !(oldinput & BT_JUMP)) || ((curinput & BT_ATTACK) && !(oldinput & BT_ATTACK)))
@@ -4434,7 +4461,7 @@ Script "DoomWare_Client_Minigame65" (void) // Spam the Indicated Button
 							errbuff--;
                 break;
             case 2:
-                minigame_instruction1[PlayerNumber()] = "Spam Jump";
+                minigame_instruction1[PlayerNumber()] = "Spam \chJump";
                 if( (curinput & BT_JUMP) && !(oldinput & BT_JUMP) )
                 {
                     ThrustThingZ(0, 20, 0, 0);
@@ -4537,15 +4564,30 @@ Script "DoomWare_Client_Minigame70" (void) // Eat
     // Check if the right food has been consumed
     while (game_status == STATUS_MINIGAME)
     {
-        if ((CheckInventory("Food_EggRoll") > 0) || (CheckInventory("Food_SalmonRoll1") > 0) ||
+		int food_count = CheckInventory("Food_EggRoll")+CheckInventory("Food_SalmonRoll1")+CheckInventory("Food_SalmonRoll2")+CheckInventory("Food_Shrimp")+CheckInventory("Food_Toro")+CheckInventory("Food_Tea")+CheckInventory("Food_Sushi1")+CheckInventory("Food_Sushi2");
+        
+		// Win if the player ate the correct item
+		if ((CheckInventory("Food_EggRoll") > 0) || (CheckInventory("Food_SalmonRoll1") > 0) ||
              (CheckInventory("Food_SalmonRoll2") > 0) || (CheckInventory("Food_Shrimp") > 0) ||
              (CheckInventory("Food_Toro") > 0) || (CheckInventory("Food_Tea") > 0 && minigame_wincondition1 == 0 ) ||
             (CheckInventory("Food_Sushi1") > 0 && minigame_wincondition1 == 1) || (CheckInventory("Food_Sushi2") > 0 && minigame_wincondition1 == 1))
             Player_Win(PlayerNumber());
 
+		// Lose if the player ate the wrong item (Even if they won already)
         if ((CheckInventory("Food_Tea") > 0 && minigame_wincondition1 == 1 ) ||
             (CheckInventory("Food_Sushi1") > 0 && minigame_wincondition1 == 0) || (CheckInventory("Food_Sushi2") > 0 && minigame_wincondition1 == 0))
+		{
+			if (player_wonround[PlayerNumber()] == true)
+			{
+				player_wonround[PlayerNumber()] = false;
+				player_midround[PlayerNumber()] = true;
+			}
             Player_Lose(PlayerNumber(), false);
+		}
+		
+		// Kill the player if he's a fatty
+		if (food_count > 3)
+			Thing_Destroy(TID_PLAYER+PlayerNumber(), 1, 0);
 
         delay(1);
     }
@@ -4562,6 +4604,7 @@ Script "DoomWare_Client_Minigame71" (void) // Find a Pokemon
 
     // Morph the player into Ash
 	str class = "AshPlayer";
+	
 	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
 	{
 		Player_Morph(PlayerNumber(), class);
@@ -4653,10 +4696,10 @@ Script "DoomWare_Client_Minigame73" (void) // Mine an Ore
             minigame_instruction1[PlayerNumber()] = "Mine \ccTin";
             break;
         case 1:
-            minigame_instruction1[PlayerNumber()] = "Mine \cqAdamantite";
+            minigame_instruction1[PlayerNumber()] = "Mine \cfGold";
             break;
         case 2:
-            minigame_instruction1[PlayerNumber()] = "Mine \cvRunite";
+            minigame_instruction1[PlayerNumber()] = "Mine \chMithril";
             break;
     }
 
@@ -4678,9 +4721,9 @@ Script "DoomWare_Client_Minigame73" (void) // Mine an Ore
     {
         if (minigame_wincondition1 == 0 && CheckInventory("TinOreItem"))
             Player_Win(PlayerNumber());
-		else if (minigame_wincondition1 == 1 && CheckInventory("AdamantiteOreItem"))
+		else if (minigame_wincondition1 == 1 && CheckInventory("GoldOreItem"))
             Player_Win(PlayerNumber());
-		else if (minigame_wincondition1 == 2 && CheckInventory("RuniteOreItem"))
+		else if (minigame_wincondition1 == 2 && CheckInventory("MithrilOreItem"))
             Player_Win(PlayerNumber());
         delay(1);
     }
@@ -4797,8 +4840,7 @@ Script "DoomWare_Client_Minigame80" (void) // Survive (Pyoro)
 	Force_Observe(813);
 
 	// Invert the player's controls and make him unable to jump
-	if (game_wackymod != WACKYMOD_INVERT)
-		SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
+	SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
 	SetActorProperty(0 ,APROP_JumpZ, 0<<16);
 
     // Wait until the game's over
@@ -5076,7 +5118,8 @@ Script "DoomWare_Client_TieBreaker2" (void) // Rope Tug
     int plyx, plyy, plyz;
 
     minigame_instruction1[PlayerNumber()] = "Wait for the signal";
-    minigame_instruction2[PlayerNumber()] = "Press your Use key to repeatedly tug the rope";
+    minigame_instruction2[PlayerNumber()] = "Press your Shoot key to repeatedly tug the rope";
+	minigame_wincondition1 = 0;
 
     // Move the players
     if (PlayerNumber() == game_highnames[0] || PlayerNumber() == game_highnames[1])
@@ -5090,7 +5133,7 @@ Script "DoomWare_Client_TieBreaker2" (void) // Rope Tug
     // Kill the player if they press use too soon
     while (minigame_canmove == false)
     {
-        if ((PlayerNumber() == game_highnames[0] || PlayerNumber() == game_highnames[1]) && (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_USE) && !(GetPlayerInput(-1, INPUT_OLDBUTTONS) & BT_USE))
+        if ((PlayerNumber() == game_highnames[0] || PlayerNumber() == game_highnames[1]) && (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_ATTACK) && !(GetPlayerInput(-1, INPUT_OLDBUTTONS) & BT_ATTACK))
             Thing_Destroy(TID_PLAYER+PlayerNumber(), 0);
         delay(1);
     }
@@ -5103,17 +5146,18 @@ Script "DoomWare_Client_TieBreaker2" (void) // Rope Tug
     {
 		int ply1 = game_highnames[0];
 		int ply2 = game_highnames[1];
-        if ((PlayerNumber() == ply1 || PlayerNumber() == ply2) && (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_USE) && !(GetPlayerInput(-1, INPUT_OLDBUTTONS) & BT_USE))
+		minigame_wincondition1 = 0;
+        if ((PlayerNumber() == ply1 || PlayerNumber() == ply2) && (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_ATTACK) && !(GetPlayerInput(-1, INPUT_OLDBUTTONS) & BT_ATTACK))
         {
             if (PlayerNumber() == ply1 && !player_lostround[ply1] && GetActorY(TID_PLAYER+ply1) < 1848.0)
             {
-                Line_SetTextureOffset(27, +3.0, NO_CHANGE, SIDE_FRONT, 10);
+				minigame_wincondition1++;
                 SetActorPosition(TID_PLAYER+ply2, GetActorX(TID_PLAYER+ply2), GetActorY(TID_PLAYER+ply2)-3.0, GetActorZ(TID_PLAYER+ply2), false);
                 SetActorPosition(TID_PLAYER+ply1, GetActorX(TID_PLAYER+ply1), GetActorY(TID_PLAYER+ply1)-3.0, GetActorZ(TID_PLAYER+ply1), false);
             }
             if (PlayerNumber() == ply2 && !player_lostround[ply2] && GetActorY(TID_PLAYER+ply2) > 1992.0)
             {
-                Line_SetTextureOffset(27, -3.0, NO_CHANGE, SIDE_FRONT, 10);
+				minigame_wincondition1--;
                 SetActorPosition(TID_PLAYER+ply1, GetActorX(TID_PLAYER+ply1), GetActorY(TID_PLAYER+ply1)+3.0, GetActorZ(TID_PLAYER+ply1), false);
                 SetActorPosition(TID_PLAYER+ply2, GetActorX(TID_PLAYER+ply2), GetActorY(TID_PLAYER+ply2)+3.0, GetActorZ(TID_PLAYER+ply2), false);
             }
@@ -8171,9 +8215,9 @@ Script "DoomWare_Server_Minigame73" (void) // Mine an ore
     minigame_wincondition1 = random(0, 2);
 
     // Spawn the ores
-    SpawnSpotForced("AdamantiteOre", 676, TID_REMOVE, 0);
+    SpawnSpotForced("GoldOre", 676, TID_REMOVE, 0);
     SpawnSpotForced("TinOre", 677, TID_REMOVE, 0);
-    SpawnSpotForced("RuniteOre", 678, TID_REMOVE, 0);
+    SpawnSpotForced("MithrilOre", 678, TID_REMOVE, 0);
 
     // Move all the players to the arena
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 640, false, true);
@@ -9360,6 +9404,8 @@ function void Player_Morph(int plynum, str what)
     SpawnSpotForced("PlayerTranslator", TID_PLAYER+plynum, TID_EXTRA+plynum, 0);
     Thing_SetTranslation(TID_EXTRA+plynum, -1);
     MorphActor(TID_PLAYER+plynum, what, 1, minigame_timer, MRF_NEWTIDBEHAVIOUR, "Nothing", "Nothing");
+	if (game_wackymod == WACKYMOD_INVERT && GetActorProperty(0, APROP_Speed) > 0)
+		SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
 }
 
 function void Player_FreezeTotally(int who)
@@ -9417,13 +9463,16 @@ Script "DoomWare_Entity_SetPlayerTranslation" (void) // Translate colors on morp
 
 function void Load_PlayerDB(int plynum)
 {
+	str plyname = getPlayerAccountName(plynum);
+	if (GetCVar("doomware_unsafedb"))
+		plyname = StrParam(n:plynum+1);
     BeginDBTransaction();
-    data_points[plynum] = GetDBEntry("Points", getPlayerAccountName(plynum));
-    data_wins[plynum] = GetDBEntry("Wins", getPlayerAccountName(plynum));
-    data_deaths[plynum] = GetDBEntry("Deaths", getPlayerAccountName(plynum));
-    data_1ups[plynum] = GetDBEntry("1Ups", getPlayerAccountName(plynum));
-    data_role[plynum] = GetDBEntry("Role", getPlayerAccountName(plynum));
-    data_achieve[plynum] = GetDBEntry("Achievements", getPlayerAccountName(plynum));
+	data_points[plynum] = GetDBEntry("Points", plyname);
+	data_wins[plynum] = GetDBEntry("Wins", plyname);
+	data_deaths[plynum] = GetDBEntry("Deaths", plyname);
+	data_1ups[plynum] = GetDBEntry("1Ups", plyname);
+	data_role[plynum] = GetDBEntry("Role", plyname);
+	data_achieve[plynum] = GetDBEntry("Achievements", plyname);
     EndDBTransaction();
 }
 
@@ -9441,23 +9490,24 @@ function void Check_FailRoundItem(void)
             Player_Lose(i, false);
 }
 
-function int AToI (str s)
+function int AToI(str s)
 {
+	int start = 0;
     bool negative = false;
     int n = 0;
     int len = StrLen(s);
+	
+	// Check if there's a negative sign
+	if (GetChar(s, 0) == '-')
+	{
+		negative = true;
+		start++;
+	}
 
     // Go through every character in the string
-    for (int i = 0; i < len; i++)
+    for (int i=start; i<len; i++)
     {
         int char = GetChar(s, i);
-
-        // Check if we found a negative sign
-        if (i == 0 && char == '-')
-        {
-            negative = true;
-            continue;
-        }
 
         // Check that we are actually converting a number
         if (char < '0' || char > '9')

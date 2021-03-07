@@ -318,8 +318,8 @@ script "DoomWare_Server_Boot" OPEN
 	// Check if buu342 is ingame
 	for (i=0; i<MAXPLAYERS; i++)
 	{
-		str plyname = StrParam(n:i);
-		if (strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
+		str plyname = StrParam(n:(i+1));
+		if (!strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
 			buuingame = true;
 	}
 	
@@ -751,7 +751,7 @@ Script "DoomWare_Server_GameLogic" (void)
 		{
 			gametoplay = StrParam(s:"DoomWare_Server_Minigame", d:random(1, NUMBEROFGAMES));
 			ACS_NamedExecute(gametoplay, 0);
-			round_nextgame = random(SECOND*8, SECOND*12);
+			round_nextgame = random(SECOND*6, SECOND*11);
 		}
 		round_nextgame--;
 	}
@@ -818,7 +818,7 @@ Script "DoomWare_Server_GameLogic" (void)
 		for (i=0; i<MAXPLAYERS; i++)
 			if (player_lostround[i] == false)
 				Give_Achievement(i, ACHIEVE_ID_BOSS);
-		delay(SECOND*6 + 15);
+		delay(SECOND*7 + 15);
 		
 		// Update the database and exit to the original map
 		ACS_NamedExecute("DoomWare_Server_UpdateDB", 0);
@@ -840,12 +840,12 @@ Script "DoomWare_Server_GameLogic" (void)
 		game_over = OVER_LOST;
 		
 		// Game over transition
-		SetMusic("");
+		SetMusic("D_BOSLOS");
 		delay(15);
 		SetActorState(TID_BUU3422, "Laugh", true);
 		delay(SECOND*3);
 		game_fakechatsound = CHATSOUND_MSG;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you think you stood a chance";
+		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you thought you stood a chance";
 		delay(SECOND*2);
 		
 		// Check if buu342 is ingame
@@ -1248,13 +1248,13 @@ function void Player_SetCVar(str cvar, int value) // Efficient SetCVar function
 
 function void Player_SetCVarString(str cvar, str value) // Efficient SetCVarString function
 {
-    if (GetCVarString(cvar) != value)
+    if (StrCmp(GetCVarString(cvar), value))
         SetCVarString(cvar, value);
 }
 
 function void Player_SetCVarStringPacked(str cvar, str value) // Efficient SetCVarString function
 {
-    if (GetCVarString(cvar) != value)
+    if (StrCmp(GetCVarString(cvar), value))
         SetCVarString(cvar, value);
 }
 
@@ -1268,20 +1268,28 @@ function void Pack_Global_Array(str cvar) // Replacement for Get/SetUserCVar
     int i;
     str final = "";
 
-		 if (!StrCmp(cvar, "__clientsync_player_loggedin"))     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:PlayerIsLoggedIn(i), s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_datascore"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_points[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_datawins"))     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_wins[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_datadeaths"))   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_deaths[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_data1ups"))     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_1ups[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_dataroles"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_role[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_dataachieve"))  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_achieve[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_checklost"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:Check_Player_Lost(i), s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_lostround"))    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_lostround[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_viewingmenu"))  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_viewingmenu[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_instruction1")) for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction1[i], s:"\n");
-    else if (!StrCmp(cvar, "__clientsync_player_viewsprite"))   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:player_viewsprite[i], s:"\n");
+	/* 
+		Super ugly hack!
+		Strings in ACS are pretty much just integers that point to a string table. This means that
+		You can do string comparisons in a switch statement! Literally O(1) string comparisons!
+	*/
+	switch (cvar)
+	{
+		case "__clientsync_player_loggedin":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:PlayerIsLoggedIn(i), s:"\n"); break;
+		case "__clientsync_player_datascore":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_points[i], s:"\n"); break;
+		case "__clientsync_player_datawins":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_wins[i], s:"\n"); break;
+		case "__clientsync_player_datadeaths":   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_deaths[i], s:"\n"); break;
+		case "__clientsync_player_data1ups":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_1ups[i], s:"\n"); break;
+		case "__clientsync_player_dataroles":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_role[i], s:"\n"); break;
+		case "__clientsync_player_dataachieve":  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_achieve[i], s:"\n"); break;
+		case "__clientsync_player_checklost":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:Check_Player_Lost(i), s:"\n"); break;
+		case "__clientsync_player_lostround":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_lostround[i], s:"\n"); break;
+		case "__clientsync_player_viewingmenu":  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_viewingmenu[i], s:"\n"); break;
+		case "__clientsync_player_instruction1": for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction1[i], s:"\n"); break;
+		case "__clientsync_player_viewsprite":   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:player_viewsprite[i], s:"\n"); break;	
+	}
 
-    if (GetCVarString(cvar) != final)
+    if (StrCmp(GetCVarString(cvar), final))
         SetCVarString(cvar, final);
 }
 
@@ -1403,6 +1411,7 @@ Script "DoomWare_Client_Respawn" RESPAWN
 
 Script "DoomWare_Client_GameLogic" (void)
 {
+	int lastalivecount = game_alive;
 	str extra = "";
 	if (!strcmp(GetCVarString("doomware_mode"), "halloween"))
 		extra = "Halloween/";
@@ -1427,27 +1436,27 @@ Script "DoomWare_Client_GameLogic" (void)
 		int wep = random(1, 2);
 		
 		// If someone is by themselves, give them stronger weapons
-		if (game_alive == 1)
+		if (game_status != STATUS_PHASE1)
 		{
-			GiveInventory("CoopShotgunDD", 1);
-			GiveInventory("CoopChaingunDD", 1);
-			if (wep == 1)
-				SetWeapon("CoopShotgunDD");
-			else
-				SetWeapon("CoopChaingunDD");
-		}
-		else
-		{
-			GiveInventory("CoopShotgun", 1);
-			GiveInventory("CoopChaingun", 1);
-			if (wep == 1)
-				SetWeapon("CoopShotgun");
-			else
-				SetWeapon("CoopChaingun");
+			if (game_alive == 2 && CheckInventory("DoubleDamagePickup") == 0)
+				GiveInventory("DoubleDamagePickup", 1);
+			else if (game_alive == 1 && CheckInventory("QuadDamagePickup") == 0)
+			{
+				if (CheckInventory("DoubleDamagePickup") == 1)
+					TakeInventory("DoubleDamagePickup", 9);
+				GiveInventory("QuadDamagePickup", 1);
+			}
 		}
 		
+		// Give the player some nice weapons to shoot with
+		GiveInventory("CoopShotgun", 1);
+		GiveInventory("CoopChaingun", 1);
+		if (wep == 1)
+			SetWeapon("CoopShotgun");
+		else
+			SetWeapon("CoopChaingun");
+		
 		// Give them more stuff and reset their health
-		GiveInventory("CoopPistol", 1);
 		GiveInventory("Backpack", 1);
 		GiveInventory("Clip", 400);
 		GiveInventory("Shell", 100);
@@ -1461,6 +1470,21 @@ Script "DoomWare_Client_GameLogic" (void)
 			minigame_instruction1[PlayerNumber()] = "Kill \cqB\csu\cdu\cq3\cs4\cd2\c-";
 		else
 			minigame_instruction1[PlayerNumber()] = "";
+			
+		// Give more damage if the player count gets reduced
+		if (game_status != STATUS_PHASE1 && lastalivecount != game_alive)
+		{
+			if (game_alive == 2 && CheckInventory("DoubleDamagePickup") == 0)
+				GiveInventory("DoubleDamagePickup", 1);
+			else if (game_alive == 1 && CheckInventory("QuadDamagePickup") == 0)
+			{
+				if (CheckInventory("DoubleDamagePickup") == 1)
+					TakeInventory("DoubleDamagePickup", 9);
+				GiveInventory("QuadDamagePickup", 1);
+			}
+		}
+			
+		lastalivecount = game_alive;
 		delay(1);
 	}
 	
@@ -1982,7 +2006,6 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
     int hud_spindex = 0;
     int hud_time    = 0;
     int lasttimertime   = -1;
-	bool gameovermusic = false;
     if (GetCvar("__clientsync_gamestatus") <= STATUS_STARTING)
         hud_toppos = -95.0;
 
@@ -2075,15 +2098,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
             HUDMessage(s:"Game Over"; HUDMSG_PLAIN, MSGID_CENTER, CR_WHITE, w/2, FixedMul(h, 0.25), 1);
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER2, CR_GREEN, 0.5, 0.3, 1);
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER3, CR_GREEN, 0.5, 0.3, 1);
-
-			// Play game over music
-			if (!gameovermusic)
-			{
-				if (GetUserCVar(plynum, "doomware_music"))
-					LocalAmbientSound("DoomWare/GameOver", 127);
-				gameovermusic = true;
-			}
-
+			
             // State why the game ended
             switch (syncdata_gameover)
             {
@@ -3088,23 +3103,24 @@ function void Check_FailRoundItem(void)
             Player_Lose(i, false);
 }
 
-function int AToI (str s)
+function int AToI(str s)
 {
+	int start = 0;
     bool negative = false;
     int n = 0;
     int len = StrLen(s);
+	
+	// Check if we start with a negative sign
+	if (GetChar(s, 0) == '-')
+	{
+		negative = true;
+		start++;
+	}
 
     // Go through every character in the string
-    for (int i = 0; i < len; i++)
+    for (int i=start; i<len; i++)
     {
         int char = GetChar(s, i);
-
-        // Check if we found a negative sign
-        if (i == 0 && char == '-')
-        {
-            negative = true;
-            continue;
-        }
 
         // Check that we are actually converting a number
         if (char < '0' || char > '9')
