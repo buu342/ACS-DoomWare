@@ -3091,8 +3091,8 @@ ACTOR TinOre 11142
 	}
 }
 
-// Golde ore rock
-ACTOR GoldeOre : TinOre 11143
+// Gold ore rock
+ACTOR GoldOre : TinOre 11143
 {
 	States
 	{
@@ -3106,7 +3106,7 @@ ACTOR GoldeOre : TinOre 11143
 			RSOR C 0 A_PAIN
 			goto See
 		Death:
-			RSOR B 0 A_GiveToTarget("GoldeOreItem",1)
+			RSOR B 0 A_GiveToTarget("GoldOreItem",1)
 			RSOR B 0 A_Scream
 			RSOR B 0 A_ChangeFlag("shootable",1)
 			RSOR B 0 A_ChangeFlag("SOLID",1)
@@ -3203,10 +3203,10 @@ ACTOR MithrilOreItem : Ammo
 	}
 }
 
-// Golde ore item
-ACTOR GoldeOreItem : Ammo
+// Gold ore item
+ACTOR GoldOreItem : Ammo
 {
-	Inventory.PickupMessage "Mined some Golde"
+	Inventory.PickupMessage "Mined some Gold"
 	Inventory.Amount 1
 	Inventory.MaxAmount 1
 	Inventory.PickupSound "DoomWare/Ring"
@@ -5057,14 +5057,22 @@ ACTOR CoopChaingun : Chaingun
 	}
 }
 
+// Double damage for boss battle
 actor DoubleDamagePickup : PowerDamage
 {
 	damagefactor "CoopBullet", 2
 	Powerup.Duration 0x7FFFFFFF
 }
 
+// Quad damage for boss battle
 actor QuadDamagePickup : PowerDamage
 {
 	damagefactor "CoopBullet", 4
 	Powerup.Duration 0x7FFFFFFF
+}
+
+// Cyberdemon, but doesn't infight
+actor Cyberdemon2 : Cyberdemon replaces Cyberdemon
+{
+	+NOINFIGHTING
 }

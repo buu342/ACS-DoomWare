@@ -414,6 +414,10 @@ Script "DoomWare_Server_InitMap" (void)
 	// Lava color and damage
 	Sector_SetColor(4, 255, 105, 0, 0);
 	Sector_SetDamage(4, 99999, mod_lava);
+
+	// Terry wad sky and floor scrolling
+	Scroll_Floor(3, 300, 2, 240);
+	Scroll_Ceiling(3, 300, 2, 90);
 	
 	// Rotating spikes arena fog
 	Sector_SetFade(150, 255, 106, 0);
@@ -720,7 +724,7 @@ Script "DoomWare_Server_GameLogic" (void)
 					game_fakechatsound = CHATSOUND_MSG;
 					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!";
 					delay(SECOND*3);
-					round_nextgame = random(SECOND*8, SECOND*12);
+					round_nextgame = random(SECOND*5, SECOND*8);
 				}
 				break;
 		}
@@ -751,7 +755,7 @@ Script "DoomWare_Server_GameLogic" (void)
 		{
 			gametoplay = StrParam(s:"DoomWare_Server_Minigame", d:random(1, NUMBEROFGAMES));
 			ACS_NamedExecute(gametoplay, 0);
-			round_nextgame = random(SECOND*6, SECOND*11);
+			round_nextgame = random(SECOND*7, SECOND*12);
 		}
 		round_nextgame--;
 	}

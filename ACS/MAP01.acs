@@ -63,12 +63,12 @@
 #define NUMBEROFTIEBREAKERS 3 	// Number Of 1v1 Tie Breakers
 #define NUMBEROFTIEBREAKERSM 3  // Number Of Non-1v1 Tie Breakers
 #define NUMBEROFHINTS 82        // Number of hints
-#define NUMBEROFWACKYMODS 6     // Number of wacky mods
+#define NUMBEROFWACKYMODS 7     // Number of wacky mods
 
 
 // Debugging single minigames (-1 to not debug, provide a different number to force that minigame number to play)
 
-#define DEBUG_GAME  -1
+#define DEBUG_GAME  45
 #define DEBUG_TIEB  -1
 #define DEBUG_TIEBM -1
 #define DEBUG_WACKY -1
@@ -259,6 +259,7 @@
 #define WACKYMOD_1HP     4
 #define WACKYMOD_SPEED   5
 #define WACKYMOD_INVERT  6
+#define WACKYMOD_D1UPS   7
 
 #define WACKYMOD_NAME1  "Boss Round"
 #define WACKYMOD_NAME2  "Double Jump"
@@ -266,6 +267,7 @@
 #define WACKYMOD_NAME4  "1 Health"
 #define WACKYMOD_NAME5  "Sonic Speed"
 #define WACKYMOD_NAME6  "Inverted Controls"
+#define WACKYMOD_NAME7  "1Ups are worth double"
 
 
 // Miscellaneous
@@ -278,14 +280,15 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.95E\n\
+Version Beta 1.95F\n\
 What's new in the Beta?\n\n\
-+Added Unsafe database option\n\
-*Optimized server and client code\n\
-*Fixed arena walls blocking projectiles\n\
-*Miscellaneous minigame rebalancing and fixes\n\
-*Boss fight balance changes and fixes\n\
-*Beta tester hats should work now\n\
++Added new wackymod\n\
++Added color coding to context sensitive keys\n\
+*Fixed Pokemon HUD sometimes getting stuck\n\
+*Fixed missing gold ore rock\n\
+*Fixed the sky not scrolling during the boss fight\n\
+*Fixed door HUD text colors being wrong\n\
+-Removed Cyberdemon retaliation\n\
 "
 
 // Menu Text
@@ -1686,6 +1689,7 @@ Script "DoomWare_Client_GameLogic" (void)
         player_answer2[PlayerNumber()][3] = 0;
         player_viewsprite[PlayerNumber()] = "";
         ClearInventory();
+		fadeto(0, 0, 0, 0.0, 0.0);
         setplayerproperty(1, 0, prop_invulnerability);
         setplayerproperty(1, 0, prop_frozen);
 		if (game_wackymod != WACKYMOD_FLIGHT)
@@ -1818,6 +1822,7 @@ Script "DoomWare_Client_GameLogic" (void)
             player_musicwaiting[PlayerNumber()] = true;
             player_musicgameover[PlayerNumber()] = false;
         }
+		fadeto(0, 0, 0, 0.0, 0.0); // Pokemon HUD brutefix
     }
 
     // Play a minigame
@@ -1880,8 +1885,16 @@ Script "DoomWare_Client_GameLogic" (void)
         // Give points if we ate a 1UP
         if (CheckInventory("1up") > 0)
         {
-            game_score[PlayerNumber()]++;
-            data_1ups[PlayerNumber()]++;
+			if (game_wackymod == WACKYMOD_D1UPS)
+			{
+				game_score[PlayerNumber()]+=2;
+				data_1ups[PlayerNumber()]+=2;
+			}
+			else
+			{
+				game_score[PlayerNumber()]++;
+				data_1ups[PlayerNumber()]++;
+			}
             TakeInventory("1up", 1000);
             SpawnSpotForced("1UPText", PlayerNumber()+TID_PLAYER, 0, 0);
             if (data_1ups[PlayerNumber()] == 50)
@@ -3302,11 +3315,11 @@ Script "DoomWare_Client_Minigame13" (void) // Enter the door
     if (minigame_wincondition1 == 0)
         minigame_instruction1[PlayerNumber()] = "Enter the No Key Door";
     else if (minigame_wincondition1 == 1)
-        minigame_instruction1[PlayerNumber()] = "Enter the \chBlue Key\cl Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \chBlue Key\ci Door";
     else if (minigame_wincondition1 == 2)
-        minigame_instruction1[PlayerNumber()] = "Enter the \cgRed Key\cl Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \cgRed Key\ci Door";
     else if (minigame_wincondition1 == 3)
-        minigame_instruction1[PlayerNumber()] = "Enter the \ckYellow Key\cl Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \ckYellow Key\ci Door";
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -3355,7 +3368,7 @@ Script "DoomWare_Client_Minigame15" (void) // Reach The End (Swapping Boxes)
 Script "DoomWare_Client_Minigame16" (void) // Touch the sky
 {
     minigame_instruction1[PlayerNumber()] = "Touch the sky";
-    minigame_instruction2[PlayerNumber()] = "Spam your jump button";
+    minigame_instruction2[PlayerNumber()] = "Spam your \chjump button";
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -3376,7 +3389,7 @@ Script "DoomWare_Client_Minigame16" (void) // Touch the sky
 Script "DoomWare_Client_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
 {
     minigame_instruction1[PlayerNumber()] = "Finish a lap";
-    minigame_instruction2[PlayerNumber()] = "Hold Shoot To Accelerate";
+    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\ci To Accelerate";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -3766,7 +3779,7 @@ Script "DoomWare_Client_Minigame36" (void) // Get On The Colored Circle
 Script "DoomWare_Client_Minigame37" (void) // Swim Down
 {
     minigame_instruction1[PlayerNumber()] = "Swim";
-    minigame_instruction2[PlayerNumber()] = "Press your use key to dive deeper";
+    minigame_instruction2[PlayerNumber()] = "Press your \cguse key\ci to dive deeper";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -3978,8 +3991,8 @@ Script "DoomWare_Client_Minigame44" (void) // Don't Equip Weapon
 
 Script "DoomWare_Client_Minigame45" (void) // Finish a lap (Rainbow Road)
 {
-    minigame_instruction1[PlayerNumber()] = "Finish a lap";
-    minigame_instruction2[PlayerNumber()] = "Hold Shoot To Accelerate";
+    minigame_instruction1[PlayerNumber()] = "\crF\cgi\cin\cki\cfs\cdh \cna \cvl\cha\ctp";
+    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\ci To Accelerate";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -4901,7 +4914,7 @@ Script "DoomWare_Client_Minigame82" (void) // Whack a Diglett
 Script "DoomWare_Client_Minigame83" (void) // Charge your Lazor
 {
     minigame_instruction1[PlayerNumber()] = "Charge your Laz0r";
-    minigame_instruction2[PlayerNumber()] = "Spam shoot. 1 Point Per Frag";
+    minigame_instruction2[PlayerNumber()] = "Spam \cdshoot\ci. 1 Point Per Frag";
     player_viewsprite[PlayerNumber()] = "TNT2A0";
 
     // Wait until the minigame is over
@@ -4957,7 +4970,7 @@ Script "DoomWare_Client_Minigame83" (void) // Charge your Lazor
 Script "DoomWare_Client_Minigame84" (void) // Stay on the Road
 {
     minigame_instruction1[PlayerNumber()] = "Stay on the Road";
-    minigame_instruction2[PlayerNumber()] = "Strafe to steer";
+    minigame_instruction2[PlayerNumber()] = "\ccStrafe\ci to steer";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -5118,7 +5131,7 @@ Script "DoomWare_Client_TieBreaker2" (void) // Rope Tug
     int plyx, plyy, plyz;
 
     minigame_instruction1[PlayerNumber()] = "Wait for the signal";
-    minigame_instruction2[PlayerNumber()] = "Press your Shoot key to repeatedly tug the rope";
+    minigame_instruction2[PlayerNumber()] = "Press your \cdShoot key\ci to repeatedly tug the rope";
 	minigame_wincondition1 = 0;
 
     // Move the players
