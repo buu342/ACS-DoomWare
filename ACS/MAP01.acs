@@ -68,7 +68,7 @@
 
 // Debugging single minigames (-1 to not debug, provide a different number to force that minigame number to play)
 
-#define DEBUG_GAME  45
+#define DEBUG_GAME  -1
 #define DEBUG_TIEB  -1
 #define DEBUG_TIEBM -1
 #define DEBUG_WACKY -1
