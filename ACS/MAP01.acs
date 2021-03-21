@@ -282,13 +282,7 @@
 #define CHANGES "\
 Version Beta 1.95F\n\
 What's new in the Beta?\n\n\
-+Added new wackymod\n\
-+Added color coding to context sensitive keys\n\
-*Fixed Pokemon HUD sometimes getting stuck\n\
-*Fixed missing gold ore rock\n\
-*Fixed the sky not scrolling during the boss fight\n\
-*Fixed door HUD text colors being wrong\n\
--Removed Cyberdemon retaliation\n\
+*Text Color fixes\n\
 "
 
 // Menu Text
@@ -3313,7 +3307,7 @@ Script "DoomWare_Client_Minigame13" (void) // Enter the door
 {
     // Display the correct text based on which minigame we're playing
     if (minigame_wincondition1 == 0)
-        minigame_instruction1[PlayerNumber()] = "Enter the No Key Door";
+        minigame_instruction1[PlayerNumber()] = "Enter the \cjNo Key\ci Door";
     else if (minigame_wincondition1 == 1)
         minigame_instruction1[PlayerNumber()] = "Enter the \chBlue Key\ci Door";
     else if (minigame_wincondition1 == 2)
@@ -3368,7 +3362,7 @@ Script "DoomWare_Client_Minigame15" (void) // Reach The End (Swapping Boxes)
 Script "DoomWare_Client_Minigame16" (void) // Touch the sky
 {
     minigame_instruction1[PlayerNumber()] = "Touch the sky";
-    minigame_instruction2[PlayerNumber()] = "Spam your \chjump button";
+    minigame_instruction2[PlayerNumber()] = "Spam your \chjump\cg button";
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -3389,7 +3383,7 @@ Script "DoomWare_Client_Minigame16" (void) // Touch the sky
 Script "DoomWare_Client_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
 {
     minigame_instruction1[PlayerNumber()] = "Finish a lap";
-    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\ci To Accelerate";
+    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\cg To Accelerate";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -3614,7 +3608,7 @@ Script "DoomWare_Client_Minigame27" (void) // Survive (Terry)
 Script "DoomWare_Client_Minigame28" (void) // Finish a lap (E1M1)
 {
     minigame_instruction1[PlayerNumber()] = "Finish a lap";
-    minigame_instruction2[PlayerNumber()] = "Hold Shoot To Accelerate";
+    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\cg To Accelerate";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -3779,7 +3773,7 @@ Script "DoomWare_Client_Minigame36" (void) // Get On The Colored Circle
 Script "DoomWare_Client_Minigame37" (void) // Swim Down
 {
     minigame_instruction1[PlayerNumber()] = "Swim";
-    minigame_instruction2[PlayerNumber()] = "Press your \cguse key\ci to dive deeper";
+    minigame_instruction2[PlayerNumber()] = "Spam your use key to dive deeper";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -3992,7 +3986,7 @@ Script "DoomWare_Client_Minigame44" (void) // Don't Equip Weapon
 Script "DoomWare_Client_Minigame45" (void) // Finish a lap (Rainbow Road)
 {
     minigame_instruction1[PlayerNumber()] = "\crF\cgi\cin\cki\cfs\cdh \cna \cvl\cha\ctp";
-    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\ci To Accelerate";
+    minigame_instruction2[PlayerNumber()] = "Hold \cdShoot\cg To Accelerate";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -4107,7 +4101,7 @@ Script "DoomWare_Client_Minigame50" (void) // Survive (Bullet Hell)
 Script "DoomWare_Client_Minigame51" (void) // Clean your Weapon
 {
     minigame_instruction1[PlayerNumber()] = "Clean your weapon";
-    minigame_instruction2[PlayerNumber()] = "Spam Shoot";
+    minigame_instruction2[PlayerNumber()] = "Spam \cdShoot\cg";
     player_viewsprite[PlayerNumber()] = "PPISA0";
 
     // Wait until the minigame is over
@@ -4180,7 +4174,7 @@ Script "DoomWare_Client_Minigame52" (void) // The Air is Lava
 Script "DoomWare_Client_Minigame53" (void) // Drink
 {
     minigame_instruction1[PlayerNumber()] = "Drink";
-    minigame_instruction2[PlayerNumber()] = "Spam shoot";
+    minigame_instruction2[PlayerNumber()] = "Spam \cdshoot\cg";
     player_viewsprite[PlayerNumber()] = "TNT2A0";
 
     // Wait until the minigame is over
@@ -4246,7 +4240,7 @@ Script "DoomWare_Client_Minigame56" (void) // Survive (Spike Circle)
 Script "DoomWare_Client_Minigame57" (void) // Eat The Chocolate
 {
     minigame_instruction1[PlayerNumber()] = "Eat The Chocolate";
-    minigame_instruction2[PlayerNumber()] = "Spam Shoot";
+    minigame_instruction2[PlayerNumber()] = "Spam \cdShoot\cg";
     player_viewsprite[PlayerNumber()] = "TNT2A0";
 
     // Wait until the minigame is over
@@ -4296,7 +4290,7 @@ Script "DoomWare_Client_Minigame59" (void) // Get to Hissy
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame60" (void) // Math
+Script "DoomWare_Client_Minigame60" (void) // Count the Lost Souls
 {
     minigame_instruction1[PlayerNumber()] = "Count The Lost Souls";
 
@@ -4914,7 +4908,7 @@ Script "DoomWare_Client_Minigame82" (void) // Whack a Diglett
 Script "DoomWare_Client_Minigame83" (void) // Charge your Lazor
 {
     minigame_instruction1[PlayerNumber()] = "Charge your Laz0r";
-    minigame_instruction2[PlayerNumber()] = "Spam \cdshoot\ci. 1 Point Per Frag";
+    minigame_instruction2[PlayerNumber()] = "Spam \cdshoot\cg. 1 Point Per Frag";
     player_viewsprite[PlayerNumber()] = "TNT2A0";
 
     // Wait until the minigame is over
@@ -4970,7 +4964,7 @@ Script "DoomWare_Client_Minigame83" (void) // Charge your Lazor
 Script "DoomWare_Client_Minigame84" (void) // Stay on the Road
 {
     minigame_instruction1[PlayerNumber()] = "Stay on the Road";
-    minigame_instruction2[PlayerNumber()] = "\ccStrafe\ci to steer";
+    minigame_instruction2[PlayerNumber()] = "\ccStrafe\cg to steer";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -5131,7 +5125,7 @@ Script "DoomWare_Client_TieBreaker2" (void) // Rope Tug
     int plyx, plyy, plyz;
 
     minigame_instruction1[PlayerNumber()] = "Wait for the signal";
-    minigame_instruction2[PlayerNumber()] = "Press your \cdShoot key\ci to repeatedly tug the rope";
+    minigame_instruction2[PlayerNumber()] = "Press your \cdShoot\cg key to repeatedly tug the rope";
 	minigame_wincondition1 = 0;
 
     // Move the players
@@ -5821,13 +5815,13 @@ Script "DoomWare_Server_Minigame15" (void) // Reach the End (Swapping Boxes)
         time++;
         if (time == 89)
             for (i=0; i<MAXPLAYERS; i++)
-                minigame_instruction3[i] = "3";
+                minigame_instruction3[i] = "\cd3";
         else if (time == 89+17)
             for (i=0; i<MAXPLAYERS; i++)
-                minigame_instruction3[i] = "2";
+                minigame_instruction3[i] = "\ci2";
         else if (time == 89+34)
             for (i=0; i<MAXPLAYERS; i++)
-                minigame_instruction3[i] = "1";
+                minigame_instruction3[i] = "\cg1";
         else if (time == 89+51)
         {
             time = 0;
@@ -6792,13 +6786,13 @@ Script "DoomWare_Server_Minigame46" (void) // Reach the End (Bigger Swapping Box
         time++;
         if (time == 89)
             for (i=0; i<MAXPLAYERS; i++)
-                minigame_instruction3[i] = "3";
+                minigame_instruction3[i] = "\cd3";
         else if (time == 89+17)
             for (i=0; i<MAXPLAYERS; i++)
-                minigame_instruction3[i] = "2";
+                minigame_instruction3[i] = "\ci2";
         else if (time == 89+34)
             for (i=0; i<MAXPLAYERS; i++)
-                minigame_instruction3[i] = "1";
+                minigame_instruction3[i] = "\cg1";
         else if (time == 89+51)
         {
             time = 0;
