@@ -59,11 +59,11 @@
 
 // Game selection
 
-#define NUMBEROFGAMES 89		// Number Of minigames
-#define NUMBEROFTIEBREAKERS 3 	// Number Of 1v1 Tie Breakers
+#define NUMBEROFGAMES        92 // Number Of minigames
+#define NUMBEROFTIEBREAKERS  3  // Number Of 1v1 Tie Breakers
 #define NUMBEROFTIEBREAKERSM 3  // Number Of Non-1v1 Tie Breakers
-#define NUMBEROFHINTS 82        // Number of hints
-#define NUMBEROFWACKYMODS 7     // Number of wacky mods
+#define NUMBEROFHINTS        82 // Number of hints
+#define NUMBEROFWACKYMODS    8  // Number of wacky mods
 
 
 // Debugging single minigames (-1 to not debug, provide a different number to force that minigame number to play)
@@ -82,7 +82,7 @@
 
 // Game Speedups
 
-#define MAXSPEEDUPS 4   // How many times should the game speedup (if increased from 4, edit the switches in Server_GameLogic!!!)
+#define MAXSPEEDUPS 4   // How many times should the game speedup (if increased from 4, edit the switches in Should_Speedup!!!)
 
 #define SPEEDUP1 6	    // default 6
 #define SPEEDUP2 11	    // default 11
@@ -259,7 +259,8 @@
 #define WACKYMOD_1HP     4
 #define WACKYMOD_SPEED   5
 #define WACKYMOD_INVERT  6
-#define WACKYMOD_D1UPS   7
+#define WACKYMOD_T1UPS   7
+#define WACKYMOD_SPEEDUP 8
 
 #define WACKYMOD_NAME1  "Boss Round"
 #define WACKYMOD_NAME2  "Double Jump"
@@ -267,7 +268,8 @@
 #define WACKYMOD_NAME4  "1 Health"
 #define WACKYMOD_NAME5  "Sonic Speed"
 #define WACKYMOD_NAME6  "Inverted Controls"
-#define WACKYMOD_NAME7  "1Ups are worth double"
+#define WACKYMOD_NAME7  "1Ups are worth Triple"
+#define WACKYMOD_NAME8  "Max Game Speed"
 
 
 // Miscellaneous
@@ -280,9 +282,15 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.95F\n\
+Version Beta 1.96\n\
 What's new in the Beta?\n\n\
-*Text Color fixes\n\
++Added 3 new minigames\n\
++Added 1 new wacky modifier\n\
+*Changed Double 1Ups mod to Triple\n\
+*Karts are now affected by sonic speed\n\
+*Fixed Wackymods not resetting on death\n\
+*Fixed target still being shootable in 1vM game\n\
+*Hopefully fixed the equip weapon game\n\
 "
 
 // Menu Text
@@ -622,7 +630,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[9]  = "I've included the ZDaemon source code in this WAD.";
     temp_hint[10] = "The throwback minigames have anatomically correct HUDs made with ACS.";
 	temp_hint[11] = "Dash Rendar > Han Solo";
-	temp_hint[12] = "The creator of this WAD is Mastery 7 with old Urgot and Garen.";
+	temp_hint[12] = "I probably have more hours in the RAGE Mod Toolkit than anyone has in the base game...";
 	temp_hint[13] = "Anyone who recognizes most of the music is super cool.";
 	temp_hint[14] = "This WAD was inspired by WarioWare, duh.";
 	temp_hint[15] = "I think it's time to blow this scene, get everybody and the stuff together.";
@@ -630,7 +638,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[17] = "This WAD is a celebration of video games and everything I love, including other Doom WADs.";
 	temp_hint[18] = "If I were a vegetable, I would be a couch potato.";
 	temp_hint[19] = "Fast reactions and adaptability are the only way of surviving this next round.";
-	temp_hint[20] = "There are currently 90 minigames in this WAD.";
+	temp_hint[20] = "There are currently 92 minigames in this WAD.";
 	temp_hint[21] = "I am extremely thankful to some people for coming and testing this WAD so often. Love you guys <3";
 	temp_hint[22] = "I tend to make spelling mistaeks.";
 	temp_hint[23] = "Diddy Kong Racing's final boss is literally impossible.";
@@ -759,7 +767,7 @@ Script "DoomWare_Server_InitHighscores" (void)
 Script "DoomWare_Server_Wackymod" (void)
 {
 	int wackymod = random(0, GetCVar("doomware_wackymodschance"));
-	if (wackymod == 0)
+	if (wackymod == 0 || DEBUG_WACKY != -1)
 	{
 		// Pick a wackymod at random
 		if (DEBUG_WACKY == -1)
@@ -773,6 +781,10 @@ Script "DoomWare_Server_Wackymod" (void)
 			game_wackymod = DEBUG_WACKY;
 		game_status = STATUS_WACKYMOD;
 		delay(SECOND*5);
+		
+		// If we got the max game speed modifier, then set the game speed
+		if (game_wackymod == WACKYMOD_SPEEDUP)
+			game_speed = 4;
 		
 		// If we got the boss fight, then change level
 		if (game_wackymod == WACKYMOD_BOSS)
@@ -842,6 +854,8 @@ Script "DoomWare_Client_Initialize" (void)
 // Return true/false if we are speeding up
 function bool Should_Speedup(void)
 {
+	if (game_wackymod == WACKYMOD_SPEEDUP)
+		return false;
     switch (game_roundnum)
     {
         case SPEEDUP1: break;
@@ -1074,6 +1088,36 @@ function void Player_Lose(int plynum, bool silent) // Make a player lose
             }
         }
     }
+}
+
+function void Player_SetWackymod(int plynum)
+{
+	// Enable wacky mod	
+	if (game_wackymod != WACKYMOD_NONE && game_status != STATUS_WACKYMOD)
+	{
+		switch (game_wackymod)
+		{
+			case WACKYMOD_JUMP:
+				if (!player_haswackyscript[PlayerNumber()])
+				{
+					ACS_NamedExecuteAlways("DoomWare_WackyMod_DoubleJump", 0);
+					player_haswackyscript[PlayerNumber()] = true;
+				}
+				break;
+			case WACKYMOD_FLIGHT:
+				setplayerproperty(1, 1, PROP_FLY);
+				break;
+			case WACKYMOD_SPEED:
+				setplayerproperty(1, 1, PROP_SPEED);
+				break;
+			case WACKYMOD_INVERT:
+				SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Speed, -1.0);
+				break;
+			case WACKYMOD_1HP:
+				SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Health, 1);
+				break;
+		}
+	}	
 }
 
 Script "DoomWare_Server_GameWait" (int time)
@@ -1635,6 +1679,7 @@ Script "DoomWare_Client_Respawn" RESPAWN
 	thing_changetid(0, TID_PLAYER+PlayerNumber());
     player_observe[PlayerNumber()] = 0;
     clearinventory();
+	Player_SetWackymod(PlayerNumber());
 }
 
 Script "DoomWare_Client_GameLogic" (void)
@@ -1643,32 +1688,8 @@ Script "DoomWare_Client_GameLogic" (void)
 	if (!strcmp(GetCVarString("doomware_mode"), "halloween"))
 		extra = "Halloween/";
 	
-	// Enable wacky mod	
-	if (game_wackymod != WACKYMOD_NONE && game_status != STATUS_WACKYMOD)
-	{
-		switch (game_wackymod)
-		{
-			case WACKYMOD_JUMP:
-				if (!player_haswackyscript[PlayerNumber()])
-				{
-					ACS_NamedExecuteAlways("DoomWare_WackyMod_DoubleJump", 0);
-					player_haswackyscript[PlayerNumber()] = true;
-				}
-				break;
-			case WACKYMOD_FLIGHT:
-				setplayerproperty(1, 1, PROP_FLY);
-				break;
-			case WACKYMOD_SPEED:
-				setplayerproperty(1, 1, PROP_SPEED);
-				break;
-			case WACKYMOD_INVERT:
-				SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Speed, -1.0);
-				break;
-			case WACKYMOD_1HP:
-				SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Health, 1);
-				break;
-		}
-	}
+	// Set player wackymods
+	Player_SetWackyMod(PlayerNumber());
 	
     // Announce Win/Lose
     if (game_status == STATUS_WINLOSE)
@@ -1879,10 +1900,10 @@ Script "DoomWare_Client_GameLogic" (void)
         // Give points if we ate a 1UP
         if (CheckInventory("1up") > 0)
         {
-			if (game_wackymod == WACKYMOD_D1UPS)
+			if (game_wackymod == WACKYMOD_T1UPS)
 			{
-				game_score[PlayerNumber()]+=2;
-				data_1ups[PlayerNumber()]+=2;
+				game_score[PlayerNumber()]+=3;
+				data_1ups[PlayerNumber()]+=3;
 			}
 			else
 			{
@@ -3390,6 +3411,8 @@ Script "DoomWare_Client_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
 
     // Morph the player into a kart and freeze him
 	str class = "KartPlayer";
+	if (game_wackymod == WACKYMOD_SPEED)
+		class = "KartPlayerSpeed";
 	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
 	{
 		Player_Morph(PlayerNumber(), class);
@@ -3418,21 +3441,17 @@ Script "DoomWare_Client_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
 Script "DoomWare_Client_Minigame18" (void) // Equip Weapon
 {
     str wep;
-	str oldwep; // Needed to fix a bug where players would auto win for some reason
+	int ticcount = 0; // Needed to fix a bug where players would auto win for some reason
 
     // Give the player everything
     setplayerproperty(1, 2, prop_invulnerability);
-    GiveInventory("Chainsaw", 1);
-    GiveInventory("Pistol", 1);
-    GiveInventory("SuperShotgun", 1);
-    GiveInventory("Chaingun", 1);
-    GiveInventory("RocketLauncher", 1);
-    GiveInventory("PlasmaRifle", 1);
-    GiveInventory("BFG9000", 1);
-    TakeInventory("Clip", 500);
-    TakeInventory("Shell", 500);
-    TakeInventory("Cell", 500);
-    TakeInventory("RocketAmmo", 500);
+    GiveInventory("ChainsawFake", 1); // Fake weapons that have no ammo (because some people can't switch weapons without ammo)
+    GiveInventory("PistolFake", 1);
+    GiveInventory("SuperShotgunFake", 1);
+    GiveInventory("ChaingunFake", 1);
+    GiveInventory("RocketLauncherFake", 1);
+    GiveInventory("PlasmaRifleFake", 1);
+    GiveInventory("BFG9000Fake", 1);
 	GiveInventory("Fist", 1);
 	SetWeapon("Fist");
 
@@ -3440,43 +3459,43 @@ Script "DoomWare_Client_Minigame18" (void) // Equip Weapon
     {
     	case 1:
             minigame_instruction1[PlayerNumber()] = "Equip your Chainsaw";
-            wep = "Chainsaw";
+            wep = "ChainsawFake";
             break;
         case 2:
             minigame_instruction1[PlayerNumber()] = "Equip your Pistol";
-            wep = "Pistol";
+            wep = "PistolFake";
             break;
         case 3:
             minigame_instruction1[PlayerNumber()] = "Equip your Super Shotgun";
-            wep = "SuperShotgun";
+            wep = "SuperShotgunFake";
             break;
         case 4:
             minigame_instruction1[PlayerNumber()] = "Equip your Chaingun";
-            wep = "Chaingun";
+            wep = "ChaingunFake";
             break;
         case 5:
             minigame_instruction1[PlayerNumber()] = "Equip your Rocket Launcher";
-            wep = "RocketLauncher";
+            wep = "RocketLauncherFake";
             break;
         case 6:
             minigame_instruction1[PlayerNumber()] = "Equip your Plasma Gun";
-            wep = "PlasmaRifle";
+            wep = "PlasmaRifleFake";
             break;
         case 7:
             minigame_instruction1[PlayerNumber()] = "Equip your BFG9000";
-            wep = "BFG9000";
+            wep = "BFG9000Fake";
             break;
     }
     Delay(SECOND);
 
-    // Award points if they got the right weapon
-	oldwep = GetWeapon();
+    // Award points if they got the right weapon (for multiple ticks)
     while (game_status == STATUS_MINIGAME)
     {
-        if (!StrIcmp(GetWeapon(), wep) && !StrIcmp(GetWeapon(), oldwep))
+        if (!StrIcmp(GetWeapon(), wep))
+			ticcount++;
+		if (ticcount == 5)
             Player_Win(PlayerNumber());
         delay(1);
-		oldwep = GetWeapon();
     }
 }
 
@@ -3615,6 +3634,8 @@ Script "DoomWare_Client_Minigame28" (void) // Finish a lap (E1M1)
 
     // Morph the player into a kart and freeze him
 	str class = "KartPlayer";
+	if (game_wackymod == WACKYMOD_SPEED)
+		class = "KartPlayerSpeed";
 	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
 	{
 		Player_Morph(PlayerNumber(), class);
@@ -3921,21 +3942,17 @@ Script "DoomWare_Client_Minigame43" (void) // Don't Blow Your Brains Out
 Script "DoomWare_Client_Minigame44" (void) // Don't Equip Weapon
 {
     str wep;
-	str oldwep; // Needed to fix a bug where players would auto win for some reason
+	int ticcount; // Needed to fix a bug where players would auto win for some reason
 
     // Give the player everything
     setplayerproperty(1, 2, prop_invulnerability);
-    GiveInventory("Chainsaw", 1);
-    GiveInventory("Pistol", 1);
-    GiveInventory("SuperShotgun", 1);
-    GiveInventory("Chaingun", 1);
-    GiveInventory("RocketLauncher", 1);
-    GiveInventory("PlasmaRifle", 1);
-    GiveInventory("BFG9000", 1);
-    TakeInventory("Clip", 500);
-    TakeInventory("Shell", 500);
-    TakeInventory("Cell", 500);
-    TakeInventory("RocketAmmo", 500);
+    GiveInventory("ChainsawFake", 1); // Fake weapons that have no ammo (because some people can't switch weapons without ammo)
+    GiveInventory("PistolFake", 1);
+    GiveInventory("SuperShotgunFake", 1);
+    GiveInventory("ChaingunFake", 1);
+    GiveInventory("RocketLauncherFake", 1);
+    GiveInventory("PlasmaRifleFake", 1);
+    GiveInventory("BFG9000Fake", 1);
     GiveInventory("Fist", 1);
     SetWeapon("Fist");
 
@@ -3943,43 +3960,43 @@ Script "DoomWare_Client_Minigame44" (void) // Don't Equip Weapon
     {
     	case 1:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your Chainsaw";
-            wep = "Chainsaw";
+            wep = "ChainsawFake";
             break;
         case 2:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your Pistol";
-            wep = "Pistol";
+            wep = "PistolFake";
             break;
         case 3:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your Super Shotgun";
-            wep = "SuperShotgun";
+            wep = "SuperShotgunFake";
             break;
         case 4:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your Chaingun";
-            wep = "Chaingun";
+            wep = "ChaingunFake";
             break;
         case 5:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your Rocket Launcher";
-            wep = "RocketLauncher";
+            wep = "RocketLauncherFake";
             break;
         case 6:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your Plasma Gun";
-            wep = "PlasmaRifle";
+            wep = "PlasmaRifleFake";
             break;
         case 7:
             minigame_instruction1[PlayerNumber()] = "Don't Equip your BFG9000";
-            wep = "BFG9000";
+            wep = "BFG9000Fake";
             break;
     }
 	Delay(SECOND);
 
     // Fail them if they got the right weapon
-	oldwep = GetWeapon();
     while (game_status == STATUS_MINIGAME)
     {
-        if (!StrIcmp(GetWeapon(), wep) && !StrIcmp(GetWeapon(), oldwep))
+        if (!StrIcmp(GetWeapon(), wep))
+			ticcount++;
+		if (ticcount == 5)
             Player_Lose(PlayerNumber(), false);
         delay(1);
-		oldwep = GetWeapon();
     }
 }
 
@@ -3993,6 +4010,8 @@ Script "DoomWare_Client_Minigame45" (void) // Finish a lap (Rainbow Road)
 
     // Morph the player into a kart and freeze him
 	str class = "KartPlayer";
+	if (game_wackymod == WACKYMOD_SPEED)
+		class = "KartPlayerSpeed";
 	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
 	{
 		Player_Morph(PlayerNumber(), class);
@@ -5071,6 +5090,57 @@ Script "DoomWare_Client_Minigame88" (void) // Choose a side
 Script "DoomWare_Client_Minigame89" (void) // Abandon Ship
 {
 	minigame_instruction1[PlayerNumber()] = "Abandon Ship";
+
+    // Wait until the game's over
+    while (game_status == STATUS_MINIGAME)
+        delay(1);
+}
+
+Script "DoomWare_Client_Minigame90" (void) // Survive (Captain Falcon)
+{
+	minigame_instruction1[PlayerNumber()] = "Survive";
+	minigame_instruction2[PlayerNumber()] = "1 Point Per Frag";
+	
+	// Morph the player into Captain Falcon
+	str class = "CFalconPlayer";
+	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
+	{
+		Player_Morph(PlayerNumber(), class);
+		delay(1);
+	}
+
+    // Wait until the game's over
+    while (game_status == STATUS_MINIGAME)
+        delay(1);
+		
+	// Unmorph the player back and unfreeze them if they were
+    UnMorphActor(TID_PLAYER+PlayerNumber(), true);
+	SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN);
+}
+
+Script "DoomWare_Client_Minigame91" (void) // Reach the End (Golden Idol)
+{
+	minigame_instruction1[PlayerNumber()] = "Reach the End";
+	minigame_instruction2[PlayerNumber()] = "Grab the \ckGolden Key";
+	
+	// Give the player a push staff so he can be a dick
+    GiveInventory("PushStaff", 1);
+    SetWeapon("PushStaff");
+
+    // Wait until the game's over
+    while (game_status == STATUS_MINIGAME)
+        delay(1);
+}
+
+Script "DoomWare_Client_Minigame92" (void) // Pet Daisy :)
+{
+	minigame_instruction1[PlayerNumber()] = "Pet Daisy :)";
+	minigame_instruction2[PlayerNumber()] = "Click \cdShoot\cg to pet";
+	
+	// Make the player invulnerable and give them hands to pet with
+	SetPlayerProperty(1, 2, prop_invulnerability);
+    GiveInventory("PetWeapon", 1);
+    SetWeapon("PetWeapon");
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -8832,6 +8902,72 @@ Script "DoomWare_Server_Minigame89" (void) // Abandon Ship
 	Thing_Deactivate(697);
 }
 
+Script "DoomWare_Server_Minigame90" (void) // Survive (Captain Falcon)
+{
+    HUDMessage(s:"Survive (Captain Falcon)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_SSB");
+	Add_Observer(698);
+	round_winifmid = true;
+    minigame_fragpoints = true;
+	
+    // Teleport everyone to the fighting arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 700, true, false);
+	
+    // Start the timer
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*10+30-(10*game_speed));
+
+    // If there is only one player left, make him win to stop the timer
+    do
+    {
+        Check_LMS();
+        delay(1);
+    }
+    while (minigame_timer != TIMER_OFF);
+	
+	// Teleport the players back to the main arena
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+}
+
+Script "DoomWare_Server_Minigame91" (void) // Reach the End (Golden Idol)
+{
+    HUDMessage(s:"Reach the End (Golden Idol)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_RAIDRS");
+	Add_Observer(702);
+	
+    // Teleport everyone to the Temple of Warriors
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 920, false, true);
+	
+	// Spawn the "Golden Idol"
+	SpawnSpotForced("YellowSkull", 701, TID_REMOVE, 0);
+    Thing_SetSpecial(TID_REMOVE, 226, 252, 0, 0);
+	
+    // Start the timer
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*15-(25*game_speed));
+	
+	// Teleport the players back to the main arena
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+}
+
+Script "DoomWare_Server_Minigame92" (void) // Pet Daisy :)
+{
+    HUDMessage(s:"Pet Daisy :)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_FARM");
+	
+	// Spawn Daisy :)
+	SpawnSpotForced("Daisy", random(2, 10), TID_REMOVE, 0);
+	
+    // Start the timer
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*6-25-(20*game_speed));
+	
+    // Check for winners
+    do
+    {
+        Check_WonRoundItem();
+        delay(1);
+    }
+    while (minigame_timer != TIMER_OFF);
+}
+
 
 /*===================================================================================================
                                     1v1 TieBreakers (Serverside)
@@ -9011,6 +9147,8 @@ Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
     SetMusic("D_fire");
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 780, false, true);
     Add_Observer(755);
+	
+	// Wait some time
     delay(random(SECOND*2, SECOND*4));
 
     // Raise the target
@@ -9025,6 +9163,7 @@ Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
             if (player_wonround[i] == true)
             {
                 Floor_LowerInstant(217+minigame_wincondition1, 0, 16);
+				minigame_wincondition1 = -1;
                 break;
             }
         time++;
@@ -9038,6 +9177,7 @@ Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
     if (checks == MAXPLAYERS)
         Floor_LowerInstant(217+minigame_wincondition1, 0, 16);
 
+	// Bring people back to the main arena
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
 }
 
@@ -9045,6 +9185,41 @@ Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
 /*===================================================================================================
                                     Extra Minigame Scripts
 ===================================================================================================*/
+
+int linealpha[4];
+Script 18 (int lineid, int angle) // Arena wall bumping
+{
+	int linealpha_max = 75;
+	int linealpha_speed = 5;
+	int lineslot = 255-lineid;
+	
+	// Push the player
+	ThrustThing(angle, 8);
+	
+	// If there's no other script running
+	if (linealpha[lineslot] == 0)
+	{
+		// Change the line to FIREBLU
+		linealpha[lineslot] = linealpha_max;
+		setlinetexture(lineid, SIDE_FRONT, TEXTURE_MIDDLE, "FIREBLU1");
+		setlinetexture(lineid, SIDE_BACK, TEXTURE_MIDDLE, "FIREBLU1");
+		
+		// Decrease the line alpha over time
+		while (linealpha[lineslot] > 0)
+		{
+			linealpha[lineslot] = linealpha[lineslot]-linealpha_speed;
+			TranslucentLine(lineid, linealpha[lineslot], 0);
+			delay(1);
+		}
+		
+		// Remove the texture entirely
+		setlinetexture(lineid, SIDE_FRONT, TEXTURE_MIDDLE, "-");
+		setlinetexture(lineid, SIDE_BACK, TEXTURE_MIDDLE, "-");	
+		linealpha[lineslot] = 0;
+	}
+	else
+		linealpha[lineslot] = linealpha_max;
+}
 
 Script 9 (int Condition) // Check win with condition
 {
@@ -9148,14 +9323,14 @@ Script 243 (int Key) // Key Reset
 	if (game_status == STATUS_MINIGAME)
 	{
 		if (Key == 0)
-            SpawnSpotForced("YellowCard", 497, 42, 0);
+            SpawnSpotForced("YellowCard", 497, TID_REMOVE, 0);
 		if (Key == 1)
-            SpawnSpotForced("BlueCard", 498, 4300, 0);
+            SpawnSpotForced("BlueCard", 498, TID_REMOVE+1, 0);
 		if (Key == 2)
-            SpawnSpotForced("RedCard", 499, 4400, 0);
-		Thing_SetSpecial(42, 226, 243, 0, 0);
-		Thing_SetSpecial(4300, 226, 243, 0, 1);
-		Thing_SetSpecial(4400, 226, 243, 0, 2);
+            SpawnSpotForced("RedCard", 499, TID_REMOVE+2, 0);
+		Thing_SetSpecial(TID_REMOVE, 226, 243, 0, 0);
+		Thing_SetSpecial(TID_REMOVE+1, 226, 243, 0, 1);
+		Thing_SetSpecial(TID_REMOVE+2, 226, 243, 0, 2);
 	}
 }
 
@@ -9243,40 +9418,33 @@ Script 250 (int CheckpointNum) // Checkpoint in kart racing
     }
 }
 
-int linealpha[4];
-Script 18 (int lineid, int angle) // Arena wall bumping
+Script "DoomWare_FalconPunchFreeze" (int freeze) // Falcon Punch Weapon freeze
 {
-	int linealpha_max = 75;
-	int linealpha_speed = 5;
-	int lineslot = 255-lineid;
-	
-	// Push the player
-	ThrustThing(angle, 8);
-	
-	// If there's no other script running
-	if (linealpha[lineslot] == 0)
-	{
-		// Change the line to FIREBLU
-		linealpha[lineslot] = linealpha_max;
-		setlinetexture(lineid, SIDE_FRONT, TEXTURE_MIDDLE, "FIREBLU1");
-		setlinetexture(lineid, SIDE_BACK, TEXTURE_MIDDLE, "FIREBLU1");
-		
-		// Decrease the line alpha over time
-		while (linealpha[lineslot] > 0)
-		{
-			linealpha[lineslot] = linealpha[lineslot]-linealpha_speed;
-			TranslucentLine(lineid, linealpha[lineslot], 0);
-			delay(1);
-		}
-		
-		// Remove the texture entirely
-		setlinetexture(lineid, SIDE_FRONT, TEXTURE_MIDDLE, "-");
-		setlinetexture(lineid, SIDE_BACK, TEXTURE_MIDDLE, "-");	
-		linealpha[lineslot] = 0;
-	}
+	if (freeze)
+		Player_FreezeTotally(0);
 	else
-		linealpha[lineslot] = linealpha_max;
+		Player_UnFreezeTotally(0);
 }
+
+Script 251 (void) // Golden idol room arrows
+{
+	if (GetActorZ(0)-GetActorFloorZ(0) == 0.0 && ThingCountSector(T_NONE, TID_PLAYER+PlayerNumber(), 699) == 0)
+	{
+		delay(5);
+		Thing_damage(0, 1337, MOD_RAILGUN);
+	}
+}
+
+Script 252 (void) // Golden idol key pickup
+{
+	if (game_status == STATUS_MINIGAME)
+	{
+		SpawnSpotForced("YellowSkull", 701, TID_REMOVE, 0);
+		Thing_SetSpecial(TID_REMOVE, 226, 252, 0, 0);
+		Player_Win(PlayerNumber());
+	}
+}
+
 
 /*===================================================================================================
                                         Console Commands

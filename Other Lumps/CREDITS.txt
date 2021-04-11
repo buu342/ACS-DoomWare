@@ -32,6 +32,7 @@ Another special thanks to the following people/users for beta-testing, and for b
 - Marcaek
 - Asriel
 - HumanBones
+- dewsome
 - Dsparil
 - Slaerd
 - redeyesgreendragon
@@ -444,6 +445,23 @@ Music - Grievous and the Droids - Star Wars Episode 3 Soundtrack
 Some textures from Shadows of the Empire, some from SkullTag
 Alarm Sound - Sonic the Hedgehog - SEGA
 
+**Survive (Captain Falcon)**
+Music - Kirby's Dreamland Theme - Super Smash Brothers
+Captain Falcon Model and Sounds - Super Smash Brothers - Nintendo
+Dust sprite - TVnGames
+Smoke sprite - Guilty Gear XX - Arc System Works
+Fist sprite - TheDarkArchon's Haunt
+
+**Reach the End (Golden Idol)**
+Music - Desert Chase - Raiders of the Lost Ark
+Textures - Egypt Pack - Planet Quake
+
+**Pet Daisy :)**
+Idea - Samuel Pearson
+Music - Moo Moo Farm - Mario Kart 64
+Daisy Sprites - Action Doom
+Hand Sprites - Not sure... It was either Marty Kirra, wildweasel, Cory Whittle, or Scuba Steve.
+
 
 ==================================
  Credits Part 3 (1v1 TieBreakers)
@@ -464,7 +482,7 @@ Credits Part 4 (Other TieBreakers)
 ==================================
 
 **Grenade Launcher Duel**
-Music - Garage Battle - F.E.A.R. Original Soundtrack
+Music - Garage Battle - F.E.A.R.
 Weapon Sprites and Code - Skulltag
 
 **Survive (decreasing ring)**

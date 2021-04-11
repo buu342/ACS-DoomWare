@@ -26,6 +26,13 @@ pointlight REDPOINT
     offset 0 0 0
 }
 
+pointlight WHITEPOINT
+{
+    color 1.0 1.0 1.0
+    size 8
+    offset 0 0 0
+}
+
 object OrangeTorch
 {
     frame TORG { light ORANGELIGHT }
@@ -51,4 +58,10 @@ object RedPoint
 {
     frame TNT1 { light REDPOINT }
     frame TNT1A { light REDPOINT }
+}
+
+object WhitePoint
+{
+    frame TNT1 { light WHITEPOINT }
+    frame TNT1A { light WHITEPOINT }
 }

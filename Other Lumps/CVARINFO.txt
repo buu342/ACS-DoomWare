@@ -8,7 +8,7 @@ server bool   doomware_duplicates = false;	// Allow duplicate games
 server bool   doomware_bouncywalls = true;  // Make the walls of the arena bounce people off?
 server bool   doomware_easymode = false;    // TODO: Show people the minigame instructions before it starts?
 server bool   doomware_wackymods = true;    // Allow wacky modifiers?
-server int    doomware_wackymodschance = 4; // Odds of a wacky mod? (The higher, the less chance. 0 means always)
+server int    doomware_wackymodschance = 3; // Odds of a wacky mod? (The higher, the less chance. 0 means always)
 server bool   doomware_bossfight = true;	// Allow the boss fight wacky mod?
 server bool   doomware_unsafedb = false;    // Allow stat tracking for non logged in players?
 

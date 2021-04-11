@@ -91,6 +91,38 @@ $playersound	buu342	male	*death		DSBUYEAH
 $playersound	buu342	male	*xdeath		DSBUWOO
 $playersound	buu342	male	*gibbed		DSBUWOO
 
+$playersound	cfalcon	male	*land		DSCFLAND
+$playersound	cfalcon	female	*land		DSCFLAND
+$playersound	cfalcon	other	*land		DSCFLAND
+$playersound	cfalcon	male	*taunt		DSCFTAUN
+$playersound	cfalcon	female	*taunt		DSCFTAUN
+$playersound	cfalcon	other	*taunt		DSCFTAUN
+$playersound	cfalcon	male	*usefail	DSCFGRUN
+$playersound	cfalcon	female	*usefail	DSCFGRUN
+$playersound	cfalcon	other	*usefail	DSCFGRUN
+$playersound	cfalcon	male	*pain100	DSCFPAIN
+$playersound	cfalcon	female	*pain100	DSCFPAIN
+$playersound	cfalcon	other	*pain100	DSCFPAIN
+$playersound	cfalcon	male	*pain75		DSCFPAIN
+$playersound	cfalcon	female	*pain75		DSCFPAIN
+$playersound	cfalcon	other	*pain75		DSCFPAIN
+$playersound	cfalcon	male	*pain50		DSCFPAIN
+$playersound	cfalcon	female	*pain50		DSCFPAIN
+$playersound	cfalcon	other	*pain50		DSCFPAIN
+$playersound	cfalcon	male	*pain25		DSCFPAIN
+$playersound	cfalcon	female	*pain25		DSCFPAIN
+$playersound	cfalcon	other	*pain25		DSCFPAIN
+$playersound	cfalcon	male	*death		DSCFDETH
+$playersound	cfalcon	female	*death		DSCFDETH
+$playersound	cfalcon	other	*death		DSCFDETH
+$playersound	cfalcon	male	*xdeath		DSCFXDTH
+$playersound	cfalcon	female	*xdeath		DSCFXDTH
+$playersound	cfalcon	other	*xdeath		DSCFXDTH
+$playersound	cfalcon	male	*gibbed		DSCFXDTH
+$playersound	cfalcon	female	*gibbed		DSCFXDTH
+$playersound	cfalcon	other	*gibbed		DSCFXDTH
+
+
 chicken/death	CHICDTH
 
 
@@ -312,6 +344,12 @@ DoomWare/BusLoop				DSBUSLOP
 
 DoomWare/MusicFreeze			D_FREEZE
 DoomWare/Blank					DSBLANK
+
+DoomWare/FalconPunch			DSCFPNCH
+DoomWare/PunchBoom				DSCFBOOM
+DoomWare/SSBHit					DSCFHHIT
+DoomWare/SSBKO					DSCFKO
+DoomWare/CrowdOhh				DSCROWD
 
 
 DoomWare/Alarm					DSALARM
