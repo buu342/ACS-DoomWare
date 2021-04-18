@@ -32,6 +32,7 @@ map map30 "Icon of DoomWare"
 	NoCrouch
 	EnterPic = "DW_ENTER"
 	ExitPic = "DW_EXIT"
+	RandomPlayerStarts 
 }
 
 clearskills

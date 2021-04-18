@@ -1,0 +1,7 @@
+Teamplay {
+    addflag DEADSPECTATORS
+}
+
+TeamGame {
+    addflag DEADSPECTATORS
+}

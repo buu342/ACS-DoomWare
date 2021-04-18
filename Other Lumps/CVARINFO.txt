@@ -1,20 +1,22 @@
 /*===================================================================================================
-									  Serverside Configuration
+                                      Serverside Configuration
 ===================================================================================================*/
 
-server string doomware_mode = "";           // "" or "halloween"
-server string doomware_banlist = "";		// TODO: List of banned minigame numbers (separated by spaces)
-server bool   doomware_duplicates = false;	// Allow duplicate games
-server bool   doomware_bouncywalls = true;  // Make the walls of the arena bounce people off?
-server bool   doomware_easymode = false;    // TODO: Show people the minigame instructions before it starts?
-server bool   doomware_wackymods = true;    // Allow wacky modifiers?
-server int    doomware_wackymodschance = 3; // Odds of a wacky mod? (The higher, the less chance. 0 means always)
-server bool   doomware_bossfight = true;	// Allow the boss fight wacky mod?
-server bool   doomware_unsafedb = false;    // Allow stat tracking for non logged in players?
+server string doomware_mode = "";                // "" or "halloween" or "christmas"
+server bool   doomware_automode = true;          // Automatically select a seasonal map skin
+server string doomware_banlist = "";             // TODO: List of banned minigame numbers (separated by spaces)
+server bool   doomware_duplicates = false;       // Allow duplicate games
+server bool   doomware_bouncywalls = true;       // Make the walls of the arena bounce people off?
+server bool   doomware_easymode = false;         // TODO: Show people the minigame instructions before it starts?
+server bool   doomware_wackymods = true;         // Allow wacky modifiers?
+server int    doomware_wackymodschance = 3;      // Odds of a wacky mod? (The higher, the less chance. 0 means always)
+server bool   doomware_bossfight = true;         // Allow the boss fight wacky mod?
+server bool   doomware_bossfightrespawn = false; // TODO: Allow players to respawn after a minigame during the boss fight=
+server bool   doomware_unsafedb = false;         // Allow stat tracking for non logged in players?
 
 
 /*===================================================================================================
-									  Clientside Configuration
+                                      Clientside Configuration
 ===================================================================================================*/
 
 user bool doomware_hudscale = false;    // Scale the HUD to 800x600
@@ -28,7 +30,7 @@ user bool doomware_invertfly = false;   // Invert flight controls
 
 
 /*===================================================================================================
-									     Extra, don't touch
+                                         Extra, don't touch
 ===================================================================================================*/
 
 // To show the DoomWare menu when connecting for the first time
@@ -58,6 +60,7 @@ server noarchive string __clientsync_player_datadeaths = "";
 server noarchive string __clientsync_player_data1ups = "";
 server noarchive string __clientsync_player_dataroles = "";
 server noarchive string __clientsync_player_dataachieve = "";
+server noarchive string __clientsync_player_databosskills = "";
 server noarchive string __clientsync_player_loggedin = "";
 server noarchive string __clientsync_player_checklost = "";
 server noarchive string __clientsync_player_lostround = "";

@@ -1,0 +1,50 @@
+LISTMENU "MainMenu"
+{
+    StaticPatch 94, 2, "M_DOOM"
+    Position    97, 72
+    
+    PatchItem "M_NGAME",  "n", "PlayerclassMenu"
+    PatchItem "M_DWOPTI", "d", "DoomWareOptionsMenu"
+    PatchItem "M_OPTION", "o", "OptionsMenu"
+    PatchItem "M_QUITG",  "q", "QuitMenu"
+}
+
+OptionMenu "DoomWareOptionsMenu"
+{
+    Title      "DOOMWARE OPTIONS"
+    StaticText ""
+    
+    Submenu "DoomWare Controls",  "DoomWare_Binds"
+    Submenu "Clientside Options", "DoomWare_CLOptions"
+}
+
+OptionMenu "DoomWare_Binds"
+{
+    Title     "DOOMWARE CONTROLS"
+    ScrollTop 2
+    
+    StaticTextSwitchable "ENTER to change, BACKSPACE to clear", "Press new key for control, ESC to cancel", "ControlMessage"
+    StaticText           ""
+    
+    Control "Highscore Table",  "+dwscores"
+    Control "Observe Minigame", "+dwobserve"
+    Control "DoomWare Menu",    "+dwmenu"
+}
+
+OptionMenu "DoomWare_CLOptions"
+{
+    Title     "CIENTSIDE OPTONS"
+    ScrollTop 2
+    
+    StaticText "These options are also available in the Ingame DoomWare Menu"
+    StaticText ""
+    
+    Option "Scale the HUD to 800x600",       "doomware_hudscale",     "OnOff"
+    Option "Widescreen HUD",                 "doomware_hudwide",      "OnOff"
+    Option "HUD plays sounds",               "doomware_hudsounds",    "OnOff"
+    Option "Dynamic HUD Movement",           "doomware_huddynamic",   "OnOff"
+    Option "Show binds on the HUD",          "doomware_hudshowbinds", "OnOff"
+    Option "Warn that you're not logged in", "doomware_loginwarn",    "OnOff"
+    Option "Pre-round music",                "doomware_music",        "OnOff"
+    Option "Invert flight controls",         "doomware_invertfly",    "OnOff"
+}

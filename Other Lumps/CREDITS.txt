@@ -42,7 +42,7 @@ Another special thanks to the following people/users for beta-testing, and for b
 - KingDime
 
 I wish to credit the original authors of anything I used, since they deserve to know their content is being used. I emailed every one, but most emails bounced back, since I have content that is older than the pyramids. 
-If you don't want your stuff in this wad, please email me at buu342@hotmail.com and I will remove the content. No biggie. 
+If you don't want your stuff in this WAD, please email me at buu342@hotmail.com and I will remove the content. No biggie. 
 All content is used for entertainment purposes and is non-profit. Music clips are shorter than 15 seconds. This should keep those pesky lawyers away.
 Since the resources are used so sparingly, I will list the minigames (in order of programming date (sorry, I'll get to organizing it alphabetically someday)) and the resources used will be listed, as well as authors of said original content. 
 Anything else not mentioned can be assumed that I made it. And yes, feel free to use it yourself. Credit would be nice but not required.
@@ -66,10 +66,13 @@ Evil Laugh Sound - Strider (Genesis) - Capcom
 Loading Music - Sonic CD Boss Theme (US) - SEGA
 Menu sound effects - Warioware - Nintendo
 Round Music - Warioware - Nintendo
+Round Music (Game Over, tie) - WarioMan Minigames - Warioware D.I.Y
+Round Music (Halloween) - Mystic Mansion - Sonic Heroes
+Round Music (Christmas) - Frosty Village - Diddy Kong Racing
 Waiting Music - Mario Elevator - KMax
-Waiting Music (Halloween) - Hang Castle (Sonic Heroes) - SEGA
+Waiting Music (Halloween) - Hang Castle - Sonic Heroes
+Waiting Music (Christmas) - Snowflake Mountain - Diddy Kong Racing
 Intermission Music - Pyoro Title Screen (GBA) - Nintendo
-Round Music (Halloween) - Mystic Mansion (Sonic Heroes) - SEGA
 Crown Hat Sprite - Sean Warton
 Skull Hat Sprite - RuneScape - Jagex
 Heart Hat Sprite - RuneScape - Jagex
@@ -447,20 +450,25 @@ Alarm Sound - Sonic the Hedgehog - SEGA
 
 **Survive (Captain Falcon)**
 Music - Kirby's Dreamland Theme - Super Smash Brothers
+Arena Textures - Super Smash Brothers - Nintendo
 Captain Falcon Model and Sounds - Super Smash Brothers - Nintendo
 Dust sprite - TVnGames
 Smoke sprite - Guilty Gear XX - Arc System Works
-Fist sprite - TheDarkArchon's Haunt
+Fist sprite - TheDarkAxrchon's Haunt
 
 **Reach the End (Golden Idol)**
 Music - Desert Chase - Raiders of the Lost Ark
-Textures - Egypt Pack - Planet Quake
+Original (clean) Textures - Egypt Pack - Planet Quake
 
 **Pet Daisy :)**
 Idea - Samuel Pearson
 Music - Moo Moo Farm - Mario Kart 64
 Daisy Sprites - Action Doom
 Hand Sprites - Not sure... It was either Marty Kirra, wildweasel, Cory Whittle, or Scuba Steve.
+
+**Choose a port**
+Port Icons - By the port makers (Zandronum, ZDaemon, Odamex)
+Music - The Moon & The Prince - Katamari Damacy
 
 
 ==================================
@@ -505,6 +513,5 @@ Bouncing Projectiles - Heresiarch lava head projectiles - Hexen
 Eye laser sounds - Dochuki Battle Phase 2 - Mystical Ninja 2: Starring Goemon
 Flame breath sound - Dochuki Battle Phase 2 - Mystical Ninja 2: Starring Goemon
 Invisibility sound - Arachnotron Death Sound - Doom 64
-Boss Music - Too Black Too String - Sonic Rush
-Boss Win Music - Yes, We Did it! - Mystical Ninja 2: Starring Goemon
+Boss Music - Wrapped in Black - Sonic Rush
 Boss Death Sound - Umibōzu - Mystical Ninja 2: Starring Goemon

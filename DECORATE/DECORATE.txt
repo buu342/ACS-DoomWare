@@ -1307,24 +1307,24 @@ Actor ConfettiEffect
 {
 	States
 	{
-	Spawn:
-		TNT1 A 1
-		TNT1 AAAAAA 0 A_SpawnItemEx("RedConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("GreenConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("BlueConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("YellowConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 A 5
-		TNT1 AAAAAA 0 A_SpawnItemEx("RedConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("GreenConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("BlueConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("YellowConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 A 5
-		TNT1 AAAAAA 0 A_SpawnItemEx("RedConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("GreenConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("BlueConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 AAAAAA 0 A_SpawnItemEx("YellowConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
-		TNT1 A 5
-		stop
+		Spawn:
+			TNT1 A 1
+			TNT1 AAAAAA 0 A_SpawnItemEx("RedConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("GreenConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("BlueConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("YellowConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 A 5
+			TNT1 AAAAAA 0 A_SpawnItemEx("RedConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("GreenConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("BlueConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("YellowConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 A 5
+			TNT1 AAAAAA 0 A_SpawnItemEx("RedConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("GreenConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("BlueConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 AAAAAA 0 A_SpawnItemEx("YellowConfetti", Random(-14,14), Random(-14,14), 42+Random(-40,-10), random(0,2), random(0,2), 8, random(-180,180), 0, 16)
+			TNT1 A 5
+			stop
 	}
 }
 
@@ -3774,6 +3774,24 @@ ACTOR ImpKart
 	}
 }
 
+// Imp riding a Kart
+ACTOR ImpKart1UP : ImpKart
+{
+	translation "64:79=112:127"
+	States
+	{
+		Death:
+			KART A 0 A_GiveToTarget("1UP", 1)
+			KART A 0 A_GiveToTarget("WonRoundItem", 1)
+			MISL B 5 bright A_Playsound("weapons/rocklx")
+			MISL C 5 bright
+			MISL D 5 bright
+			TNT2 A 5 bright
+			TNT2 A -1
+			Stop
+	}
+}
+
 // Pushing staff
 ACTOR PushStaff : Fist
 {
@@ -4195,8 +4213,8 @@ ACTOR RainSpawner 11154
 			TNT1 A 1
 			loop
         Activated:
-            TNT1 A 1 A_SpawnItemEx ("RainDrop1", random(-64,-64), random(-64,-64), 0, random(0,1), random(0,1), -random(20,150), random(0,255), 0)
-            TNT1 A 1 A_SpawnItemEx ("RainDrop2", random(-64,-64), random(-64,-64), 0, random(0,1), random(0,1), -random(20,150), random(0,255), 0)  
+            TNT1 A 0 A_SpawnItemEx ("RainDrop", random(-512,-512), random(-512,-512), 0, random(0,1), random(0,1), -random(20,150), random(0,255), 0)
+            TNT1 A 1 A_SpawnItemEx ("RainDrop", random(-512,-512), random(-512,-512), 0, random(0,1), random(0,1), -random(20,150), random(0,255), 0)  
 			loop
 		Deactivated:
 			TNT1 A 1
@@ -4206,8 +4224,9 @@ ACTOR RainSpawner 11154
 }
 
 // Shadow of the Colossus rain drop with splat
-ACTOR RainDrop1
+ACTOR RainDrop
 {
+    radius 1
 	+CLIENTSIDEONLY
 	+NOBLOCKMAP 
 	+DROPOFF 
@@ -4227,34 +4246,7 @@ ACTOR RainDrop1
         Death:
             RAIN B 0 A_NoGravity
             RAIN B 0 A_Stop
-            RAIN A 1 A_SpawnItemEx ("RainSplat", 0, 0, 0, 0, 0, 0, 0, 0) //A_CustomMissile("RainSplat", 0, 0, 0)
-            Stop
-	}
-}
-
-// Shadow of the Colossus rain drop without splat
-ACTOR RainDrop2
-{
-	+CLIENTSIDEONLY
-	+NOBLOCKMAP 
-	+DROPOFF 
-	+MISSILE 
-	+NOTELEPORT
-	+DontSplash
-    RenderStyle Add
-	Alpha .5
-	xscale 0.25
-    projectile
-    
-	states
-	{
-        Spawn:
-            RAIN A 1 bright
-            Loop
-        Death:
-            RAIN B 0 A_NoGravity
-            RAIN B 0 A_Stop
-            RAIN A 1 
+            RAIN BCDE 3
             Stop
 	}
 }
@@ -4381,6 +4373,21 @@ ACTOR OrangeTorch
 	}
 }
 
+// White Christmas torch
+ACTOR WhiteTorch
+{
+	Radius 16
+	Height 68
+	ProjectilePassHeight -16
+	+SOLID
+	States
+	{
+		Spawn:
+			TORW ABCD 4 Bright
+			Loop
+	}
+}
+
 // Orange OpenGL light emitter
 ACTOR OrangePoint
 {
@@ -4419,6 +4426,24 @@ ACTOR BluePoint
 
 // Red OpenGL light emitter
 ACTOR RedPoint
+{
+	+NOBLOCKMAP
+	+NOSECTOR
+	+NOGRAVITY
+	+DONTSPLASH
+	+MISSILEMORE
+	RenderStyle None
+	CameraHeight 0
+	States
+	{
+		Spawn:
+			TNT1 A 1
+			Loop
+	}
+}
+
+// White OpenGL light emitter
+ACTOR WhitePoint
 {
 	+NOBLOCKMAP
 	+NOSECTOR
@@ -4655,8 +4680,8 @@ ACTOR Buu342Phase2 11157
 			Goto See 
 		Missile3:
 			BUHD C 0 ACS_Execute(666, 0)
-			BUHD BCBCBC 5 A_FaceTarget
-			BUHD C 35 A_FaceTarget
+			BUHD BFBFBF 5 A_FaceTarget
+			BUHD F 35 A_FaceTarget
 			BUHD B 0 A_ClearTarget
 			Goto ChangePos
 		Missile4:
@@ -4672,7 +4697,7 @@ ACTOR Buu342Phase2 11157
 			Goto See
 		Missile5:
 			BUHD A 0 A_VileStart 
-			BUHD A 0 ACS_Execute(668, 0)
+			BUHD A 0 ACS_ExecuteAlways(668, 0)
 			BUHD A 5 A_FaceTarget
 			BUHD E 8 A_VileTarget
 			BUHD EEEEEE 8 A_FaceTarget
@@ -4701,53 +4726,53 @@ ACTOR Buu342Phase2 11157
 			BUHD B 0 A_ClearTarget
 			Goto See
 		Missile7:
-			BUHD E 2 A_FaceTarget
-			BUHD E 0 A_PlaySound("DoomWare/BuuEyeLaser", 0, 1, false, ATTN_NONE)
-            BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -18)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -18) 
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -18, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -18, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -16)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -16)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -16, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -16, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -14)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -14)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -14, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -14, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -12)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -12)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -12, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -12, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -10)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -10)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -10, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -10, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -8)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -8)
-			BUHD B 0 A_PlaySound("DoomWare/BuuEyeLaserExplosion", 0, 1, false, ATTN_NONE)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -8, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -8, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -6)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -6)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -6, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -6, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -4)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -4)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -4, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -4, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -2)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -2)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -2, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -2, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, 0)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, 0)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 0, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 0, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, 2)
-			BUHD E 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, 2)
-            BUHD E 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 2, 0, 2, 1.0, 0.0, "None", 20)
-			BUHD E 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 2, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_FaceTarget
+			BUHD F 0 A_PlaySound("DoomWare/BuuEyeLaser", 0, 1, false, ATTN_NONE)
+            BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -18)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -18) 
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -18, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -18, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -16)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -16)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -16, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -16, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -14)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -14)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -14, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -14, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -12)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -12)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -12, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -12, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -10)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -10)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -10, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -10, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -8)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -8)
+			BUHD F 0 A_PlaySound("DoomWare/BuuEyeLaserExplosion", 0, 1, false, ATTN_NONE)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -8, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -8, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -6)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -6)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -6, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -6, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -4)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -4)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -4, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -4, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, -2)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, -2)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -2, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, -2, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, 0)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, 0)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 0, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 0, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, -50, 0, CMF_AIMDIRECTION, 2)
+			BUHD F 0 A_CustomMissile("DelayedExplosion", 20, 50, 0, CMF_AIMDIRECTION, 2)
+            BUHD F 0 A_CustomRailgun(0, -50, None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 2, 0, 2, 1.0, 0.0, "None", 20)
+			BUHD F 2 A_CustomRailgun(0, 50,  None, "Red", RGF_SILENT|RGF_EXPLICITANGLE|RGF_FULLBRIGHT, 0, 0, None, 0, 2, 0, 2, 1.0, 0.0, "None", 20)
 			BUHD B 0 A_ClearTarget
 			Goto ChangePos
 		Pain:
@@ -5117,8 +5142,19 @@ ACTOR CFalconPlayer : DoomPlayer
 			Loop
 		Missile:
 			CFAL E 0 A_PlaySound("DoomWare/FalconPunch")
-			CFAL EFG 10
-			CFAL HIJHIJHIJHIJHIJHIJ 1
+			CFAL EFG 10 A_SpawnItem("FPunchChargeEmitter")
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
 			CFAL K 10	
 			Goto Spawn
 		Melee:
@@ -5134,6 +5170,95 @@ ACTOR CFalconPlayer : DoomPlayer
 			TNT1 A 0 A_XScream
 			TNT1 A 10 A_NoBlocking
 			TNT1 A -1
+			Stop
+	}
+}
+
+// Falcon Punch Charging Green Fire Effect
+ACTOR FPunchCharge
+{
+	radius 8
+	height 8
+	projectile
+	damage 0
+	RenderStyle TRANSLUCENT
+	+THRUACTORS
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	-SOLID
+	States
+	{
+		Spawn:
+			FPCH A 1 BRIGHT A_SetScale(0.5, 0.1)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.2)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.3)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.4)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.5)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.6)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.7)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.8)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			FPCH A 0 BRIGHT A_SetScale(0.5, 0.9)
+			FPCH A 1 BRIGHT A_FadeOut(0.1)
+			Stop
+	}
+}
+
+// Falcon Punch little flame particle
+ACTOR FPunchFlamelet
+{
+	radius 8
+	height 8
+	projectile
+	damage 0
+	Scale 0.3
+	RenderStyle TRANSLUCENT
+	+THRUACTORS
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	-SOLID
+	States
+	{
+		Spawn:
+			FPFR ABCDEF 2 BRIGHT
+			Stop
+	}
+}
+
+// Creates a circle of the above effect
+ACTOR FPunchChargeEmitter
+{
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+NOTELEPORT
+	-SOLID
+	States
+	{
+		Spawn:
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -158, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -135, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -112, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -90, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -69, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -45, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, -22, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 0, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 22, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 45, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 69, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 90, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 112, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 135, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 158, SXF_CLIENTSIDE)
+			TNT1 A 0 A_SpawnItemEx("FPunchCharge", 0, 0, 0, 6, 0, 0, 180, SXF_CLIENTSIDE)
+			TNT1 A 1
 			Stop
 	}
 }
@@ -5192,6 +5317,26 @@ ACTOR FalconPunchHitbox
 	}
 }
 
+// Smash Bros Hit Effect
+ACTOR SmashEffect
+{
+	Radius 32
+	Height 64
+	RenderStyle TRANSLUCENT
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+NOTELEPORT
+	-SOLID
+	States
+	{
+		Spawn:
+			SMSH ABCDEFGHIJ 1 BRIGHT A_FadeTo(0, 0.1)
+			TNT1 A 0
+			Stop
+	}
+}
+
 // Captain Falcon death effect
 ACTOR CaptainFalconDeath
 {
@@ -5211,6 +5356,7 @@ ACTOR CaptainFalconDeath
 	{
 		Spawn:
 			CFAL L 1 
+			CFAL L 0 A_SpawnItem("SmashEffect", 0, 32)
 			CFAL L 1 A_ChangeVelocity(-20, 0, 23, CVF_RELATIVE|CVF_REPLACE)
 			CFAL L 0 A_PlaySound("DoomWare/SSBHit", CHAN_BODY)
 			CFAL L 0 A_PlaySound("DoomWare/CrowdOhh", CHAN_ITEM, 1, false, ATTN_NONE)
@@ -5404,5 +5550,116 @@ ACTOR BFG9000Fake : BFG9000
 	{
 		Fire:
 			Goto Ready
+	}
+}
+
+// Statue of God
+ACTOR BuuStatue 11158
+{
+	Radius 40
+	Height 110
+	scale 0.5
+	+SOLID
+	States
+	{
+		Spawn:
+			STAT A -1
+			Stop
+	}
+}
+
+// Snow flake particle 1
+ACTOR SnowFlake1
+{
+	Radius 8
+	Height 1
+	Mass 5
+	RenderStyle TRANSLUCENT
+	Alpha 0.8
+	Scale 0.3
+	+CLIENTSIDEONLY
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+NOTELEPORT
+	+INVULNERABLE
+	+NONSHOOTABLE
+	+CORPSE
+	States
+	{
+		Spawn:
+			SNOW A 1 BRIGHT
+			SNOW A 8 BRIGHT A_Jump(160, "Wiggle")
+			Loop
+		Wiggle:          
+			SNOW A 8 BRIGHT A_CStaffMissileSlither
+			Goto Spawn
+		Crash:
+			SNOW A 16 BRIGHT
+			Stop
+	}
+}
+
+// Snow flake particle 2
+ACTOR SnowFlake2 : SnowFlake1
+{
+	States
+	{
+		Spawn:
+			SNOW B 1 BRIGHT
+			SNOW B 8 BRIGHT A_Jump(160, "Wiggle")
+			Loop
+		Wiggle:          
+			SNOW B 8 BRIGHT A_CStaffMissileSlither
+			Goto Spawn
+		Crash:
+			SNOW B 16 BRIGHT
+			Stop
+	}
+}
+
+// Snow flake particle 3
+ACTOR SnowFlake3 : SnowFlake1
+{
+	States
+	{
+		Spawn:
+			SNOW C 1 BRIGHT
+			SNOW C 8 BRIGHT A_Jump(160, "Wiggle")
+			Loop
+		Wiggle:          
+			SNOW C 8 BRIGHT A_CStaffMissileSlither
+			Goto Spawn
+		Crash:
+			SNOW C 16 BRIGHT
+			Stop
+	}
+}
+
+
+// Snow dropper
+ACTOR SnowDropper 11159
+{
+	Radius 16
+	Height 6
+	RenderStyle NONE
+	+NOGRAVITY
+	+NOBLOCKMAP
+	+NOTELEPORT
+	+SPAWNCEILING
+	+CEILINGHUGGER
+	+NOCLIP
+	States
+	{
+		Spawn:
+			TNT1 A 0 A_Jump(256, "Spawn1", "Spawn2", "Spawn3")
+		Spawn1:
+			TNT1 A 10 A_SpawnItemEx("SnowFlake1", random(0, 128), 0, 0, 0, 0, -0.7, random(0, 360), 128)
+			Goto Spawn
+		Spawn2:
+			TNT1 A 10 A_SpawnItemEx("SnowFlake2", random(0, 128), 0, 0, 0, 0, -0.7, random(0, 360), 128)
+			Goto Spawn
+		Spawn3:
+			TNT1 A 10 A_SpawnItemEx("SnowFlake3", random(0, 128), 0, 0, 0, 0, -0.7, random(0, 360), 128)
+			Goto Spawn
 	}
 }

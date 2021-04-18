@@ -176,6 +176,31 @@ DoomWare/Halloween/Intro5		W2_INTR5
 DoomWare/Halloween/Win5			W2_WIN5
 DoomWare/Halloween/FAIL5		W2_FAIL5
 
+DoomWare/Christmas/Intro		W3_INTRO
+DoomWare/Christmas/Win			W3_WIN
+DoomWare/Christmas/FAIL			W3_FAIL
+DoomWare/Christmas/SPEEDUP		W3_SPEED
+
+DoomWare/Christmas/Intro2		W3_INTR2
+DoomWare/Christmas/Win2			W3_WIN2
+DoomWare/Christmas/FAIL2		W3_FAIL2
+DoomWare/Christmas/SPEEDUP2		W3_SPED2
+
+DoomWare/Christmas/Intro3		W3_INTR3
+DoomWare/Christmas/Win3			W3_WIN3
+DoomWare/Christmas/FAIL3		W3_FAIL3
+DoomWare/Christmas/SPEEDUP3		W3_SPED3
+
+DoomWare/Christmas/Intro4		W3_INTR4
+DoomWare/Christmas/Win4			W3_WIN4
+DoomWare/Christmas/FAIL4		W3_FAIL4
+DoomWare/Christmas/SPEEDUP4		W3_SPED4
+
+DoomWare/Christmas/Intro5		W3_INTR5
+DoomWare/Christmas/Win5			W3_WIN5
+DoomWare/Christmas/FAIL5		W3_FAIL5
+
+
 DoomWare/GameOver				WW_Over
 DoomWare/TieBreaker				WW_TIEBK
 DoomWare/TieStart				WW_TSTRT

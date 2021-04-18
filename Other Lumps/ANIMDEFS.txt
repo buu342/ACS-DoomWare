@@ -27,5 +27,9 @@ pic 1 tics 4
 pic 2 tics 4
 pic 3 tics 4
 
+texture FIREBLU1
+pic 1 tics 8
+pic 2 tics 8
+
 switch SOTESCHN on pic SOTESCHY tics 0
 switch SOTESCHY off pic SOTESCHN tics 0
