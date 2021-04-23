@@ -1,5 +1,7 @@
 /*===========================================================================================================================================
-    TODO - WRITE THIS HEADER
+	This is the DoomWare boss fight. A lot of the code is copy pasted from MAP01, which I'll try to fix by 
+	splitting the codebase into different libraries. That will, unfortunately, require that I change my Doom Builder
+	compilation system as it doesn't support #including multiple ACS files.
 ===========================================================================================================================================*/
 
 #include "zcommon.acs"
@@ -225,7 +227,7 @@ Good luck, and have fun!\
 
 // Login Menu Text
 
-#define LOGIN "\
+#define LOGIN "You are not logged in.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
 You must have an account at www.auth.zandronum.com, and then login by opening the\n\
 console and typing in 'login username password'. If you do not login, your stats and\n\
 achievemnts will not be tracked.\
@@ -236,9 +238,6 @@ achievemnts will not be tracked.\
                                         Global Variables
 ===================================================================================================*/
 
-bool player_wonround[MAXPLAYERS];       // Players put here have won the round (usually denoted by the green particle effect)
-bool player_lostround[MAXPLAYERS];      // Players in here have lost the round (usually denoted by the red particle effect)
-bool player_midround[MAXPLAYERS];       // All players are put in here at the start of each round.
 bool player_viewingscore[MAXPLAYERS];   // List of players looking at the highscore
 bool player_viewingmenu[MAXPLAYERS];    // List of players looking at their menu
 bool player_musicwaiting[MAXPLAYERS];   // List of whether players are hearing the waiting/speedup music
@@ -259,8 +258,6 @@ int  game_status;                   // A number containing the status of the gam
 int  game_over;                     // The reason the game ended
 bool game_solo;                     // Is someone playing alone?
 int  game_alive;					// How many people are alive
-str  game_fakechat; 				// Fake chat log messages
-str  game_fakechatsound; 			// Fake chat log sound
 int  game_phase2health;				// The last phase 2 fight health check
 int  game_skin;						// Map skin
 
@@ -303,8 +300,6 @@ script "DoomWare_Server_Boot" OPEN
     game_status = STATUS_NOTSTARTED;
     game_solo = false;
 	game_phase2health = 0;
-	game_fakechat = "";
-	game_fakechatsound = CHATSOUND_NONE;
 
     // Create a "thread" that continually updates the hats and handles the database
     ACS_NamedExecute("DoomWare_Server_Hats", 0);
@@ -332,19 +327,39 @@ script "DoomWare_Server_Boot" OPEN
 	// If he isn't, connect him to the game
 	if (!buuingame)
 	{
-		game_fakechatsound = CHATSOUND_CON;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- has connected. (from: pt)";
+		ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- has connected. (from: pt)", CHATSOUND_CON);
 		Delay(SECOND*2);
 	}
 	
 	// Make buu342 say something edgy
-	game_fakechatsound = CHATSOUND_MSG;
-	game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: I hope you've made your prayers";
+	switch (random(1, 7))
+	{
+		case 1:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I hope you've made your prayers.", CHATSOUND_MSG);
+			break;
+		case 2:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Killing you all is my favorite part.", CHATSOUND_MSG);
+			break;
+		case 3:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Hopefully you prepared new pants!", CHATSOUND_MSG);
+			break;
+		case 4:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Let's get it started in here.", CHATSOUND_MSG);
+			break;
+		case 5:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Now it's my turn.", CHATSOUND_MSG);
+			break;
+		case 6:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you know: You're going to die.", CHATSOUND_MSG);
+			break;
+		case 7:
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'm curious how long you'll last.", CHATSOUND_MSG);
+			break;
+	}
 	delay(SECOND);
 	
 	// Make buu342 join the game
-	game_fakechatsound = CHATSOUND_NONE;
-	game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the game.";
+	ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the game.", CHATSOUND_NONE);
 	SpawnSpotForced("Buu342Phase1", 1, TID_BUU342, 192);
 	SpawnSpotForced("TeleportFog", 1, 0, 0.25);
 	Thing_Deactivate(TID_BUU342);
@@ -374,19 +389,6 @@ script "DoomWare_Client_Join" ENTER
     while (game_status == STATUS_NOTSTARTED || game_status == STATUS_STARTING)
         delay(1);
 		
-	// Initialize the player arrays if the game hasn't started
-	if (game_status <= STATUS_WAITING)
-	{
-		player_midround[PlayerNumber()] = true;
-		player_wonround[PlayerNumber()] = false;
-		player_lostround[PlayerNumber()] = false;
-	}
-	else
-	{
-		delay(1);
-		SetDeadSpectator(PlayerNumber(), 1);
-	}
-	
     // Start the main clientside logic "thread"
     ACS_NamedExecuteAlways("DoomWare_Client_GameLogic", 0);
 }
@@ -403,9 +405,6 @@ Script "DoomWare_Server_Initialize" (void)
 
     // Initialize the highscore table
     ACS_NamedExecute("DoomWare_Server_InitHighscores", 0);
-
-    // Wipe the Observers array
-    ACS_NamedExecute("DoomWare_Server_ClearObservers", 0);
 
     // Wait a bit so everyone knows the game is starting
     delay(SECOND*3);
@@ -553,11 +552,8 @@ Script "DoomWare_Client_Initialize" (void)
     data_deaths[PlayerNumber()] = 0;
     data_1ups[PlayerNumber()] = 0;
     player_achievement[PlayerNumber()] = "";
-    player_wonround[PlayerNumber()] = false;
     minigame_instruction1[PlayerNumber()] = "";
     player_viewsprite[PlayerNumber()] = "";
-	player_midround[PlayerNumber()] = true;
-	player_lostround[PlayerNumber()] = false;
 
     HUDMessage(s:""; HUDMSG_PLAIN, MSGID_ACHIEVEM, CR_CYAN, 0, 0, 1.0);
 
@@ -611,11 +607,9 @@ Script "DoomWare_Server_GameLogic" (void)
 		delay(SECOND*3);
 		
 		// Make buu342 say some more edgy things
-		game_fakechatsound = CHATSOUND_MSG;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you really think it'd be that easy?";
+		ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you really think it'd be that easy?", CHATSOUND_MSG);
 		delay(SECOND*3);
-		game_fakechatsound = CHATSOUND_MSG;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: This is just the beginning.";
+		ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: This is just the beginning.", CHATSOUND_MSG);
 		delay(SECOND*3);
 		
 		// Start the floor shake
@@ -668,17 +662,13 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: you FOOLS! This is MY WAD, MY GAMEMODE.";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: you FOOLS! This is MY WAD, MY GAMEMODE.", CHATSOUND_MSG);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'M THE ONE IN CONTROL HERE. WATCH!";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'M THE ONE IN CONTROL HERE. WATCH!", CHATSOUND_MSG);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_NONE;
-					game_fakechat = "The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"", CHATSOUND_NONE);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Lets see how good you are at DoomWare!";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Lets see how good you are at DoomWare!", CHATSOUND_MSG);
 					delay(SECOND*3);
 				}
 				break;
@@ -689,8 +679,7 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're a persistent bunch. Lets try this then.";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're a persistent bunch. Lets try this then.", CHATSOUND_MSG);
 					delay(SECOND*3);
 				}
 				break;
@@ -701,8 +690,7 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Gosh, you're annoying. How about this?";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Gosh, you're annoying. How about this?", CHATSOUND_MSG);
 					delay(SECOND*3);
 				}
 				break;
@@ -713,8 +701,7 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Why won't you die already!?";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Why won't you die already!?", CHATSOUND_MSG);
 					delay(SECOND*3);
 				}
 				break;
@@ -725,8 +712,7 @@ Script "DoomWare_Server_GameLogic" (void)
 					dominigame = true;
 					SetActorState(TID_BUU3422, "TurnInvisible", true);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: fuckfuckfuckfuck!!!!!";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: fuckfuckfuckfuck!!!!!", CHATSOUND_MSG);
 					delay(SECOND*3);
 				}
 				break;
@@ -739,20 +725,15 @@ Script "DoomWare_Server_GameLogic" (void)
 					game_status = STATUS_PHASE2OVER;
 					SetMusic("D_WRAPDR");
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: I";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I", CHATSOUND_MSG);
 					delay(SECOND);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: WONT";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: WONT", CHATSOUND_MSG);
 					delay(SECOND);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: FUCKING";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: FUCKING", CHATSOUND_MSG);
 					delay(SECOND);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: LOSE!!!!!!!!!!!!!!!";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: LOSE!!!!!!!!!!!!!!!", CHATSOUND_MSG);
 					delay(SECOND*3);
-					game_fakechatsound = CHATSOUND_MSG;
-					game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!";
+					ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!", CHATSOUND_MSG);
 					delay(SECOND*3);
 					round_nextgame = random(SECOND*5, SECOND*8);
 				}
@@ -766,13 +747,42 @@ Script "DoomWare_Server_GameLogic" (void)
 			gametoplay = StrParam(s:"DoomWare_Server_Minigame", d:round_current[(game_phase2health-1)%NUMBEROFGAMES]);
 			game_status = STATUS_MINIGAME;
 			ClearInventory();
+			
+			// Play a minigame
 			ACS_NamedExecute(gametoplay, 0);
 			NamedScriptWait(gametoplay);
+			
+			// Cleanup
 			Thing_remove(TID_REMOVE);
 			if (laststatus == STATUS_PHASE2)
 				game_status = STATUS_PHASE2;
 			else if(laststatus == STATUS_PHASE2OVER)
 				game_status = STATUS_PHASE3;
+				
+			// Respawn people
+			if (GetCVar("doomware_bossfightrespawn"))
+			{
+				// Make sure at least one person is alive
+				game_alive = 0;
+				for (i=0; i<MAXPLAYERS; i++)
+					if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
+						game_alive++;
+				
+				// If so, respawn everyone
+				if (game_alive != 0)
+				{
+					for (i=0; i<MAXPLAYERS; i++)
+					{
+						if (PlayerIsSpectator(i) == 2)
+						{
+							SetDeadSpectator(i, 0);
+							game_alive++;
+						}
+					}
+				}
+			}
+				
+			// Make Buu342 visible again
 			Delay(SECOND);
 			SetActorState(TID_BUU3422, "TurnVisible", true);
 		}
@@ -794,10 +804,11 @@ Script "DoomWare_Server_GameLogic" (void)
 	if (game_status >= STATUS_PHASE1 && ClassifyActor(TID_BUU3422)&ACTOR_DEAD)
 	{		
 		int tx, ty, ang;
+		
 		// Clear the arena and make players invul (in case of minigame stuff)
 		thing_remove(TID_REMOVE);
 		for (i=0; i<MAXPLAYERS; i++)
-			if (player_lostround[i] == false)
+			if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
 				SetPlayerProperty(1, 2, PROP_INVULNERABILITY);
 		
 		// Stop the music and flash the screen
@@ -809,12 +820,10 @@ Script "DoomWare_Server_GameLogic" (void)
 		
 		// Say the last words
 		AmbientSound("misc/chat", 127);
-		game_fakechatsound = CHATSOUND_MSG;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Heh, looks like you really are...";
+		ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Heh, looks like you really are...", CHATSOUND_MSG);
 		Delay(SECOND*2);
 		AmbientSound("misc/chat", 127);
-		game_fakechatsound = CHATSOUND_MSG;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: Too strong...";
+		ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Too strong...", CHATSOUND_MSG);
 		Delay(SECOND*2);
 		Radius_Quake(3, SECOND*7, 0, 255, 1);
 		
@@ -837,11 +846,10 @@ Script "DoomWare_Server_GameLogic" (void)
 		}
 		
 		// If he isn't, disconnect him from the game
-		game_fakechatsound = CHATSOUND_NONE;
 		if (!buuingame)
-			game_fakechat = "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.";
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.", CHATSOUND_NONE);
 		else
-			game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.";
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.", CHATSOUND_NONE);
 		thing_remove(TID_BUU3422);
 		Delay(SECOND*3);
 		
@@ -850,11 +858,13 @@ Script "DoomWare_Server_GameLogic" (void)
 		game_over = OVER_WINNER;
 		SetMusic("D_BOSWIN");
 		for (i=0; i<MAXPLAYERS; i++)
-			if (player_lostround[i] == false)
+		{
+			if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
 			{
 				Give_Achievement(i, ACHIEVE_ID_BOSS);
 				data_bosskills[i]++;
 			}
+		}
 		delay(SECOND*7 + 15);
 		
 		// Update the database and exit to the original map
@@ -866,7 +876,7 @@ Script "DoomWare_Server_GameLogic" (void)
 	// Check if everyone is dead
 	game_alive = 0;
 	for (i=0; i<MAXPLAYERS; i++)
-		if (player_lostround[i] == false)
+		if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
 			game_alive++;
 	
 	// If everone is dead, then end the game
@@ -881,8 +891,30 @@ Script "DoomWare_Server_GameLogic" (void)
 		delay(15);
 		SetActorState(TID_BUU3422, "Laugh", true);
 		delay(SECOND*3);
-		game_fakechatsound = CHATSOUND_MSG;
-		game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you thought you stood a chance";
+		switch(random(1, 7))
+		{
+			case 2:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Try a little harder next time", CHATSOUND_MSG);
+				break;
+			case 3:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Pathetic", CHATSOUND_MSG);
+				break;
+			case 4:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Whoops, looks like I accidentally obliterated you", CHATSOUND_MSG);
+				break;
+			case 5:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'll call next time I want to be tickled", CHATSOUND_MSG);
+				break;
+			case 6:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Maybe try hurting me next time", CHATSOUND_MSG);
+				break;
+			case 7:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Maybe if you use IDDQD, you'll actually do some damage", CHATSOUND_MSG);
+				break;
+			default:
+				ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you thought you stood a chance", CHATSOUND_MSG);
+				break;
+		}
 		delay(SECOND*2);
 		
 		// Check if buu342 is ingame
@@ -894,11 +926,10 @@ Script "DoomWare_Server_GameLogic" (void)
 		}
 		
 		// If he isn't, disconnect him from the game
-		game_fakechatsound = CHATSOUND_NONE;
 		if (!buuingame)
-			game_fakechat = "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.";
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.", CHATSOUND_NONE);
 		else
-			game_fakechat = "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.";
+			ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.", CHATSOUND_NONE);
 		thing_remove(TID_BUU342);
 		thing_remove(TID_BUU3422);
 		delay(SECOND*2);
@@ -932,37 +963,9 @@ Script "DoomWare_Server_GameLogic" (void)
 function bool No_MidRound_Array(void) // Return whether everyone has passed/failed
 {
     for (int i=0; i<MAXPLAYERS; i++)
-        if (player_midround[i] != false && PlayerInGame(i))
+        if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
             return false;
     return true;
-}
-
-function void Player_Win(int plynum) // Make a player win
-{
-    if (player_midround[plynum] == true)
-    {
-        SetActivator(TID_PLAYER+plynum);
-        LocalAmbientSound("DoomWare/Check", 127);
-        SpawnSpotForced("WonRoundEffect", TID_PLAYER+plynum, 0, 0);
-        player_wonround[plynum] = true;
-        player_midround[plynum] = false;
-    }
-}
-
-function void Player_Lose(int plynum, bool silent) // Make a player lose
-{
-    if (player_midround[plynum] == true)
-    {
-        // Make the sound + effects
-        if (!silent)
-        {
-            SetActivator(TID_PLAYER+plynum);
-            LocalAmbientSound("DoomWare/Failure", 127);
-            SpawnSpotForced("FailedRoundEffect", TID_PLAYER+plynum, 0, 0);
-        }
-        player_lostround[plynum] = true;
-        player_midround[plynum] = false;
-    }
 }
 
 Script "DoomWare_Server_GameWait" (int time)
@@ -1137,7 +1140,7 @@ Script "DoomWare_Server_ReturnPlayers" (int move_if_lost, int fog)
 			continue;
 
 		// Move the player back to their original spot
-        if ((!move_if_lost && !player_lostround[i]) || move_if_lost)
+        if ((!move_if_lost && PlayerInGame(i) && PlayerIsSpectator(i) == 0) || move_if_lost)
             SetActorPosition(TID_PLAYER+i, player_position[i][0], player_position[i][1], player_position[i][2], fog);
 
 		// If for some reason they're not at the spawn, force them back to the center
@@ -1195,13 +1198,9 @@ Script "DoomWare_Server_InitGlobals" (void)
         data_role[i] = 0;
         data_achieve[i] = 0;
 		data_bosskills[i] = 0;
-        player_lostround[i] = 0;
         player_viewingmenu[i] = 0;
         minigame_instruction1[i] = "";
         player_viewsprite[i] = "";
-        player_wonround[i] = false;
-        player_midround[i] = false;
-        player_lostround[i] = true;
     }
 
     SetCVar("__clientsync_round", 0);
@@ -1227,13 +1226,42 @@ Script "DoomWare_Server_InitGlobals" (void)
     SetCVarString("__clientsync_player_dataroles", "");
     SetCVarString("__clientsync_player_dataachieve", "");
     SetCVarString("__clientsync_player_databosskills", "");
-    SetCVarString("__clientsync_player_checklost", "");
-    SetCVarString("__clientsync_player_lostround", "");
     SetCVarString("__clientsync_player_viewingmenu", "");
     SetCVarString("__clientsync_player_instruction1", "");
     SetCVarString("__clientsync_player_instruction2", "");
     SetCVarString("__clientsync_player_instruction3", "");
     SetCVarString("__clientsync_player_viewsprite", "");
+	
+	// Get global stat data
+	DB_NetworkStats("Wins", "wins");
+	DB_NetworkStats("Points", "points");
+	DB_NetworkStats("1Ups", "1ups");
+	DB_NetworkStats("Deaths", "deaths");
+	DB_NetworkStats("BossKills", "bosses");
+}
+
+function void DB_NetworkStats(str namespace, str cvarname) // Updates the global stats variables to network to clients
+{
+	int stat_t = 0;
+	int stat_g = 0;
+	int stat_n = "Multiple Players";
+	int res = GetDBEntries(namespace);
+	int c = CountDBResults(res);
+	if (c != 0)
+	{
+		FreeDBResults(res);
+		res = SortDBEntries(namespace, c, 0, true);
+		if (GetDBResultValue(res, 0) != GetDBResultValue(res, 1))
+			stat_n = GetDBResultKeyString(res, 0);
+		for (int i=0; i<c; i++)
+			stat_g += GetDBResultValue(res, i);
+		stat_t = GetDBResultValue(res, 0);
+		FreeDBResults(res);
+		
+		Player_SetCVar(StrParam(s:"__clientsync_stats_t_", s:cvarname), stat_t);
+		Player_SetCVar(StrParam(s:"__clientsync_stats_g_", s:cvarname), stat_g);
+		Player_SetCVarString(StrParam(s:"__clientsync_stats_n_", s:cvarname), stat_n);
+	}
 }
 
 Script "DoomWare_Server_SyncGlobals" (void)
@@ -1252,12 +1280,10 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Player_SetCVar("__clientsync_canobserve", minigame_canobserve);
     Player_SetCVar("__clientsync_gamesolo", game_solo);
     Player_SetCVar("__clientsync_roundcurrent", game_alive);
-    Player_SetCVarString("__clientsync_highname", game_fakechat);
 	if (ClassifyActor(TID_BUU342)&ACTOR_ALIVE)
 		Player_SetCVar("__clientsync_highscore1", GetActorProperty(TID_BUU342, APROP_HEALTH));
 	else
 		Player_SetCVar("__clientsync_highscore1", GetActorProperty(TID_BUU3422, APROP_HEALTH));
-	Player_SetCVar("__clientsync_highscore2", game_fakechatsound);
 
     Pack_Global_Array("__clientsync_player_score");
     Pack_Global_Array("__clientsync_player_loggedin");
@@ -1268,8 +1294,6 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Pack_Global_Array("__clientsync_player_dataroles");
     Pack_Global_Array("__clientsync_player_dataachieve");
     Pack_Global_Array("__clientsync_player_databosskills");
-    Pack_Global_Array("__clientsync_player_checklost");
-    Pack_Global_Array("__clientsync_player_lostround");
     Pack_Global_Array("__clientsync_player_viewingmenu");
     Pack_Global_Array("__clientsync_player_instruction1");
     Pack_Global_Array("__clientsync_player_instruction2");
@@ -1323,8 +1347,6 @@ function void Pack_Global_Array(str cvar) // Replacement for Get/SetUserCVar
 		case "__clientsync_player_dataroles":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_role[i], s:"\n"); break;
 		case "__clientsync_player_dataachieve":   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_achieve[i], s:"\n"); break;
 		case "__clientsync_player_databosskills": for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_bosskills[i], s:"\n"); break;
-		case "__clientsync_player_checklost":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:Check_Player_Lost(i), s:"\n"); break;
-		case "__clientsync_player_lostround":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_lostround[i], s:"\n"); break;
 		case "__clientsync_player_viewingmenu":   for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:player_viewingmenu[i], s:"\n"); break;
 		case "__clientsync_player_instruction1":  for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:minigame_instruction1[i], s:"\n"); break;
 		case "__clientsync_player_viewsprite":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, s:player_viewsprite[i], s:"\n"); break;	
@@ -1397,27 +1419,31 @@ function str Unpack_CVar_Array_String(str cvar) // Retrieve the value of a Pack_
 
 Script "DoomWare_Client_Death" DEATH
 {
-    Player_Lose(PlayerNumber(), false);
-
 	// Spawn a spoopy ghost
 	if (game_skin == MAPSKIN_HALLOWEEN)
 		SpawnSpotForced("SpoopyGhost", TID_PLAYER+PlayerNumber(), TID_REMOVE, 0);
 
-	// Remove the player's TID if they're dead (to prevent corpses from emitting effects)
-	if (GetActorProperty(TID_PLAYER+PlayerNumber(), APROP_HEALTH) <= 0)
-		Thing_ChangeTID(TID_PLAYER+PlayerNumber(), 0);
-	ACS_NamedExecuteAlways("DoomWare_Client_DeathExtra", 0, PlayerNumber()); // Jank workaround because of scripts getting killed when SetDeadSpectator is called
-		
+	// Wait a bit for the corpse animation to play
+	delay(33);
+	
+	// Jank workaround because of scripts getting killed when SetDeadSpectator is called
+	ACS_NamedExecuteAlways("DoomWare_Client_DeathExtra", 0, PlayerNumber()); 
+	delay(1);
+	
 	// Force the player to spectate
-	delay(SECOND + 15);
 	SetDeadSpectator(PlayerNumber(), 1);
+}
+
+Script "DoomWare_Client_Respawn" RESPAWN
+{
+	ACS_NamedExecuteAlways("DoomWare_Client_Join", 0);
 }
 
 Script "DoomWare_Client_DeathExtra" (int plynum)
 {
 	// Zandronum kills clientside scripts on spectation, so execute the HUD script again...
 	SetActivator(0, AAPTR_NULL);
-	delay(SECOND + 20);
+	delay(10);
 	ACS_NamedExecuteAlways("DoomWare_Client_DrawHUD", 0, plynum);
 }
 
@@ -1442,8 +1468,6 @@ Script "DoomWare_Client_Disconnect" (int gone) DISCONNECT
     data_bosskills[gone] = 0;
     data_role[gone] = ROLE_UNLOGGED;
     data_achieve[gone] = 0;
-	player_midround[gone] = false;
-	player_lostround[gone] = true;
 	
 	// Zandronum kills clientside scripts on spectation, so execute the HUD script again...
 	if (PlayerIsSpectator(gone))
@@ -1451,18 +1475,6 @@ Script "DoomWare_Client_Disconnect" (int gone) DISCONNECT
 		ACS_NamedTerminate("DoomWare_Client_DrawHUD", 0);
 		ACS_NamedExecuteAlways("DoomWare_Client_DrawHUD", 0, gone);
 	}
-}
-
-Script "DoomWare_Client_Respawn" RESPAWN
-{
-	thing_changetid(0, TID_PLAYER+PlayerNumber());
-    player_observe[PlayerNumber()] = 0;
-    clearinventory();
-	SetDeadSpectator(PlayerNumber(), 1);
-	delay(10);
-	
-	// Zandronum kills clientside scripts on spectation, so execute it again...
-	ACS_NamedExecuteAlways("DoomWare_Client_DrawHUD", 0, PlayerNumber());
 }
 
 Script "DoomWare_Client_GameLogic" (void)
@@ -1492,6 +1504,7 @@ Script "DoomWare_Client_GameLogic" (void)
 	if (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2 || game_status == STATUS_PHASE3)
 	{
 		int wep = random(1, 2);
+		delay(1); // Needed or respawned players won't get weapons???
 		
 		// If someone is by themselves, give them stronger weapons
 		if (game_status != STATUS_PHASE1)
@@ -1563,7 +1576,7 @@ Script "DoomWare_Client_GameLogic" (void)
 
 function bool Check_Player_Lost(int plynum)
 {
-    return (player_lostround[plynum] || (player_midround[plynum] && !round_winifmid));
+    return !(PlayerInGame(plynum) && PlayerIsSpectator(plynum) == 0);
 }
 
 
@@ -2099,35 +2112,10 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
         str syncdata_canobserve = GetCvar("__clientsync_canobserve");
         str syncdata_timer = GetCvar("__clientsync_minigametimer");
         str syncdata_alive = GetCvar("__clientsync_roundcurrent");
-        str syncdata_lostround = Unpack_CVar_Array("__clientsync_player_lostround");
         str syncdata_loggedin = Unpack_CVar_Array("__clientsync_player_loggedin");
 		
 		// Boss fight stuff
         int syncdata_buuhealth = GetCvar("__clientsync_highscore1");
-        str syncdata_buuchat = GetCVarString("__clientsync_highname");
-        str syncdata_buuchatsound = GetCVar("__clientsync_highscore2");
-
-
-		/*==============================
-                   Fake Chat
-        ==============================*/
-
-		if (syncdata_buuchat != lastchat)
-		{
-			switch(syncdata_buuchatsound)
-			{
-				case CHATSOUND_MSG:
-					AmbientSound("misc/chat", 127);
-					break;
-				case CHATSOUND_CON:
-					AmbientSound("zandronum/connect", 127);
-					break;
-				case CHATSOUND_NONE:
-					break;
-			}
-			Log(s:syncdata_buuchat);
-			lastchat = syncdata_buuchat;
-		}
 
 
         /*==============================
@@ -2234,13 +2222,7 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
         {
             SetFont("DW_FONT1");
             HUDMessage(d:syncdata_alive; HUDMSG_PLAIN, MSGID_SCORE, CR_YELLOW, x_start+64.0, hud_toppos+46.0, 1);
-			if (GetUserCVar(plynum, "doomware_hudshowbinds") && syncdata_canobserve && syncdata_lostround)
-			{
-				SetFont("DW_FONT3");
-				HUDMessage(s:"Press ", k:"+dwobserve", s:" to observe the game"; HUDMSG_PLAIN, MSGID_OBSERVE, CR_CYAN, w-x_start-64.0 + 0.4, hud_toppos + 68.0 + 0.1, 1);
-			}
-			else
-				HUDMessage(s:""; HUDMSG_PLAIN, MSGID_OBSERVE, CR_CYAN, 0.0, 0.0, 1);
+			HUDMessage(s:""; HUDMSG_PLAIN, MSGID_OBSERVE, CR_CYAN, 0.0, 0.0, 1);
         }
 		
 
@@ -2332,6 +2314,22 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
     }
 }
 
+script "DoomWare_FakeMessage" (int message, int sound) CLIENTSIDE // Log() doesn't work unless it's clientsided, thus this script...
+{
+	Log(s:message);
+	switch(sound)
+	{
+		case CHATSOUND_MSG:
+			AmbientSound("misc/chat", 127);
+			break;
+		case CHATSOUND_CON:
+			AmbientSound("zandronum/connect", 127);
+			break;
+		case CHATSOUND_NONE:
+			break;
+	}
+}
+
 
 /*===================================================================================================
                                         Highscore table
@@ -2341,63 +2339,6 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
 Script 257 (void) NET
 {
 	// Not used in boss arena
-}
-
-
-/*===================================================================================================
-                                        Observer System
-===================================================================================================*/
-
-function void Add_Observer(int TID)
-{
-	minigame_canobserve = true;
-	for (int i=0; i<NUMOBSERVERS; i++)
-		if (round_observers[i] == -1)
-		{
-			round_observers[i] = TID;
-			break;
-		}
-}
-
-function void Force_Observe(int plynum)
-{
-    player_observe[PlayerNumber()]++;
-    ChangeCamera(round_observers[0], 0, 0);
-}
-
-Script "DoomWare_Server_ClearObservers" (void)
-{
-    int i;
-
-    // Disable minigame observation
-    for (i=0; i<NUMOBSERVERS; i++)
-        round_observers[i] = -1;
-    minigame_canobserve = false;
-
-    // Remove everyone's observation
-    for (i=0; i<MAXPLAYERS; i++)
-        player_observe[i] = 0;
-    ChangeCamera(0, 1, 0);
-}
-
-Script 988 (void) NET // Client - Observe
-{
-	if (game_status > STATUS_STARTING)
-	{
-		if (minigame_canobserve == true && player_lostround[PlayerNumber()])
-		{
-            if (round_observers[player_observe[PlayerNumber()]] != -1)
-            {
-                player_observe[PlayerNumber()]++;
-                ChangeCamera(round_observers[player_observe[PlayerNumber()]-1], 0, 0);
-            }
-			else
-            {
-                ChangeCamera(0, 0, 0);
-                player_observe[PlayerNumber()] = 0;
-            }
-		}
-	}
 }
 
 
@@ -2442,6 +2383,23 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
     int tab = 1;
     int plynum = ConsolePlayerNumber();
     bool menu_wasopen = false;
+	
+	// Initialize global top stats variables
+	int topstat_wins = GetCVar("__clientsync_stats_t_wins");
+	int topstat_score = GetCVar("__clientsync_stats_t_points");
+	int topstat_1ups = GetCVar("__clientsync_stats_t_1ups");
+	int topstat_deaths = GetCVar("__clientsync_stats_t_deaths");
+	int topstat_bosskills = GetCVar("__clientsync_stats_t_bosses");
+	int topstat_g_wins = GetCVar("__clientsync_stats_g_wins");
+	int topstat_g_score = GetCVar("__clientsync_stats_g_points");
+	int topstat_g_1ups = GetCVar("__clientsync_stats_g_1ups");
+	int topstat_g_deaths = GetCVar("__clientsync_stats_g_deaths");
+	int topstat_g_bosskills = GetCVar("__clientsync_stats_g_bosses");
+	str topstat_n_wins = GetCVarString("__clientsync_stats_n_wins");
+	str topstat_n_score = GetCVarString("__clientsync_stats_n_points");
+	str topstat_n_1ups = GetCVarString("__clientsync_stats_n_1ups");
+	str topstat_n_deaths = GetCVarString("__clientsync_stats_n_deaths");
+	str topstat_n_bosskills = GetCVarString("__clientsync_stats_n_bosses");
 
     // Start the menu drawing loop
     while (1)
@@ -2530,7 +2488,7 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                     break;
                 case 2:
                     SetFont("DW_FONT3");
-                    HUDMessage(s:"Stop looking at the menu if you want to live";
+                    HUDMessage(s:"                                    ", s:CHANGES;
                         HUDMSG_PLAIN, MSGID_MELEM, CR_WHITE, w/2-312.0 + 0.1, h/2 - 200.0 + 0.1, 1);
 
                     // Clear unused elements
@@ -2541,6 +2499,26 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                 case 3:
                     SetFont("DW_FONT3");
                     int syncdata_loggedin = Unpack_CVar_Array("__clientsync_player_loggedin");
+					
+					// Print global and top stats
+					HUDMessage(s:"\ckGlobal Stats\c-\n\n",
+						s:"Games Played\n", d:topstat_g_wins,
+						s:"\n\nPoints Given\n", d:topstat_g_score,
+						s:"\n\n1-Ups Collected\n", d:topstat_g_1ups,
+						s:"\n\nTotal Deaths\n", d:topstat_g_deaths,
+						s:"\n\nBosses Defeated\n", d:topstat_g_bosskills,
+						s:"\n\n\n\ckThese stats update\n\ckon map start\c-"
+						; HUDMSG_PLAIN, MSGID_MELEM+2, CR_WHITE, w/2-220.0 + 0.4, h/2 - 200.0 + 0.1, 1);
+					HUDMessage(s:"\ckTop Stats\c-\n\n",
+						s:"Game Wins\n", s:topstat_n_wins, s:" (", d:topstat_wins, s:")",
+						s:"\n\nPoints Received\n", s:topstat_n_score, s:" (", d:topstat_score, s:")",
+						s:"\n\n1-Ups Collected\n", s:topstat_n_1ups, s:" (", d:topstat_1ups, s:")",
+						s:"\n\nTotal Deaths\n", s:topstat_n_deaths, s:" (", d:topstat_deaths, s:")",
+						s:"\n\nBosses Defeated\n", s:topstat_n_bosskills, s:" (", d:topstat_bosskills, s:")",
+						s:"\n\n\n\ckThese stats update\n\ckon map start\c-"
+						; HUDMSG_PLAIN, MSGID_MELEM+1, CR_WHITE, w/2+220.0 + 0.4, h/2 - 200.0 + 0.1, 1);
+					
+					// Display player stats based on whether they're logged in or not
                     if (syncdata_loggedin >= 1)
                     {
                         int syncdata_score = Unpack_CVar_Array("__clientsync_player_score");
@@ -2569,18 +2547,15 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                             case ROLE_BUU342:
                                 role = "\cqG\csO\cdD";
                                 break;
-                            default: // Should never happen
-                                role = "\caERROR\c-";
-                                break;
                         }
-                        HUDMessage(s:"Game wins\n", d:syncdata_wins,
-                            s:"\n\nPoints received\n", d:(syncdata_score + syncdata_totalpoints),
+                        HUDMessage(s:"\ckYour Stats\c-\n\n",
+							s:"Game Wins\n", d:syncdata_wins,
+                            s:"\n\nPoints Received\n", d:(syncdata_score + syncdata_totalpoints),
                             s:"\n\n1-Ups Collected\n", d:syncdata_1ups,
-                            s:"\n\nTotal deaths\n", d:syncdata_deaths,
+                            s:"\n\nTotal Deaths\n", d:syncdata_deaths,
                             s:"\n\nBosses Defeated\n", d:syncdata_bosskills,
                             s:"\n\nRank\n", s:role
                             ; HUDMSG_PLAIN, MSGID_MELEM, CR_WHITE, w/2 + 0.4, h/2 - 200.0 + 0.1, 1);
-                        HUDMessage(s:""; HUDMSG_PLAIN, MSGID_MELEM+1, CR_WHITE, 0.0, 0.0, 1);
 
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_1WIN,       ACHIEVE_NAME_1WIN,       ACHIEVE_DESC_1WIN, "ACH_WINO", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_10WIN,      ACHIEVE_NAME_10WIN,      ACHIEVE_DESC_10WIN, "ACH_WINT", plynum, x, y, w, h);
@@ -2603,12 +2578,11 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                     }
                     else
                     {
-                        HUDMessage(s:"You are not logged in."; HUDMSG_PLAIN, MSGID_MELEM, CR_RED, w/2 + 0.0, h/2 - 200.0 + 0.1, 1);
-                        HUDMessage(s:"\n\n", s:LOGIN; HUDMSG_PLAIN, MSGID_MELEM+1, CR_white, w/2-312.0 + 0.1, h/2 - 200.0 + 0.1, 1);
+                        HUDMessage(s:"\ckYour Stats\n\n", s:LOGIN; HUDMSG_PLAIN, MSGID_MELEM, CR_RED, w/2 + 0.4, h/2 - 200.0 + 0.1, 1);
 
                         // Clear unused elements
                         if (changedtab)
-                            for (i=1; i<MELEMENTS; i++)
+                            for (i=3; i<MELEMENTS; i++)
                                 HUDMessage(s:""; HUDMSG_PLAIN, MSGID_MELEM+i, CR_WHITE, 0.0, 0.0, 1);
                     }
                     break;
@@ -2937,9 +2911,9 @@ Script 666 (void) // Create a death laser on a random player
 {
 	int i;
 	
-	// Grab the array of player deaths
+	// Grab the array of alive player
 	for (i=0; i<MAXPLAYERS; i++)
-		player_answer1[i] = player_lostround[i];
+		player_answer1[i] = (PlayerInGame(i) && PlayerIsSpectator(i) == 0);
 		
 	// Shuffle it
 	for (i=MAXPLAYERS-1; i>0; i--)
@@ -2952,7 +2926,7 @@ Script 666 (void) // Create a death laser on a random player
 	
 	// Iterate until we found someone alive
 	for (i=0; i<MAXPLAYERS; i++)
-		if (!player_lostround[i])
+		if (player_answer1[i])
 			break;
 	
 	// Spawn a death laser
@@ -3115,13 +3089,6 @@ script "DoomWare_AchievementLog" (int plynum, int achievement) CLIENTSIDE // Log
 	Log(n:plynum+1, s:" obtained the achievement \cv", s:achievement);
 }
 
-function void Player_Morph(int plynum, str what)
-{
-    SpawnSpotForced("PlayerTranslator", TID_PLAYER+plynum, TID_EXTRA+plynum, 0);
-    Thing_SetTranslation(TID_EXTRA+plynum, -1);
-    MorphActor(TID_PLAYER+plynum, what, 1, minigame_timer, MRF_NEWTIDBEHAVIOUR, "Nothing", "Nothing");
-}
-
 function void Player_FreezeTotally(int who)
 {
     SetPlayerProperty(who, 1, PROP_TOTALLYFROZEN);
@@ -3150,13 +3117,6 @@ function void Player_UnFreezeTotally(int who)
             player_frozen[i] = false;
 }
 
-function int Calc_Speed(int vi, int vii)
-{
-	int viii = vi >> 16;
-    int viiii = vii >> 16;
-	return viii*viii  + viiii*viiii;
-}
-
 function int Distance(int tid1, int tid2)
 {
 	int x, y, z, d;
@@ -3178,20 +3138,6 @@ function void Load_PlayerDB(int plynum)
     data_achieve[plynum] = GetDBEntry("Achievements", getPlayerAccountName(plynum));
     data_bosskills[plynum] = GetDBEntry("BossKills", getPlayerAccountName(plynum));
     EndDBTransaction();
-}
-
-function void Check_WonRoundItem(void)
-{
-    for (int i=0; i<MAXPLAYERS; i++)
-        if (CheckActorInventory(TID_PLAYER+i, "WonRoundItem") > 0)
-            Player_Win(i);
-}
-
-function void Check_FailRoundItem(void)
-{
-    for (int i=0; i<MAXPLAYERS; i++)
-        if (CheckActorInventory(TID_PLAYER+i, "FailRoundItem") > 0)
-            Player_Lose(i, false);
 }
 
 function int AToI(str s)

@@ -73,8 +73,11 @@ $playersound	massm	other	*Usefail	DSMMHUMP
 $playersound	massm	other	*Taunt		DSMMTANT
 
 $playersound	Chicken	male	*Taunt		CHICACT
+$playersound	Chicken	male	*usefail	CHICACT
 $playersound	Chicken	female	*Taunt		CHICACT
+$playersound	Chicken	female	*usefail	CHICACT
 $playersound	Chicken	other	*Taunt		CHICACT
+$playersound	Chicken	other	*usefail	CHICACT
 
 $playersound	Bob		male	*Taunt		RUNEOUCH
 $playersound	Bob		female	*Taunt		RUNEOUCH
@@ -90,6 +93,16 @@ $playersound	buu342	male	*pain25		DSBUPANT
 $playersound	buu342	male	*death		DSBUYEAH
 $playersound	buu342	male	*xdeath		DSBUWOO
 $playersound	buu342	male	*gibbed		DSBUWOO
+
+$playersound	C7Man	male	*death		DSC7DIE
+$playersound	C7Man	female	*death		DSC7DIE
+$playersound	C7Man	other	*death		DSC7DIE
+$playersound	C7Man	male	*xdeath		DSC7DIE
+$playersound	C7Man	female	*xdeath		DSC7DIE
+$playersound	C7Man	other	*xdeath		DSC7DIE
+$playersound	C7Man	male	*Taunt		DSC7SPOT
+$playersound	C7Man	female	*Taunt		DSC7SPOT
+$playersound	C7Man	other	*Taunt		DSC7SPOT
 
 $playersound	cfalcon	male	*land		DSCFLAND
 $playersound	cfalcon	female	*land		DSCFLAND
@@ -376,9 +389,19 @@ DoomWare/SSBHit					DSCFHHIT
 DoomWare/SSBKO					DSCFKO
 DoomWare/CrowdOhh				DSCROWD
 
-
 DoomWare/Alarm					DSALARM
 $ambient 13 DoomWare/Alarm world continuous 1.0
+
+DoomWare/TurkeyGib				DSTUGIB
+DoomWare/TurkeyEject			DSTUEJCT
+DoomWare/TurkeyGobble			DSTUGOBL
+DoomWare/TurkeyPunch1			DSPUNCH1
+DoomWare/TurkeyPunch2			DSPUNCH2
+$random DoomWare/TurkeyPunch { DoomWare/TurkeyPunch1 DoomWare/TurkeyPunch2 }
+
+DoomWare/C7Gun					DSC7GUN
+DoomWare/C7Door					DSC7DOOR
+
 
 // Buu342 Sounds
 

@@ -62,7 +62,7 @@
 #define NUMBEROFGAMES        93 // Number Of minigames
 #define NUMBEROFTIEBREAKERS  3  // Number Of 1v1 Tie Breakers
 #define NUMBEROFTIEBREAKERSM 3  // Number Of Non-1v1 Tie Breakers
-#define NUMBEROFHINTS        82 // Number of hints
+#define NUMBEROFHINTS        91 // Number of hints
 #define NUMBEROFWACKYMODS    8  // Number of wacky mods
 
 
@@ -77,6 +77,7 @@
 // Game settings
 
 #define MAXPLAYERS  16	// All minigames were designed with 16 players in mind! Change if you know what you're doing!
+#define MAXTEAMS    2	// The maximum amount of teams. Changing this will require modifying quite a few if and switch statements!
 #define MAXROUNDS   25  // How many rounds per game (Default 25)
 
 
@@ -159,6 +160,8 @@
 #define OVER_FORCED     2   // Because it was forced to end
 #define OVER_JOIN       3   // Because someone joined during a solo game
 #define OVER_WINNERSOLO 4   // Someone won during a solo game
+#define OVER_WINNERRED  5   // Red team won
+#define OVER_WINNERBLUE 6   // Blue team won
 
 
 // Player Roles
@@ -289,29 +292,28 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.965\n\
+Version Beta 1.9675\n\
 What's new in the Beta?\n\n\
-+ Added 1 new minigame\n\
-+ Added 1UP to Imp Kart Minigame\n\
-+ Added 1UP to Sushi\n\
-+ Added boss kills to stat tracking\n\
-+ Added Christmas mode\n\
-+ Added doomware_automode\n\
-+ Added English food signs in Sushi minigame\n\
-+ Added MENUDEF\n\
-+ Added visual improvements to a few minigames\n\
-* Changed use key color to white\n\
-* Fixed Achiever role not being applied\n\
-* Fixed boss fight spectator HUD jank\n\
-* Fixed bug with 10 wins achievement (might need database reset)\n\
-* Fixed pillars breaking during boss fight\n\
-* Improved arena bouncy wall texture\n\
-* Improved rain effect\n\
-* Lowered 100 wins achievement to 50\n\
-* Made blocks larger in Pyoro minigame\n\
-* Reworked how spectators function during the boss fight\n\
-* Redid the arena in the shoot apple minigame\n\
-* Tweaked barrel 1v1 game\n\
++ Added doomware_banlist cvar\n\
++ Added doomware_bossfightrespawn cvar\n\
++ Added deathmatch games to banlist during solo play\n\
++ Added more fun stat stuff to the DoomWare menu\n\
++ Added sonic speed to flight morphs\n\
++ Added team support\n\
+* Changed linedef triggers to Actor Enters Sector triggers\n\
+* Changed strafe text color to yellow\n\
+* Changed veteran rank back to 300 points for consistency\n\
+* Fixed achievement logs not showing multiple people\n\
+* Fixed (Hopefully) Captain Falcon punch freeze\n\
+* Fixed inconsistent 1up sound behaviour\n\
+* Fixed intermission screen still having old marble texture\n\
+* Improved arena pillar textures\n\
+* Made spike tube radius smaller due to actor movement prediction\n\
+* Merged Floor/Air lava minigames and replaced with a new one\n\
+* Merged Stop/Keep moving minigames and replaced with a new one\n\
+* Tweaked the boss fight logging code\n\
+* Tweaked the Lost Soul Counting Minigame\n\
+* Removed aim lock on some melee weapons\n\
 "
 
 // Menu Text
@@ -335,7 +337,7 @@ Good luck, and have fun!\
 
 // Login Menu Text
 
-#define LOGIN "\
+#define LOGIN "You are not logged in.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
 You must have an account at www.auth.zandronum.com, and then login by opening the\n\
 console and typing in 'login username password'. If you do not login, your stats and\n\
 achievemnts will not be tracked.\
@@ -366,6 +368,7 @@ int  player_answer1[MAXPLAYERS];        // Variables for minigame stuff (like ke
 int  player_answer2[MAXPLAYERS][4];     // Variables for minigame stuff (like keeping track of cacodemon answers)
 
 int  game_score[MAXPLAYERS];        // The score of each PlayerNumber()
+int  game_scoreteams[MAXTEAMS];     // The score of each team
 int  game_highscores[MAXPLAYERS];   // The global highscore table sorted by winner first
 int  game_highnames[MAXPLAYERS];    // The global highscore table of player names sorted by winner first
 int  game_roundnum;                 // A number containing the current round.
@@ -375,6 +378,7 @@ int  game_over;                     // The reason the game ended
 bool game_solo;                     // Is someone playing alone?
 int  game_wackymod;                 // Wacky Modifier
 int  game_skin;						// Map seasonal skin
+bool game_teams;					// Whether a team game is happening
 
 int  round_current[MAXROUNDS];      // An array containing a list of all minigames to be played/that have been played
 str  round_hints[MAXSPEEDUPS];      // An array containing a list of all hints to display
@@ -452,6 +456,9 @@ script "DoomWare_Server_Boot" OPEN
     // Stop the music and mark the game's start
     game_status = STATUS_STARTING;
     SetMusic("");
+	
+	// Check if a team game is happening
+	game_teams = ((GetTeamProperty(TEAM_BLUE, TPROP_NumPlayers) + GetTeamProperty(TEAM_BLUE, TPROP_NumPlayers)) > 0 && !game_solo);
 
     // Initialize the game's serverside logic
     ACS_NamedExecute("DoomWare_Server_Initialize", 0);
@@ -500,7 +507,7 @@ Script "DoomWare_Server_Initialize" (void)
 
     // Wipe the Observers array
     ACS_NamedExecute("DoomWare_Server_ClearObservers", 0);
-
+	
     // Wait a bit so everyone knows the game is starting
     delay(SECOND*5);
 	
@@ -694,7 +701,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[17] = "This WAD is a celebration of video games and everything I love, including other Doom WADs.";
 	temp_hint[18] = "If I were a vegetable, I would be a couch potato.";
 	temp_hint[19] = "Fast reactions and adaptability are the only way of surviving this next round.";
-	temp_hint[20] = "There are currently 93 minigames in this WAD.";
+	temp_hint[20] = StrParam(s:"There are currently ",d:NUMBEROFGAMES, s:" minigames in this WAD.");
 	temp_hint[21] = "I am extremely thankful to some people for coming and testing this WAD so often. Love you guys <3";
 	temp_hint[22] = "I tend to make spelling mistaeks.";
 	temp_hint[23] = "Diddy Kong Racing's final boss is literally impossible.";
@@ -705,7 +712,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[28] = "Dumbledore kills Snape.";
 	temp_hint[29] = "Spoiler, after round 25 the game says 'Game Over'.";
 	temp_hint[30] = "Griffith did nothing wrong.";
-	temp_hint[31] = "When the game speeds up it both gets faster and harder.";
+	temp_hint[31] = "When the game speeds up it gets both faster and harder.";
 	temp_hint[32] = "Wanna make suggestions for new minigames? Get in touch, or open an issue on GitHub!";
 	temp_hint[33] = "Coming Soon: Complex DoomWare vs Ghouls vs Megaman vs Unholy bosses - Push + Jumpmaze edition.";
 	temp_hint[34] = "This WAD encourages and rewards suicide, sometimes.";
@@ -717,7 +724,7 @@ Script "DoomWare_Server_InitHints" (void)
 	temp_hint[40] = "Watch those wrist rockets.";
 	temp_hint[41] = "Boo!";
 	temp_hint[42] = "Please don't sue me for using some music. You wouldn't hurt a pregnant man.";
-	temp_hint[43] = "The Falador Massacre is a myth.";
+	temp_hint[43] = "The Falador Massacre is a myth perpetrated by King Roald.";
 	temp_hint[44] = "'0/5, bad map' - Anonymous @ doomworld.com/idgames";
 	temp_hint[45] = "Fat people aren't real.";
 	temp_hint[46] = "The racist jokes in this WAD are not racist.";
@@ -757,7 +764,16 @@ Script "DoomWare_Server_InitHints" (void)
     temp_hint[79] = "Players with a blue heart over their heads Unlocked all achievements. Wow!";
 	temp_hint[80] = "You can scale the HUD using the DoomWare Menu, or the console command doomware_hudscale.";
 	temp_hint[81] = "This WAD contains Berserk references.";
-
+	temp_hint[82] = "You were always such a kidder, Steve.";
+	temp_hint[83] = "There are hidden SOMEMONG's in inaccessible areas.";
+	temp_hint[84] = "I want to paint my house in FIREBLU.";
+	temp_hint[85] = StrParam(s:"Today's random number is: ", d:random(0, 0xFFFFFFFF));
+	temp_hint[86] = "This WAD contains war crimes, domestic abuse, and taxes.";
+	temp_hint[87] = "Chameleon Machine. Ride on now!";
+	temp_hint[88] = "It's ok, Marphy Black isn't here, he can't hurt you.";
+	temp_hint[89] = "I tried to sneak through the door man! Can't make it, can't make it, the shit's stuck!";
+	temp_hint[90] = "I seem to be wounded, but I can keep going";
+	
     // Shuffle the array of hints
     int i, j, k;
     for (i=0; i<NUMBEROFHINTS; i++)
@@ -773,25 +789,77 @@ Script "DoomWare_Server_InitHints" (void)
         round_hints[i] = temp_hint[i];
 }
 
+// Return a string with the list of banned minigames during solo play
+function str SoloBanList(void)
+{
+	return "11 26 40 69 85 87 88 90 93";
+}
+
+bool temp_bannedrounds[NUMBEROFGAMES];
 int temp_allrounds[NUMBEROFGAMES];
 Script "DoomWare_Server_InitRounds" (void)
 {
     int i, j, k;
+	int bancount = 0;
+	int totalrounds = 0;
     game_roundnum = 1;
     game_speed = 0;
     game_over = OVER_NONE;
+		
+	// Initialize the banned games array
+	for (i=0; i<NUMBEROFGAMES; i++)
+		temp_bannedrounds[i] = false;
 
+	// Get the banned minigames list
+	if (GetCVarString("doomware_banlist") != "" || game_solo)
+	{
+		str banlist = GetCVarString("doomware_banlist");
+		int strs = 0;
+		int strl = 0;
+		
+		// If we're in solo play, ban deathmatch levels
+		if (game_solo && StrCmp(SoloBanList(), ""))
+			banlist = StrParam(s:banlist, s:" ", s:SoloBanList());
+		strl = StrLen(banlist);
+			
+		// Read the cvar and get the banlist
+		for (i=0; i<strl; i++)
+		{
+			// If we found a space or reached EOL
+			if (GetChar(banlist, i) == ' ' || i+1 == strl)
+			{
+				// If we're at EOL, increment i so that the math checks ount
+				if (i+1 == strl)
+					i++;
+					
+				// Get the minigame number from the string and increment our counters
+				temp_bannedrounds[AToI(StrMid(banlist, strs, i-strs))-1] = true;
+				bancount++;
+				strs = i+1;
+			}
+		}
+	}
+	
+	// If we banned too many games, ignore the ban list
+	if (bancount >= NUMBEROFGAMES)
+	{
+		bancount = 0;
+		for (i=0; i<NUMBEROFGAMES; i++)
+			temp_bannedrounds[i] = false;
+	}
+		
+	// Create a temporary array with all the rounds that aren't banned
+	for (i=0; i<NUMBEROFGAMES; i++)
+		if (!temp_bannedrounds[i])
+			temp_allrounds[totalrounds++] = i+1;
+	
     // If we have enough rounds to not have repeats
-    if (!GetCVar("doomware_duplicates") && NUMBEROFGAMES >= MAXROUNDS)
+    if (!GetCVar("doomware_duplicates") && NUMBEROFGAMES-bancount >= MAXROUNDS)
     {
-        // Create a temporary array with all the rounds
-        for (i=0; i<NUMBEROFGAMES; i++)
-            temp_allrounds[i] = i+1;
-
         // Shuffle the temp array
-        for (i=0; i<NUMBEROFGAMES; i++)
+        for (i=0; i<totalrounds; i++)
         {
-            j = random(i, NUMBEROFGAMES-1);
+            j = random(i, totalrounds-1);
             k = temp_allrounds[i];
             temp_allrounds[i] = temp_allrounds[j];
             temp_allrounds[j] = k;
@@ -801,10 +869,11 @@ Script "DoomWare_Server_InitRounds" (void)
         for (i=0; i<MAXROUNDS; i++)
             round_current[i] = temp_allrounds[i];
     }
-    else // Otherwise just pick a bunch of games at random
+    else 
     {
+		// Otherwise just pick a bunch of games at random
         for (i=0; i<MAXROUNDS; i++)
-            round_current[i] = random(1, NUMBEROFGAMES);
+			round_current[i] = temp_allrounds[random(0, totalrounds-1)];
     }
 }
 
@@ -923,10 +992,25 @@ function bool Should_Speedup(void)
     return true;
 }
 
+// Return true/false if we should initialize a tiebreaker round
+function bool ShouldTieBreak(void)
+{		
+	// Don't check if we were in a solo game or it was forcefully ended
+	if (game_solo || game_over == OVER_FORCED)
+		return false;
+	
+	// If we're not playing a team game, then just check if the top 2 players are tied
+	if (!game_teams)
+		return (game_highscores[0] == game_highscores[1]);
+	
+	// Return whether or not the team scores match
+	return (game_scoreteams[TEAM_BLUE] == game_scoreteams[TEAM_RED]); // TODO: Expand this for more than 2 teams using a loop
+}
+
 // Return true/false if we are playing a 1v1 tiebreaker
 function bool Is_1v1_TieBreaker(void)
 {
-    return (game_highscores[0] == game_highscores[1] && game_highscores[0] != game_highscores[2]);
+    return (!game_teams && game_highscores[0] == game_highscores[1] && game_highscores[0] != game_highscores[2]);
 }
 
 Script "DoomWare_Server_GameLogic" (void)
@@ -964,7 +1048,7 @@ Script "DoomWare_Server_GameLogic" (void)
         game_speed = 0;
 
         // Check for ties
-        if (game_highscores[0] == game_highscores[1] && !game_solo && game_over != OVER_FORCED)
+        if (ShouldTieBreak())
         {
             game_status = STATUS_TIEDETECT;
             HUDMessage(s:"Tie!"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
@@ -973,21 +1057,59 @@ Script "DoomWare_Server_GameLogic" (void)
         }
         else
         {
+			
+			// Figure out the game over reason if it doesn't exist yet
             if (game_over == OVER_NONE)
             {
-                if (!game_solo)
-                    game_over = OVER_WINNER;
-                else
-                    game_over = OVER_WINNERSOLO;
+				// If we're using teams
+				if (game_teams)
+				{
+					// Pick the winning team (TODO: expand this to work with more teams using a loop)
+					if (game_scoreteams[TEAM_RED] > game_scoreteams[TEAM_BLUE])
+						game_over = OVER_WINNERRED;
+					else
+						game_over = OVER_WINNERBLUE;
+				}
+				else
+				{
+					// Pick if we have a solo winner
+					if (!game_solo)
+						game_over = OVER_WINNER;
+					else
+						game_over = OVER_WINNERSOLO;
+				}
             }
 
+			// Print game over and the score tally
             game_status = STATUS_GAMEOVER;
             HUDMessage(s:"Game Over"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
-			str printscore = "Final score tally:";
-			for (i=0; i<PlayerCount(); i++)
-				printscore = StrParam(s:printscore, s:"\n", d:game_highscores[i], s:" - ", n:game_highnames[i]+1);
-			HUDMessage(s:printscore; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+			if (game_teams && !game_solo)
+			{
+				str printscore = "Final score tally:";
+				
+				// Iterate through all players to construct the string
+				for (i=0; i<PlayerCount(); i++)
+				{
+					printscore = StrParam(s:printscore, s:"\n");
+					
+					// Print player info, based on their team
+					switch (GetPlayerInfo(game_highnames[i], PLAYERINFO_TEAM))
+					{
+						case TEAM_RED:
+							printscore = StrParam(s:printscore, s:"\cgTEAM RED: ");
+							break;
+						case TEAM_BLUE:
+							printscore = StrParam(s:printscore, s:"\chTEAM BLUE: ");
+							break;
+						default:
+							break;
+					}
+					printscore = StrParam(s:printscore, d:game_highscores[i], s:" - ", n:game_highnames[i]+1);
+				}
+				HUDMessage(s:printscore; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+			}
 
+			// Wait for the music to finish, then update the databases and restart the level
 			delay(MUSICDUR_GAMEOVER);
             ACS_NamedExecute("DoomWare_Server_UpdateDB", 0);
             NamedScriptWait("DoomWare_Server_UpdateDB");
@@ -1240,8 +1362,8 @@ Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog)
 	// Teleport everyone
     for (i=0; i<MAXPLAYERS; i++)
     {
-        // Don't bother if the player doesn't exist or they're not tied for first place
-        if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && game_score[i] != game_highscores[0]))
+        // Don't bother if the player doesn't exist or they're not tied for first place (during a tiebreaker round)
+        if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && !game_teams && game_score[i] != game_highscores[0]))
             continue;
 
         // Get all player positions
@@ -1368,20 +1490,61 @@ Script "DoomWare_Server_ReturnPlayers" (int move_if_lost, int fog)
 
 function void Check_LMS(void)
 {
-    int alivecount = 0;
-    int winid = -1;
-    for (int i=0; i<MAXPLAYERS; i++)
-    {
-        if (player_midround[i])
-        {
-            winid = i;
-            alivecount++;
-        }
-    }
+	int i;
+	
+	// Decide on how to check for LMS depending on whether we're playing a team game or not
+	if (game_teams)
+	{
+		int redalive = 0;
+		int bluealive = 0;
+		
+		// Iterate through all players and check if they haven't lost the round
+		for (i=0; i<MAXPLAYERS; i++)
+		{
+			if (player_midround[i])
+			{
+				switch(GetPlayerInfo(i, PLAYERINFO_TEAM))
+				{
+					case TEAM_RED:
+						redalive++;
+						break;
+					case TEAM_BLUE:
+						bluealive++;
+						break;
+					default:
+						break;
+				}
+			} 
+		}
+		
+		// If one team has no members, and at least one team has a member alive
+		if ((redalive == 0 || bluealive == 0) && !(bluealive == 0 && redalive == 0))
+		{
+			// Iterate through all players again, and win them if they're alive
+			for (i=0; i<MAXPLAYERS; i++)
+				if (player_midround[i])
+					Player_Win(i);
+		}
+	}
+	else
+	{
+		int alivecount = 0;
+		int winid = -1;
+		
+		// Iterate through all players and check if they haven't lost the round
+		for (i=0; i<MAXPLAYERS; i++)
+		{
+			if (player_midround[i])
+			{
+				winid = i;
+				alivecount++;
+			}
+		}
 
-    // If only one person is alive, make them win and give them the achievement
-    if (alivecount == 1)
-        Player_Win(winid);
+		// If only one person is alive, make them win
+		if (alivecount == 1)
+			Player_Win(winid);
+	}
 }
 
 function void Check_LMS_MVMTie(void)
@@ -1416,7 +1579,7 @@ Script "DoomWare_Server_UpdateDB" (void)
     // Check for people who have played too much DoomWare
     for (i=0; i<MAXPLAYERS; i++)
         if ((GetCVar("doomware_unsafedb") || playerIsLoggedIn(i)) && playerInGame(i) && data_role[i] == ROLE_NONE)
-            if ((GetCVar("doomware_unsafedb") && GetDBEntry("Points", StrParam(n:i+1) + game_score[i] >= 200)) || GetDBEntry("Points", getPlayerAccountName(i)) + game_score[i] >= 200)
+            if ((GetCVar("doomware_unsafedb") && GetDBEntry("Points", StrParam(n:i+1) + game_score[i] >= 300)) || GetDBEntry("Points", getPlayerAccountName(i)) + game_score[i] >= 300)
                 data_role[i] = ROLE_REGULAR;
 
     // Begin the Database Transaction
@@ -1509,6 +1672,37 @@ Script "DoomWare_Server_InitGlobals" (void)
     SetCVarString("__clientsync_player_instruction2", "");
     SetCVarString("__clientsync_player_instruction3", "");
     SetCVarString("__clientsync_player_viewsprite", "");
+	
+	// Get global stat data
+	DB_NetworkStats("Wins", "wins");
+	DB_NetworkStats("Points", "points");
+	DB_NetworkStats("1Ups", "1ups");
+	DB_NetworkStats("Deaths", "deaths");
+	DB_NetworkStats("BossKills", "bosses");
+}
+
+function void DB_NetworkStats(str namespace, str cvarname) // Updates the global stats variables to network to clients
+{
+	int stat_t = 0;
+	int stat_g = 0;
+	int stat_n = "Multiple Players";
+	int res = GetDBEntries(namespace);
+	int c = CountDBResults(res);
+	if (c != 0)
+	{
+		FreeDBResults(res);
+		res = SortDBEntries(namespace, c, 0, true);
+		if (GetDBResultValue(res, 0) != GetDBResultValue(res, 1))
+			stat_n = GetDBResultKeyString(res, 0);
+		for (int i=0; i<c; i++)
+			stat_g += GetDBResultValue(res, i);
+		stat_t = GetDBResultValue(res, 0);
+		FreeDBResults(res);
+		
+		Player_SetCVar(StrParam(s:"__clientsync_stats_t_", s:cvarname), stat_t);
+		Player_SetCVar(StrParam(s:"__clientsync_stats_g_", s:cvarname), stat_g);
+		Player_SetCVarString(StrParam(s:"__clientsync_stats_n_", s:cvarname), stat_n);
+	}
 }
 
 Script "DoomWare_Server_SyncGlobals" (void)
@@ -1525,8 +1719,6 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Player_SetCVar("__clientsync_gameover", game_over);
     Player_SetCVar("__clientsync_minigametimer", minigame_timer);
     Player_SetCVar("__clientsync_wincondition1", minigame_wincondition1);
-    Player_SetCVar("__clientsync_highscore1", game_highscores[0]);
-    Player_SetCVar("__clientsync_highscore2", game_highscores[1]);
     Player_SetCVarString("__clientsync_highname", leadname);
     Player_SetCVarString("__clientsync_speeduphint", round_hints[game_speed-1]);
     Player_SetCVar("__clientsync_canobserve", minigame_canobserve);
@@ -1534,7 +1726,20 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Player_SetCVar("__clientsync_gamesolo", game_solo);
     Player_SetCVar("__clientsync_roundcurrent", round_current[game_roundnum-1]);
     Player_SetCVar("__clientsync_wackymod", game_wackymod);
+	
+	// Sync the team scores, or the top 2 scores if we're not in a team mode
+	if (game_teams)
+	{
+		Player_SetCVar("__clientsync_highscore1", game_scoreteams[0]);
+		Player_SetCVar("__clientsync_highscore2", game_scoreteams[1]);
+	}
+	else
+	{
+		Player_SetCVar("__clientsync_highscore1", game_highscores[0]);
+		Player_SetCVar("__clientsync_highscore2", game_highscores[1]);
+	}
 
+	// Pack player data
     Pack_Global_Array("__clientsync_player_score");
     Pack_Global_Array("__clientsync_player_loggedin");
     Pack_Global_Array("__clientsync_player_datascore");
@@ -1838,10 +2043,10 @@ Script "DoomWare_Client_GameLogic" (void)
         }
 
         // If the game ended normally
-        if (game_over == OVER_WINNER)
+        if (game_over == OVER_WINNER || game_over == OVER_WINNERRED || game_over == OVER_WINNERBLUE)
         {
             // Award the winner with a BFG
-            if (game_score[PlayerNumber()] == game_highscores[0] && !CheckInventory("BFG9000"))
+            if (((game_over == OVER_WINNERRED && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_RED) || (game_over == OVER_WINNERBLUE && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_BLUE) || (game_score[PlayerNumber()] == game_highscores[0])) && !CheckInventory("BFG9000"))
             {
                 GiveInventory("BFG9000", 1000);
                 GiveInventory("Cell", 1000);
@@ -1953,7 +2158,6 @@ Script "DoomWare_Client_GameLogic" (void)
             GiveInventory("1up", 1);
             fragsmade++;
             player_frags[PlayerNumber()] = PlayerFrags();
-            LocalAmbientSound("DoomWare/1up", 127);
 
             // Award an achievement if we got 3 frags
             if (fragsmade >= 3)
@@ -1975,6 +2179,7 @@ Script "DoomWare_Client_GameLogic" (void)
 			}
             TakeInventory("1up", 1000);
             SpawnSpotForced("1UPText", PlayerNumber()+TID_PLAYER, 0, 0);
+			LocalAmbientSound("DoomWare/1Up", 127);
             if (data_1ups[PlayerNumber()] == 50)
                 Give_Achievement(PlayerNumber(), ACHIEVE_ID_501UPS);
         }
@@ -1989,6 +2194,11 @@ Script "DoomWare_Client_GameLogic" (void)
     delay(1);
     if (PlayerInGame(PlayerNumber()) && !PlayerIsSpectator(PlayerNumber())) // Unless the player disconnected
         restart;
+}
+
+function bool Check_Player_Won(int plynum)
+{
+    return (player_wonround[plynum] || (player_midround[plynum] && round_winifmid));
 }
 
 function bool Check_Player_Lost(int plynum)
@@ -2185,6 +2395,12 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
                 case OVER_WINNER:
                     HUDMessage(s:"\n\nThe winner is ", s:syncdata_highname, s:" with ", d:syncdata_highscore1, s:" points"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 0.3, 1);
                     break;
+				case OVER_WINNERRED:
+                    HUDMessage(s:"\n\nRED Team Victory!"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 0.3, 1);
+                    break;
+				case OVER_WINNERBLUE:
+                    HUDMessage(s:"\n\n\chBLUE Team\cg Victory!"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 0.3, 1);
+                    break;
                 case OVER_WINNERSOLO:
                     if (syncdata_score != 1)
                         HUDMessage(s:"\n\nYou scored ", d:syncdata_score, s:" points"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
@@ -2250,20 +2466,63 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
 
             if (syncdata_gamestatus > STATUS_STARTING)
             {
-                // Leader
-                SetFont("DW_FONT1");
-                if (syncdata_highscore1 == syncdata_highscore2)
-                    HUDMessage(s:"There are multiple leaders"; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
-                else
-                    HUDMessage(s:syncdata_highname; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
+				// If the player is in a team
+				if (GetPlayerInfo(ConsolePlayerNumber(), PLAYERINFO_TEAM) < GetCVar("sv_maxteams"))
+				{
+					int myteamscore = 0;
+					switch (GetPlayerInfo(ConsolePlayerNumber(), PLAYERINFO_TEAM))
+					{
+						case TEAM_BLUE:
+							myteamscore = syncdata_highscore1;
+							break;
+						case TEAM_RED:
+							myteamscore = syncdata_highscore2;
+							break;
+					}
+					
+					// Leading team
+					SetFont("DW_FONT1");
+					if (syncdata_highscore1 == syncdata_highscore2)
+						HUDMessage(s:"Teams are tied"; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
+					else if (syncdata_highscore1 > syncdata_highscore2)
+						HUDMessage(s:"Blue Team"; HUDMSG_PLAIN, MSGID_LEADER, CR_BLUE, w/2, hud_toppos+46.0, 1);
+					else
+						HUDMessage(s:"Red Team"; HUDMSG_PLAIN, MSGID_LEADER, CR_RED, w/2, hud_toppos+46.0, 1);
 
-                // Spread
-                SetFont("DW_FONT3");
-                if (syncdata_highscore2 < syncdata_score|| syncdata_highscore1 == syncdata_score)
-                    HUDMessage(s:"+", d:(syncdata_score-syncdata_highscore2); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
-                else
-                    HUDMessage(s:"-", d:(syncdata_highscore1-syncdata_score); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+					// Spread
+					SetFont("DW_FONT3");
+					if (syncdata_highscore1 == myteamscore)
+					{
+						if (syncdata_highscore1 >= syncdata_highscore2)
+							HUDMessage(s:"+", d:(syncdata_highscore1-syncdata_highscore2); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+						else
+							HUDMessage(s:"-", d:(syncdata_highscore2-syncdata_highscore1); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+					}
+					else
+					{
+						if (syncdata_highscore2 >= syncdata_highscore1)
+							HUDMessage(s:"+", d:(syncdata_highscore2-syncdata_highscore1); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+						else
+							HUDMessage(s:"-", d:(syncdata_highscore1-syncdata_highscore2); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+					}
+				}
+				else
+				{
+					// Leading player
+					SetFont("DW_FONT1");
+					if (syncdata_highscore1 == syncdata_highscore2)
+						HUDMessage(s:"There are multiple leaders"; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
+					else
+						HUDMessage(s:syncdata_highname; HUDMSG_PLAIN, MSGID_LEADER, CR_ORANGE, w/2, hud_toppos+46.0, 1);
 
+					// Spread
+					SetFont("DW_FONT3");
+					if (syncdata_highscore1 <= syncdata_score)
+						HUDMessage(s:"+", d:(syncdata_score-syncdata_highscore2); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+					else
+						HUDMessage(s:"-", d:(syncdata_highscore1-syncdata_score); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+				}
+				
                 // Remind people that they can view the highscore table
                 if (GetUserCVar(plynum, "doomware_hudshowbinds"))
                     HUDMessage(s:"\n\n\nPress ", k:"+dwscores", s:" to view the Highscore table"; HUDMSG_PLAIN, MSGID_VIEWHS, CR_ORANGE, w/2, hud_toppos+64.0 + 0.1, 1);
@@ -2501,17 +2760,30 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
             }
             switch(syncdata_roundcurrent)
             {
+				case 6:
+                    SetFont("C7BAR1");
+					if (GetActorProperty(TID_PLAYER+ConsolePlayerNumber(), APROP_Health) <= 0)
+						SetFont("C7BAR2");
+                    hudmessage(s:"a"; HUDMSG_PLAIN, MSGID_STBAR, cR_ORANGE, status_w, status_h, 1);
+                    break;
                 case 7:
                     SetFont("SMBAR");
                     hudmessage(s:"a"; HUDMSG_PLAIN, MSGID_STBAR, cR_ORANGE, status_w, status_h, 1);
 
-                    if (hud_spindex == 1 || hud_spindex == 2)
+                    if (hud_spindex < 3)
                     {
                         SetFont(StrParam(s:"SMFACE", d:hud_spindex));
                         hudmessage(s:"A"; HUDMSG_PLAIN, MSGID_STFACE, cR_ORANGE, status_w, status_h, 1);
                     }
                     else
                         hudmessage(s:""; HUDMSG_PLAIN, MSGID_STFACE, cR_ORANGE, status_w, status_h, 1);
+                    break;
+				case 14:
+					if (hud_spindex < 3)
+						SetFont("MMBAR1");
+					else
+						SetFont("MMBAR2");
+                    hudmessage(s:"a"; HUDMSG_PLAIN, MSGID_STBAR, cR_ORANGE, status_w, status_h, 1);
                     break;
             }
         }
@@ -2613,7 +2885,20 @@ script "DoomWare_Server_CalcHighscore" (void)
 			}
 		}
 	}
+	
+	// Update team scores
+	game_scoreteams[TEAM_BLUE] = 0;
+	game_scoreteams[TEAM_RED] = 0;
+	if (game_teams)
+	{	
+		for (j=0; j<PlayerCount(); j++)
+		{
+			int team = GetPlayerInfo(game_highnames[j], PLAYERINFO_TEAM);
+			game_scoreteams[team] += game_highscores[j];
+		}
+	}
 
+	// Restart this script
 	delay(1);
     restart;
 }
@@ -2632,14 +2917,28 @@ Script "DoomWare_Client_DrawHighscore" (void)
         SetFont("SCRBRDB");
         HUDMessage(s:"A"; HUDMSG_PLAIN, MSGID_HSBACK, CR_ORANGE, 400.0, 300.0, 1);
 
-
         // Draw each player's score
         SetFont("DW_FONT3");
         for (i=0; i<MAXPLAYERS; i++)
         {
+			// If the player is ingame
             if (game_highscores[i] != -1)
             {
-                HUDMessage(d:game_highscores[i], s:" ", n:game_highnames[i]+1; HUDMSG_PLAIN, MSGID_HSPLAYR+i, CR_ORANGE, 400.0, 216.0+hud_y_counter, 1);
+				int color = CR_ORANGE;
+				
+				// Switch the color if the player is in a team
+				switch (GetPlayerInfo(game_highnames[i], PLAYERINFO_TEAM))
+				{
+					case TEAM_RED:
+						color = CR_RED;
+						break;
+					case TEAM_BLUE:
+						color = CR_BLUE;
+						break;
+				}
+				
+				// Draw the person's name and move the y position lower
+				HUDMessage(d:game_highscores[i], s:" ", n:game_highnames[i]+1; HUDMSG_PLAIN, MSGID_HSPLAYR+i, color, 400.0, 216.0+hud_y_counter, 1);
                 hud_y_counter +=13.0;
             }
             else
@@ -2764,6 +3063,23 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
     int tab = 1;
     int plynum = ConsolePlayerNumber();
     bool menu_wasopen = false;
+	
+	// Initialize global top stats variables
+	int topstat_wins = GetCVar("__clientsync_stats_t_wins");
+	int topstat_score = GetCVar("__clientsync_stats_t_points");
+	int topstat_1ups = GetCVar("__clientsync_stats_t_1ups");
+	int topstat_deaths = GetCVar("__clientsync_stats_t_deaths");
+	int topstat_bosskills = GetCVar("__clientsync_stats_t_bosses");
+	int topstat_g_wins = GetCVar("__clientsync_stats_g_wins");
+	int topstat_g_score = GetCVar("__clientsync_stats_g_points");
+	int topstat_g_1ups = GetCVar("__clientsync_stats_g_1ups");
+	int topstat_g_deaths = GetCVar("__clientsync_stats_g_deaths");
+	int topstat_g_bosskills = GetCVar("__clientsync_stats_g_bosses");
+	str topstat_n_wins = GetCVarString("__clientsync_stats_n_wins");
+	str topstat_n_score = GetCVarString("__clientsync_stats_n_points");
+	str topstat_n_1ups = GetCVarString("__clientsync_stats_n_1ups");
+	str topstat_n_deaths = GetCVarString("__clientsync_stats_n_deaths");
+	str topstat_n_bosskills = GetCVarString("__clientsync_stats_n_bosses");
 
     // Start the menu drawing loop
     while (1)
@@ -2855,7 +3171,8 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                     HUDMessage(s:"                                    ", s:CHANGES,
                         s:"\n\n\nCurrent number of minigames: ", d:NUMBEROFGAMES,
                         s:"\nCurrent number of tie breakers (1v1): ", d:NUMBEROFTIEBREAKERS,
-                        s:"\nCurrent number of tie breakers (non 1v1): ", d:NUMBEROFTIEBREAKERSM;
+                        s:"\nCurrent number of tie breakers (non 1v1): ", d:NUMBEROFTIEBREAKERSM,
+						s:"\nCurrent number of wackymods: ", d:NUMBEROFWACKYMODS;
                         HUDMSG_PLAIN, MSGID_MELEM, CR_WHITE, w/2-312.0 + 0.1, h/2 - 200.0 + 0.1, 1);
 
                     // Clear unused elements
@@ -2866,6 +3183,26 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                 case 3:
                     SetFont("DW_FONT3");
                     int syncdata_loggedin = Unpack_CVar_Array("__clientsync_player_loggedin");
+					
+					// Print global and top stats
+					HUDMessage(s:"\ckGlobal Stats\c-\n\n",
+						s:"Games Played\n", d:topstat_g_wins,
+						s:"\n\nPoints Given\n", d:topstat_g_score,
+						s:"\n\n1-Ups Collected\n", d:topstat_g_1ups,
+						s:"\n\nTotal Deaths\n", d:topstat_g_deaths,
+						s:"\n\nBosses Defeated\n", d:topstat_g_bosskills,
+						s:"\n\n\n\ckThese stats update\n\ckon map start\c-"
+						; HUDMSG_PLAIN, MSGID_MELEM+2, CR_WHITE, w/2-220.0 + 0.4, h/2 - 200.0 + 0.1, 1);
+					HUDMessage(s:"\ckTop Stats\c-\n\n",
+						s:"Game Wins\n", s:topstat_n_wins, s:" (", d:topstat_wins, s:")",
+						s:"\n\nPoints Received\n", s:topstat_n_score, s:" (", d:topstat_score, s:")",
+						s:"\n\n1-Ups Collected\n", s:topstat_n_1ups, s:" (", d:topstat_1ups, s:")",
+						s:"\n\nTotal Deaths\n", s:topstat_n_deaths, s:" (", d:topstat_deaths, s:")",
+						s:"\n\nBosses Defeated\n", s:topstat_n_bosskills, s:" (", d:topstat_bosskills, s:")",
+						s:"\n\n\n\ckThese stats update\n\ckon map start\c-"
+						; HUDMSG_PLAIN, MSGID_MELEM+1, CR_WHITE, w/2+220.0 + 0.4, h/2 - 200.0 + 0.1, 1);
+					
+					// Display player stats based on whether they're logged in or not
                     if (syncdata_loggedin >= 1)
                     {
                         int syncdata_score = Unpack_CVar_Array("__clientsync_player_score");
@@ -2895,14 +3232,14 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                                 role = "\cqG\csO\cdD";
                                 break;
                         }
-                        HUDMessage(s:"Game Wins\n", d:syncdata_wins,
+                        HUDMessage(s:"\ckYour Stats\c-\n\n",
+							s:"Game Wins\n", d:syncdata_wins,
                             s:"\n\nPoints Received\n", d:(syncdata_score + syncdata_totalpoints),
                             s:"\n\n1-Ups Collected\n", d:syncdata_1ups,
                             s:"\n\nTotal Deaths\n", d:syncdata_deaths,
                             s:"\n\nBosses Defeated\n", d:syncdata_bosskills,
                             s:"\n\nRank\n", s:role
                             ; HUDMSG_PLAIN, MSGID_MELEM, CR_WHITE, w/2 + 0.4, h/2 - 200.0 + 0.1, 1);
-                        HUDMessage(s:""; HUDMSG_PLAIN, MSGID_MELEM+1, CR_WHITE, 0.0, 0.0, 1);
 
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_1WIN,       ACHIEVE_NAME_1WIN,       ACHIEVE_DESC_1WIN, "ACH_WINO", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_10WIN,      ACHIEVE_NAME_10WIN,      ACHIEVE_DESC_10WIN, "ACH_WINT", plynum, x, y, w, h);
@@ -2925,12 +3262,11 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                     }
                     else
                     {
-                        HUDMessage(s:"You are not logged in."; HUDMSG_PLAIN, MSGID_MELEM, CR_RED, w/2 + 0.0, h/2 - 200.0 + 0.1, 1);
-                        HUDMessage(s:"\n\n", s:LOGIN; HUDMSG_PLAIN, MSGID_MELEM+1, CR_white, w/2-312.0 + 0.1, h/2 - 200.0 + 0.1, 1);
+                        HUDMessage(s:"\ckYour Stats\n\n", s:LOGIN; HUDMSG_PLAIN, MSGID_MELEM, CR_RED, w/2 + 0.4, h/2 - 200.0 + 0.1, 1);
 
                         // Clear unused elements
                         if (changedtab)
-                            for (i=1; i<MELEMENTS; i++)
+                            for (i=3; i<MELEMENTS; i++)
                                 HUDMessage(s:""; HUDMSG_PLAIN, MSGID_MELEM+i, CR_WHITE, 0.0, 0.0, 1);
                     }
                     break;
@@ -3039,20 +3375,20 @@ function void Handle_Menu_Achievement(int achieve_data, int number, str name, st
         SetFont(sprite);
     else
         SetFont("ACH_NONE");
-    HUDMessage(s:"A"; HUDMSG_PLAIN, MSGID_MELEM+2+number*2, CR_WHITE, x, y, 1);
+    HUDMessage(s:"A"; HUDMSG_PLAIN, MSGID_MELEM+3+number*2, CR_WHITE, x, y, 1);
     SetFont("DW_FONT3");
 
     // Handle the button clicking
     if ((mouse_x >= x>>16 && mouse_x <= (x+64.0)>>16) && (mouse_y >= y>>16 && mouse_y <= (y+64.0)>>16)) // If the mouse is within the button's bounds
     {
         if (unlocked)
-            HUDMessage(s:name, s:"\n", s:desc; HUDMSG_PLAIN, MSGID_MELEM+2+number*2+1, CR_GOLD, w/2 + 0.4, h/2+72.0, 1);
+            HUDMessage(s:name, s:"\n", s:desc; HUDMSG_PLAIN, MSGID_MELEM+3+number*2+1, CR_GOLD, w/2 + 0.4, h/2+72.0, 1);
         else
-            HUDMessage(s:"???", s:"\n", s:"This achievement is locked"; HUDMSG_PLAIN, MSGID_MELEM+2+number*2+1, CR_RED, w/2 + 0.4, h/2+72.0, 1);
+            HUDMessage(s:"???", s:"\n", s:"This achievement is locked"; HUDMSG_PLAIN, MSGID_MELEM+3+number*2+1, CR_RED, w/2 + 0.4, h/2+72.0, 1);
     }
     else
     {
-        HUDMessage(s:""; HUDMSG_PLAIN, MSGID_MELEM+2+number*2+1, CR_WHITE, w/2 + 0.0, h/2+64.0, 1);
+        HUDMessage(s:""; HUDMSG_PLAIN, MSGID_MELEM+3+number*2+1, CR_WHITE, w/2 + 0.0, h/2+64.0, 1);
     }
 }
 
@@ -3083,7 +3419,7 @@ function void Give_Achievement(int plynum, int achievement)
             case ACHIEVE_ID_FULLSERVER: player_achievement[plynum] = ACHIEVE_NAME_FULLSERVER; Break;
             default: break;
         }
-		ACS_NamedExecute("DoomWare_AchievementLog", 0, plynum, player_achievement[plynum]); // We can't do Log() serverside, so this is a workaround
+		ACS_NamedExecuteAlways("DoomWare_AchievementLog", 0, plynum, player_achievement[plynum]); // We can't do Log() serverside, so this is a workaround
 
         // Notify the achievement got received
         SetActivator(TID_PLAYER+plynum);
@@ -3146,8 +3482,8 @@ Script "DoomWare_Server_Hats" (void)
     // If not a solo game
     if (!game_solo)
     {
-        // Leader hat (if there is a leader)
-        if (game_highscores[0] > game_highscores[1] && game_status != STATUS_GAMEOVER && !(GetActorProperty(TID_PLAYER+0, APROP_Health) <= 0))
+        // Leader hat (if there is a leader and not a team game)
+        if (!game_teams && game_highscores[0] > game_highscores[1] && game_status != STATUS_GAMEOVER && !(GetActorProperty(TID_PLAYER+0, APROP_Health) <= 0))
         {
             if (ThingCount(0, TID_HATGAME) == 0)
                 SpawnSpotForced("LeaderHat", 1, TID_HATGAME, 0);
@@ -3237,13 +3573,22 @@ Script "DoomWare_Server_Hats" (void)
                                        Minigames (Clientside)
 ===================================================================================================*/
 
-Script "DoomWare_Client_Minigame1" (void) // The Floor Is Lava
+Script "DoomWare_Client_Minigame1" (void) // The Floor/Air Is Lava
 {
-    minigame_instruction1[PlayerNumber()] = "The Floor Is Lava";
-
-    // Wait until the minigame is over
-    while (game_status == STATUS_MINIGAME)
-        delay(1);
+	// Pick the minigame based on the selected win condition
+	if (minigame_wincondition1 == 0)
+		minigame_instruction1[PlayerNumber()] = "The Floor is Lava";
+	else
+		minigame_instruction1[PlayerNumber()] = "The Air is Lava";
+		
+	// Wait until the minigame is over
+	while (game_status == STATUS_MINIGAME)
+	{
+		// If the air is lava and the player isn't underwater, kill 'em
+		if (minigame_wincondition1 == 2 && GetActorZ(0) > -44.0 && !Check_Player_Lost(PlayerNumber()))
+			Thing_damage(0, 10000, MOD_LAVA);
+		delay(1);
+	}
 }
 
 Script "DoomWare_Client_Minigame2" (void) // Survive (Cyberdemon)
@@ -3277,28 +3622,51 @@ Script "DoomWare_Client_Minigame4" (void) // Survive (Archviles)
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame5" (void) // Stop Moving
+Script "DoomWare_Client_Minigame5" (void) // Stop/Don't Stop Moving
 {
-	if (game_speed != 4)
-		minigame_instruction1[PlayerNumber()] = "Stop Moving";
+	if (minigame_wincondition1 == 0)
+	{
+		if (game_speed != 4)
+			minigame_instruction1[PlayerNumber()] = "Stop Moving";
+		else
+			minigame_instruction1[PlayerNumber()] = "Don't Not Stop Moving";
+	}
 	else
-		minigame_instruction1[PlayerNumber()] = "Don't Not Stop Moving";
-
+	{
+		if (game_speed != 4)
+			minigame_instruction1[PlayerNumber()] = "Don't Stop Moving";
+		else
+			minigame_instruction1[PlayerNumber()] = "Don't Not Keep Moving";	
+	}
     // Wait until the minigame is over
     while (game_status == STATUS_MINIGAME)
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame6" (void) // Don't Stop Moving
+Script "DoomWare_Client_Minigame6" (void) // Reach the End (Corridor 7)
 {
-	if (game_speed != 4)
-		minigame_instruction1[PlayerNumber()] = "Don't Stop Moving";
-	else
-		minigame_instruction1[PlayerNumber()] = "Don't Not Keep Moving";
+	minigame_instruction1[PlayerNumber()] = "Reach the End";
+
+    // Morph the player into the Corridor 7 soldier
+	str class = "C7Player";
+	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
+	{
+		Player_Morph(PlayerNumber(), class);
+		GiveInventory("C7Gun", 1);
+		SetWeapon("C7Gun");
+		delay(1);
+	}
+	
+	// Make sure he can't be harmed
+    setplayerproperty(1, 2, prop_invulnerability);
 
     // Wait until the minigame is over
     while (game_status == STATUS_MINIGAME)
         delay(1);
+
+    // Set him back to normal
+    setplayerproperty(1, 0, prop_invulnerability); // Must be first or you can't unmorph
+    UnMorphActor(TID_PLAYER+PlayerNumber(), true);
 }
 
 Script "DoomWare_Client_Minigame7" (void) // Kill Ned Flanders
@@ -3519,6 +3887,8 @@ Script "DoomWare_Client_Minigame18" (void) // Equip Weapon
     GiveInventory("PlasmaRifleFake", 1);
     GiveInventory("BFG9000Fake", 1);
 	GiveInventory("Fist", 1);
+	SetWeapon("Fist");
+	delaY(1);
 	SetWeapon("Fist");
 
     Switch(minigame_wincondition1)
@@ -3804,6 +4174,8 @@ Script "DoomWare_Client_Minigame34" (void) // Survive (Hoth)
 
     // Morph the player into a snow speeder and make him fly
 	str class = "SnowSpeederPlayer";
+	if (game_wackymod == WACKYMOD_SPEED)
+		class = "SnowSpeederPlayerSpeed";
 	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
 	{
 		Player_Morph(PlayerNumber(), class);
@@ -4021,6 +4393,8 @@ Script "DoomWare_Client_Minigame44" (void) // Don't Equip Weapon
     GiveInventory("BFG9000Fake", 1);
     GiveInventory("Fist", 1);
     SetWeapon("Fist");
+	delaY(1);
+	SetWeapon("Fist");
 
     Switch(minigame_wincondition1)
     {
@@ -4243,17 +4617,18 @@ Script "DoomWare_Client_Minigame51" (void) // Clean your Weapon
     }
 }
 
-Script "DoomWare_Client_Minigame52" (void) // The Air is Lava
+Script "DoomWare_Client_Minigame52" (void) // Gib a Turkey
 {
-    minigame_instruction1[PlayerNumber()] = "The Air is Lava";
+    minigame_instruction1[PlayerNumber()] = "Gib a Turkey";
 
-    // Wait until the minigame is over
+    // Make the player invincible and give him a fast fist
+    setplayerproperty(1, 2, prop_invulnerability);
+    GiveInventory("FastFist", 1);
+    SetWeapon("FastFist");
+
+    // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
-    {
-        if (minigame_wincondition1 == 1 && GetActorZ(0) > -44.0 && !player_lostround[PlayerNumber()])
-			Thing_damage(0, 10000, MOD_LAVA);
         delay(1);
-    }
 }
 
 Script "DoomWare_Client_Minigame53" (void) // Drink
@@ -4482,6 +4857,8 @@ Script "DoomWare_Client_Minigame64" (void) // Reach the End (Skyhook)
 
     // Morph the player into the Outrider and make him fly
 	str class = "OutriderPlayer";
+	if (game_wackymod == WACKYMOD_SPEED)
+		class = "OutriderPlayerSpeed";
 	while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
 	{
 		Player_Morph(PlayerNumber(), class);
@@ -5049,7 +5426,7 @@ Script "DoomWare_Client_Minigame83" (void) // Charge your Lazor
 Script "DoomWare_Client_Minigame84" (void) // Stay on the Road
 {
     minigame_instruction1[PlayerNumber()] = "Stay on the Road";
-    minigame_instruction2[PlayerNumber()] = "\ccStrafe\cg to steer";
+    minigame_instruction2[PlayerNumber()] = "\ckStrafe\cg to steer";
 
 	// Prevent a bug where some player's won't teleport after morphing
 	delay(1);
@@ -5492,61 +5869,86 @@ Script "DoomWare_Client_TieBreakerM3" (void) // Hit the Target (1 Shot)
                                        Minigames (Serverside)
 ===================================================================================================*/
 
-Script "DoomWare_Server_Minigame1" (void) // The floor is lava
+Script "DoomWare_Server_Minigame1" (void) // The floor/air is lava
 {
-    HUDMessage(s:"The Floor Is Lava"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
-    setMusic("D_LAVA");
-    round_winifmid = true;
+	HUDMessage(s:"The Floor/Air Is Lava"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+	SetMusic("D_LAVA");
+	round_winifmid = true;
+	
+	// Lower the lights
+	int lowerspeed = 8;
+	switch (game_speed)
+	{
+		case 2:
+		case 3: lowerspeed = 9; break;
+		case 4: lowerspeed = 10; break;
+	}
+	floor_lowerbyvalue(20, lowerspeed, 10);
+	floor_lowerbyvalue(21, 8, 8);
+	floor_lowerbyvalue(22, 8, 8);
+	floor_lowerbyvalue(691, lowerspeed, 10);
+	floor_lowerbyvalue(692, 8, 8);
+	floor_lowerbyvalue(693, 8, 8);
+	SetThingSpecial(88, 0, 0, 0, 0, 0, 0);
+	SetThingSpecial(147, 0, 0, 0, 0, 0, 0);
+	
+	// Choose which minigame to play (0 is floor, 1 is air)
+	minigame_wincondition1 = random(0, 1);
+	if (minigame_wincondition1 == 0) 
+	{
+		delay(SECOND-(2*game_speed));
 
-    // Lower the lights
-    int lowerspeed = 8;
-    switch (game_speed)
-    {
-        case 2:
-        case 3: lowerspeed = 9; break;
-        case 4: lowerspeed = 10; break;
-    }
-    floor_lowerbyvalue(20, lowerspeed, 10);
-    floor_lowerbyvalue(21, 8, 8);
-    floor_lowerbyvalue(22, 8, 8);
-    floor_lowerbyvalue(691, lowerspeed, 10);
-    floor_lowerbyvalue(692, 8, 8);
-    floor_lowerbyvalue(693, 8, 8);
-    SetThingSpecial(88, 0, 0, 0, 0, 0, 0);
-    SetThingSpecial(147, 0, 0, 0, 0, 0, 0);
-    delay(SECOND-(2*game_speed));
+		// Make the floor lava
+		Sector_setDamage(2, 200000, MOD_LAVA);
+		Sector_setDamage(20, 200000, MOD_LAVA);
+		Sector_setDamage(21, 200000, MOD_LAVA);
+		Sector_setDamage(22, 200000, MOD_LAVA);
+		Sector_setDamage(691, 200000, MOD_LAVA);
+		Sector_setDamage(692, 200000, MOD_LAVA);
+		Sector_setDamage(693, 200000, MOD_LAVA);
+		ChangeFloor(2, "WFLAVA1");
+		ChangeFloor(20, "WFLAVA1");
+		ChangeFloor(21, "WFLAVA1");
+		ChangeFloor(22, "WFLAVA1");
+		ChangeFloor(691, "WFLAVA1");
+		ChangeFloor(692, "WFLAVA1");
+		ChangeFloor(693, "WFLAVA1");
+		delay(SECOND-(2*game_speed));
+	}
+	else
+	{
+		delay(30);
 
-    // Make the floor lava
-    Sector_setDamage(2, 200000, MOD_LAVA);
-    Sector_setDamage(20, 200000, MOD_LAVA);
-    Sector_setDamage(21, 200000, MOD_LAVA);
-    Sector_setDamage(22, 200000, MOD_LAVA);
-    Sector_setDamage(691, 200000, MOD_LAVA);
-    Sector_setDamage(692, 200000, MOD_LAVA);
-    Sector_setDamage(693, 200000, MOD_LAVA);
-    ChangeFloor(2, "WFLAVA1");
-    ChangeFloor(20, "WFLAVA1");
-    ChangeFloor(21, "WFLAVA1");
-    ChangeFloor(22, "WFLAVA1");
-    ChangeFloor(691, "WFLAVA1");
-    ChangeFloor(692, "WFLAVA1");
-    ChangeFloor(693, "WFLAVA1");
-    delay(SECOND-(2*game_speed));
+		// Silently teleport everyone to a copy of the main arena
+		ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 357, true, false);
+		Light_Fade(148, 0, SECOND-(2*game_speed));
+		Light_Fade(149, 0, SECOND-(2*game_speed));
+		Light_Fade(253, 0, SECOND-(2*game_speed));
+		Light_Fade(856, 0, SECOND-(2*game_speed));
+		delay(SECOND-(2*game_speed));
 
-    // Make everything safe again
+		// Kill people not underwater with no remorse
+		minigame_wincondition1 = 2;
+		delay(SECOND+32-(7*game_speed));
+
+		// Silently bring everyone back
+		ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+	}
+	
+	// Make everything safe again
 	SetThingSpecial(88, 0, 255, 0, 0, 8, 0);
-    Sector_setDamage(2, 0, MOD_UNKNOWN);
-    Sector_setDamage(20, 0, MOD_UNKNOWN);
-    Sector_setDamage(21, 0, MOD_UNKNOWN);
-    Sector_setDamage(22, 0, MOD_UNKNOWN);
-    Sector_setDamage(691, 0, MOD_UNKNOWN);
-    Sector_setDamage(692, 0, MOD_UNKNOWN);
-    Sector_setDamage(693, 0, MOD_UNKNOWN);
-    ChangeFloor(2, "SLIME15");
-    ChangeFloor(20, "N_BRGR13");
-    ChangeFloor(691, "N_BRGR13");
-    ChangeFloor(21, "TLITE6_5");
-    ChangeFloor(692, "TLITE6_5");
+	Sector_setDamage(2, 0, MOD_UNKNOWN);
+	Sector_setDamage(20, 0, MOD_UNKNOWN);
+	Sector_setDamage(21, 0, MOD_UNKNOWN);
+	Sector_setDamage(22, 0, MOD_UNKNOWN);
+	Sector_setDamage(691, 0, MOD_UNKNOWN);
+	Sector_setDamage(692, 0, MOD_UNKNOWN);
+	Sector_setDamage(693, 0, MOD_UNKNOWN);
+	ChangeFloor(2, "SLIME15");
+	ChangeFloor(20, "N_BRGR13");
+	ChangeFloor(691, "N_BRGR13");
+	ChangeFloor(21, "TLITE6_5");
+	ChangeFloor(692, "TLITE6_5");
 	switch (game_skin)
 	{
 		case MAPSKIN_HALLOWEEN:
@@ -5566,13 +5968,12 @@ Script "DoomWare_Server_Minigame1" (void) // The floor is lava
 			break;
 	}
 	
-    floor_raisebyvalue(20, 8, 10);
-    floor_raisebyvalue(21, 8, 8);
-    floor_raisebyvalue(22, 8, 8);
-    floor_raisebyvalue(691, 8, 10);
-    floor_raisebyvalue(692, 8, 8);
-    floor_raisebyvalue(693, 8, 8);
-    delay(SECOND-(2*game_speed));
+	floor_raisebyvalue(20, 8, 10);
+	floor_raisebyvalue(21, 8, 8);
+	floor_raisebyvalue(22, 8, 8);
+	floor_raisebyvalue(691, 8, 10);
+	floor_raisebyvalue(692, 8, 8);
+	floor_raisebyvalue(693, 8, 8);
 }
 
 Script "DoomWare_Server_Minigame2" (void) // Survive (Cyberdemon)
@@ -5716,70 +6117,76 @@ Script "DoomWare_Server_Minigame4" (void) // Survive (archviles)
     SetActorPosition(88, GetActorX (88), GetActorY (88), GetActorZ (88)-128.0, 0);
 }
 
-Script "DoomWare_Server_Minigame5" (void) // Stop moving
+Script "DoomWare_Server_Minigame5" (void) // Stop/Don't Stop moving
 {
 	int time;
-    hudmessage(s:"Stop Moving";HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
+    hudmessage(s:"Stop/Don't Stop Moving";HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
     setMusic("D_MOVEIT");
     round_winifmid = true;
+	minigame_wincondition1 = random(0, 1); // 0 is stop moving, 1 is don't
 
-    // Set the floor friction to help slow down players
-    Sector_SetFriction(2, 95);
-    Sector_SetFriction(19, 95);
-    Sector_SetFriction(20, 95);
-    Sector_SetFriction(21, 95);
-    Sector_SetFriction(22, 95);
-    Sector_SetFriction(23, 95);
-    Sector_SetFriction(24, 95);
-    Sector_SetFriction(691, 95);
-    Sector_SetFriction(692, 95);
-    Sector_SetFriction(693, 95);
+	// If stop moving, set the floor friction to help slow down players
+	if (minigame_wincondition1 == 0)
+	{
+		Sector_SetFriction(2, 95);
+		Sector_SetFriction(19, 95);
+		Sector_SetFriction(20, 95);
+		Sector_SetFriction(21, 95);
+		Sector_SetFriction(22, 95);
+		Sector_SetFriction(23, 95);
+		Sector_SetFriction(24, 95);
+		Sector_SetFriction(691, 95);
+		Sector_SetFriction(692, 95);
+		Sector_SetFriction(693, 95);
+	}	
+	
+	// Give players time to react
+	if (minigame_wincondition1 == 0)
+		delay(SECOND*2-(game_speed*2));
+	else
+		delay(SECOND-(game_speed));
 
-    // Give players time to react
-    delay(SECOND*2-(game_speed*2));
-
-    // Horribly maim anyone who is moving
+    // Horribly maim anyone who didn't pay attention
 	time = SECOND;
 	while (time > 0)
 	{
 		time--;
 		for (int i=0; i<MAXPLAYERS; i++)
-			if (Calc_Speed(GetActorVelX(TID_PLAYER+i), GetActorVely(TID_PLAYER+i)) > 20)
+			if ((minigame_wincondition1 == 0 && Calc_Speed(GetActorVelX(TID_PLAYER+i), GetActorVely(TID_PLAYER+i)) > 20) || (minigame_wincondition1 == 1 && Calc_Speed(GetActorVelX(TID_PLAYER+i), GetActorVely(TID_PLAYER+i)) < 20))
 				thing_damage(TID_PLAYER+i, 1337, MOD_BARREL);
 		delay(1);
 	}
 
     // Set the friction back to normal
-    Sector_SetFriction(2, 100);
-    Sector_SetFriction(19, 100);
-    Sector_SetFriction(20, 100);
-    Sector_SetFriction(21, 100);
-    Sector_SetFriction(22, 100);
-    Sector_SetFriction(23, 100);
-    Sector_SetFriction(24, 100);
-    Sector_SetFriction(691, 100);
-    Sector_SetFriction(692, 100);
-    Sector_SetFriction(693, 100);
+	if (minigame_wincondition1 == 0)
+	{
+		Sector_SetFriction(2, 100);
+		Sector_SetFriction(19, 100);
+		Sector_SetFriction(20, 100);
+		Sector_SetFriction(21, 100);
+		Sector_SetFriction(22, 100);
+		Sector_SetFriction(23, 100);
+		Sector_SetFriction(24, 100);
+		Sector_SetFriction(691, 100);
+		Sector_SetFriction(692, 100);
+		Sector_SetFriction(693, 100);
+	}
 }
 
-Script "DoomWare_Server_Minigame6" (void) // Don't stop moving
+Script "DoomWare_Server_Minigame6" (void) // Reach the End (Corridor 7)
 {
-	int time;
-    hudmessage(s:"Don't Stop Moving";HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
-    setMusic("D_MOVEIT");
-    round_winifmid = true;
-    delay(SECOND-(game_speed));
+    hudmessage(s:"Reach the End (Corridor 7)";HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
+    setMusic("D_CORRI7");
+	Add_Observer(936);
 
-    // Horribly maim anyone who isn't moving
-	time = SECOND;
-	while (time > 0)
-	{
-		time--;
-		for (int i=0; i<MAXPLAYERS; i++)
-			if (Calc_Speed(GetActorVelX(TID_PLAYER+i), GetActorVely(TID_PLAYER+i)) < 20)
-				thing_damage(TID_PLAYER+i, 1337, MOD_BARREL);
-		delay(1);
-	}
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 940, false, true);
+
+    // Start a timer
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*20-(SECOND*game_speed));
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
 }
 
 Script "DoomWare_Server_Minigame7" (void) // Kill Ned Flanders
@@ -5815,15 +6222,15 @@ Script "DoomWare_Server_Minigame8" (void) // Destroy a Barrel
     SetMusic("D_barrl");
 
     // Spawn some barrels to whack
-    SpawnSpot ("WoodBarrel", 3, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 4, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 5, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 6, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 7, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 8, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 9, TID_REMOVE);
-    SpawnSpot ("WoodBarrel", 10, TID_REMOVE);
-    SpawnSpot ("WoodBarrel1UP", 1, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 3, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 4, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 5, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 6, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 7, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 8, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 9, TID_REMOVE);
+    SpawnSpot("WoodBarrel", 10, TID_REMOVE);
+    SpawnSpot("WoodBarrel1UP", 1, TID_REMOVE);
 
     // Start a timer
     ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*4-(10*game_speed));
@@ -7202,45 +7609,28 @@ Script "DoomWare_Server_Minigame51" (void) // Clean your weapon
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*14+10-(12*game_speed));
 }
 
-Script "DoomWare_Server_Minigame52" (void) // The Air is Lava
+Script "DoomWare_Server_Minigame52" (void) // Gib a Turkey
 {
-    HUDMessage(s:"The Air is Lava"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
-    SetMusic("D_LAVA");
-    round_winifmid = true;
+    HUDMessage(s:"Gib a Turkey"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_TURKEY");
 
-    // Lower the lights
-    floor_lowerbyvalue(20, 8, 10);
-    floor_lowerbyvalue(21, 8, 8);
-    floor_lowerbyvalue(22, 8, 8);
-    floor_lowerbyvalue(691, 8, 10);
-    floor_lowerbyvalue(692, 8, 8);
-    floor_lowerbyvalue(693, 8, 8);
-    delay(30);
+    // Spawn some turkeys to gib
+    SpawnSpot("Turkey", 919, TID_REMOVE);
 
-    // Silently teleport everyone to a copy of the main arena
-    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 357, true, false);
-	Light_Fade(148, 0, SECOND-(2*game_speed));
-	Light_Fade(149, 0, SECOND-(2*game_speed));
-	Light_Fade(253, 0, SECOND-(2*game_speed));
-	Light_Fade(856, 0, SECOND-(2*game_speed));
-    delay(SECOND-(2*game_speed));
+    // Teleport everyone to the arena and start a timer
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 918, true, true);
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*9-(20*game_speed));
 
-    // KIll people not underwater with no remorse
-    minigame_wincondition1 = 1;
-    delay(SECOND+32-(7*game_speed));
-
-    // Raise the floor back up and silently bring everyone back
-    floor_raisebyvalue(20, 8, 10);
-    floor_raisebyvalue(21, 8, 8);
-    floor_raisebyvalue(22, 8, 8);
-    floor_raisebyvalue(691, 8, 10);
-    floor_raisebyvalue(692, 8, 8);
-    floor_raisebyvalue(693, 8, 8);
+    // Check for winners
+    do
+    {
+        Check_WonRoundItem();
+        delay(1);
+    }
+    while (minigame_timer != TIMER_OFF);
+	
+	// Teleport the players back to the main arena
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
-	Light_ChangeToValue(148, 192);
-	Light_ChangeToValue(149, 192);
-	Light_ChangeToValue(253, 192);
-	Light_ChangeToValue(856, 192);
 }
 
 Script "DoomWare_Server_Minigame53" (void) // Drink
@@ -7407,14 +7797,24 @@ Script "DoomWare_Server_Minigame60" (void) // Count the Lost Souls
         for (int j=0; j<2; j++)
             player_answer2[i][j] = -1;
 
-    // Spawn some Lost Souls
-    int result = random(10, 30);
+    // Spawn some Lost Souls, or some rockets if the game speed is high enough
+	int fakes = 0;
+    int result = random(10, 14+4*game_speed);
     minigame_wincondition1 = 0;
     for (i=0;i<result;i++)
     {
-        SpawnForced("SkullCounter", GetActorX(397)+random(0, +64.0), GetActorY(397)+random(-64.0, +64.0), GetActorz(397)+random(-32.0, +32.0), TID_REMOVE, 0);
-        delay(18-random(5-game_speed, 7));
+		if (game_speed > 2 && random(1, 10) == 1)
+		{
+			fakes++;
+			SpawnForced("FakeRocket", GetActorX(397)+random(0, +64.0), GetActorY(397)+random(-64.0, +64.0), GetActorz(397)+random(-32.0, +32.0), TID_REMOVE+1, 0);
+			SetActorVelocity(TID_REMOVE+1, 10.0, 0, 0, 0, 0);
+			Thing_ChangeTID(TID_REMOVE+1, TID_REMOVE);
+		}
+		else
+			SpawnForced("SkullCounter", GetActorX(397)+random(0, +64.0), GetActorY(397)+random(-64.0, +64.0), GetActorz(397)+random(-32.0, +32.0), TID_REMOVE, 0);
+		delay(18-random(5-game_speed, 7));
     }
+	result -= fakes;
     delay(SECOND*2);
 
     // Move the players to the numbers
@@ -9058,7 +9458,7 @@ Script "DoomWare_Server_Minigame92" (void) // Pet Daisy :)
     SetMusic("D_FARM");
 	
 	// Spawn Daisy :)
-	SpawnSpotForced("Daisy", random(2, 10), TID_REMOVE, 0);
+	SpawnSpotForced("Daisy", random(3, 10), TID_REMOVE, 0);
 	
     // Start the timer
     ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*6-25-(20*game_speed));
@@ -9144,14 +9544,16 @@ Script "DoomWare_Server_TieBreaker1" (void) // Gun Duel
     SetMusic("d_gduel");
     Add_Observer(727);
 
+	// Teleport the participants to the arena, make everyone else lose
     ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, game_highnames[0], 726);
     ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, game_highnames[1], 708);
     for (int i=2; i<MAXPLAYERS; i++)
         Player_Lose(game_highnames[i], true);
 
+	// Start a random timer
     Delay(random(SECOND*3, SECOND*7));
 
-    // Start the timer
+    // Game started!
     minigame_canmove = true;
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, (SECOND*2));
 
@@ -9165,17 +9567,20 @@ Script "DoomWare_Server_TieBreaker2" (void) // Rope Tug
     SetMusic("d_tug");
     Add_Observer(729);
 
+	// Teleport the participants to the arena, make everyone else lose
     ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, game_highnames[0], 747);
     ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, game_highnames[1], 746);
     for (int i=2; i<MAXPLAYERS; i++)
         Player_Lose(game_highnames[i], true);
 
+	// Start a random timer
     delay(random(SECOND, SECOND*3));
 
-    // Start the timer
+    // Game started!
     minigame_canmove = true;
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, (SECOND*10));
 
+    // Move the players back if they didn't die
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
 }
 
@@ -9186,16 +9591,17 @@ Script "DoomWare_Server_TieBreaker3" (void) // Barrels 1v1
     SetMusic("d_brlfun");
     Add_Observer(751);
 
+	// Teleport the participants to the arena, make everyone else lose
     ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, game_highnames[0], 750);
     ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, game_highnames[1], 749);
     for (i=2; i<MAXPLAYERS; i++)
         Player_Lose(game_highnames[i], true);
 
+	// Spawn the barrels and create a random timer
     SpawnSpotForced("ExplosiveBarrel", 748, TID_REMOVE, 0.0);
-
     Delay(random(SECOND*2, SECOND*4));
 
-    // Start the timer
+    // Game started!
     minigame_canmove = true;
     ACS_NamedExecute("DoomWare_Server_GameWait", 0, (SECOND*5));
 
@@ -9237,6 +9643,7 @@ Script "DoomWare_Server_TieBreakerM1" (void) // Survive (Grenades Fight)
     Add_Observer(752);
     Add_Observer(756);
 
+	// Teleport our participants to the main arena and start a random timer
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 760, false, true);
     delay(random(SECOND*2, SECOND*4));
 
@@ -9264,6 +9671,8 @@ Script "DoomWare_Server_TieBreakerM2" (void) // Survive (Decreasing Ring)
     SetMusic("D_PUSHER");
     Add_Observer(754);
     round_winifmid = true;
+
+	// Teleport our participants to the main arena and start a random timer
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 753, true, true);
     delay(random(SECOND*2, SECOND*4));
 
@@ -9310,8 +9719,10 @@ Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
     int checks = 0;
     HUDMessage(s:"TieBreakerM - Shoot the Target (1 shot)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
     SetMusic("D_fire");
-    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 780, false, true);
     Add_Observer(755);
+
+	// Teleport our participants to the main arena and start a random timer
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 780, false, true);
 	
 	// Wait some time
     delay(random(SECOND*2, SECOND*4));
@@ -9425,7 +9836,8 @@ Script 12 (int variable) // Win players for accomplishing tasks
             }
             break;
         case 14:
-            LocalAmbientSound("DoomWare/Worm", 127);
+			if (!Check_Player_Won(PlayerNumber()))
+				LocalAmbientSound("DoomWare/Worm", 127);
             Player_Win(PlayerNumber());
             break;
         default:
@@ -9503,13 +9915,12 @@ Script 244 (void) // Basketball points
 {
     if (!(ClassifyActor(0) & ACTOR_PLAYER) && GetActorZ(0) > 83.0 && GetActorZ(0) < 103.0)
     {
-        GiveActorInventory(GetActorProperty(0, APROP_TargetTID), "WonRoundItem", 1);
-        GiveInventory("WonRoundItem", 1);
-        delay(1);
-        if (game_status == STATUS_MINIGAME)
-            restart;
-        else
-            thing_remove(0);
+		if (CheckActorInventory(GetActorProperty(0, APROP_TargetTID), "WonRoundItem") == 0)
+		{
+			GiveActorInventory(GetActorProperty(0, APROP_TargetTID), "WonRoundItem", 1);
+			GiveInventory("WonRoundItem", 1);
+			SpawnSpotForced("StarSparkleEmitter", 0, TID_REMOVE, 0);
+		}
     }
 }
 
@@ -9607,6 +10018,29 @@ Script 252 (void) // Golden idol key pickup
 		SpawnSpotForced("YellowSkull", 701, TID_REMOVE, 0);
 		Thing_SetSpecial(TID_REMOVE, 226, 252, 0, 0);
 		Player_Win(PlayerNumber());
+	}
+}
+
+int C71UpState = 0;
+Script 253 (void) // Corridor 7 1UP Box
+{
+	switch (C71UpState)
+	{
+		case 0:
+			SetLineTexture(28, SIDE_FRONT, TEXTURE_MIDDLE, "C71UP2");
+			delay(2);
+			SetLineTexture(28, SIDE_FRONT, TEXTURE_MIDDLE, "C71UP3");
+			delay(2);
+			SetLineTexture(28, SIDE_FRONT, TEXTURE_MIDDLE, "C71UP4");
+			delay(2);
+			AmbientSound("DoomWare/C7Door", 127);
+			C71UpState = 1;
+			break;
+		case 1:
+			SetLineTexture(28, SIDE_FRONT, TEXTURE_MIDDLE, "C71UP5");
+			GiveInventory("1Up", 1);
+			C71UpState = 2;
+			break;
 	}
 }
 

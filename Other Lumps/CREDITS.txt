@@ -44,7 +44,7 @@ Another special thanks to the following people/users for beta-testing, and for b
 I wish to credit the original authors of anything I used, since they deserve to know their content is being used. I emailed every one, but most emails bounced back, since I have content that is older than the pyramids. 
 If you don't want your stuff in this WAD, please email me at buu342@hotmail.com and I will remove the content. No biggie. 
 All content is used for entertainment purposes and is non-profit. Music clips are shorter than 15 seconds. This should keep those pesky lawyers away.
-Since the resources are used so sparingly, I will list the minigames (in order of programming date (sorry, I'll get to organizing it alphabetically someday)) and the resources used will be listed, as well as authors of said original content. 
+Since the resources are used so sparingly, I will list the minigames (in order of their minigame number) and the resources used will be listed, as well as authors of said original content. 
 Anything else not mentioned can be assumed that I made it. And yes, feel free to use it yourself. Credit would be nice but not required.
 
 Hope you enjoy DoomWare!
@@ -87,7 +87,8 @@ Wacky Modifier Sound - Item Pickup - Super Mario Kart
 Buu342 Skin - Based on King of All Cosmos - We <3 Katamari
 Buu342 Sounds - King of All Cosmos - We <3 Katamari
 
-**The Floor Is Lava**
+**The Floor/Air Is Lava**
+Idea for the Air Is Lava Variant - Ichor
 Music - Bowser's Road - Super Mario 64
 
 **Survive (Cyberdemon)**
@@ -99,8 +100,12 @@ Sprites, Jitterskull DECORATE, Music/Sounds, Tree Models/Textures - Ghoul's Fore
 **Survive (Archviles)**
 Music - Map20 (Message For The Archvile) - Doom 2
 
-**Stop Moving/Keep Moving**
+**Stop Moving/Don't Stop Moving**
 Music - Keep It Up - Warioware 
+
+**Reach the End (Corridor 7)**
+Sprites, textures, etc... - Corridor 7: Alien Isolation - Capstone Software
+Music - Floor 01 - Corridor 7
 
 **Kill Ned Flanders**
 Sprites, Sounds, Textures, Music - Ultimate Simpsons Doom - Myk Friedman (Unable to contact for permission)
@@ -273,9 +278,10 @@ Music - Gospel Of The Throttle - Minutes Til Midnight
 Sprites and Sounds - Extreme Weapons Pack - Doggo120
 Music - Let's Try The Next One - Mystical Ninja 2 Starring Goemon
 
-**The Air Is Lava**
-Idea - Ichor
-Music - Bowser's Road - Super Mario 64
+**Gib a Turkey**
+Idea - Marcaek
+Music and Spries - Super Turbo Turkey Puncher 3 - Doom 3
+Map - based off E4M9 - Ultimate Doom
 
 **Drink**
 Can Model - Team Fortress 2 - Curious of what was on the can? I included the texture in this wad

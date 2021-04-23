@@ -4,14 +4,13 @@
 
 server string doomware_mode = "";                // "" or "halloween" or "christmas"
 server bool   doomware_automode = true;          // Automatically select a seasonal map skin
-server string doomware_banlist = "";             // TODO: List of banned minigame numbers (separated by spaces)
+server string doomware_banlist = "";             // List of banned minigame numbers (separated by spaces)
 server bool   doomware_duplicates = false;       // Allow duplicate games
 server bool   doomware_bouncywalls = true;       // Make the walls of the arena bounce people off?
-server bool   doomware_easymode = false;         // TODO: Show people the minigame instructions before it starts?
 server bool   doomware_wackymods = true;         // Allow wacky modifiers?
 server int    doomware_wackymodschance = 3;      // Odds of a wacky mod? (The higher, the less chance. 0 means always)
 server bool   doomware_bossfight = true;         // Allow the boss fight wacky mod?
-server bool   doomware_bossfightrespawn = false; // TODO: Allow players to respawn after a minigame during the boss fight=
+server bool   doomware_bossfightrespawn = true;  // Allow players to respawn after a minigame during the boss fight?
 server bool   doomware_unsafedb = false;         // Allow stat tracking for non logged in players?
 
 
@@ -51,6 +50,23 @@ server noarchive int __clientsync_gamesolo = 0;
 server noarchive int __clientsync_roundcurrent = 0;
 server noarchive int __clientsync_wincondition1 = 0;
 server noarchive int __clientsync_wackymod = 0;
+
+// Sync database values for CLIENTSIDE scripts
+server noarchive int __clientsync_stats_t_wins = 0;
+server noarchive int __clientsync_stats_t_points = 0;
+server noarchive int __clientsync_stats_t_1ups = 0;
+server noarchive int __clientsync_stats_t_deaths = 0;
+server noarchive int __clientsync_stats_t_bosses = 0;
+server noarchive int __clientsync_stats_g_wins = 0;
+server noarchive int __clientsync_stats_g_points = 0;
+server noarchive int __clientsync_stats_g_1ups = 0;
+server noarchive int __clientsync_stats_g_deaths = 0;
+server noarchive int __clientsync_stats_g_bosses = 0;
+server noarchive string __clientsync_stats_n_wins = "";
+server noarchive string __clientsync_stats_n_points = "";
+server noarchive string __clientsync_stats_n_1ups = "";
+server noarchive string __clientsync_stats_n_deaths = "";
+server noarchive string __clientsync_stats_n_bosses = "";
 
 // Replacement for GetUserCVar's
 server noarchive string __clientsync_player_score = "";

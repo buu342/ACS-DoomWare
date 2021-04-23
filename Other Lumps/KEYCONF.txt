@@ -1,7 +1,7 @@
 weaponsection DW
 
-setslot 1 Fist Chainsaw ChainsawFake BoxingGlove MaceWeapon SnowSpeederWeapon PushStaff FalconPunchWeapon PettingWeapon
-setslot 2 pistol PistolFake suicide clean Raygun NESZapper CoopPistol BowArrow
+setslot 1 Fist Chainsaw ChainsawFake BoxingGlove MaceWeapon SnowSpeederWeapon PushStaff FalconPunchWeapon PettingWeapon FastFist
+setslot 2 pistol PistolFake suicide clean Raygun NESZapper CoopPistol BowArrow C7Gun
 setslot 3 Shotgun SuperShotgun SuperShotgunFake SimpsonsShotgun CoopShotgun
 setslot 4 Chaingun ChaingunFake Minigun CoopChaingun
 setslot 5 RocketLauncher RocketLauncherFake GrenadeLauncher BBallLauncher
