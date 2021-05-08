@@ -292,34 +292,22 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.9675\n\
+Version Beta 1.9675A\n\
 What's new in the Beta?\n\n\
-+ Added doomware_banlist cvar\n\
-+ Added doomware_bossfightrespawn cvar\n\
-+ Added deathmatch games to banlist during solo play\n\
-+ Added more fun stat stuff to the DoomWare menu\n\
-+ Added sonic speed to flight morphs\n\
-+ Added team support\n\
-* Changed linedef triggers to Actor Enters Sector triggers\n\
-* Changed strafe text color to yellow\n\
-* Changed veteran rank back to 300 points for consistency\n\
-* Fixed achievement logs not showing multiple people\n\
-* Fixed (Hopefully) Captain Falcon punch freeze\n\
-* Fixed inconsistent 1up sound behaviour\n\
-* Fixed intermission screen still having old marble texture\n\
-* Improved arena pillar textures\n\
-* Made spike tube radius smaller due to actor movement prediction\n\
-* Merged Floor/Air lava minigames and replaced with a new one\n\
-* Merged Stop/Keep moving minigames and replaced with a new one\n\
-* Tweaked the boss fight logging code\n\
-* Tweaked the Lost Soul Counting Minigame\n\
-* Removed aim lock on some melee weapons\n\
++ Added doomware_gamestarttime cvar\n\
+* Changed the Corridor 7 gun to be a melee weapon\n\
+* Fixed HUD leader showing a team game when it isn't\n\
+* Fixed menu mouse and sounds not working in singleplayer\n\
+* Tweaked difficulty in Eclipse minigame\n\
+- Disabled boss fight when in teams\n\
+- Reduced the filesize on some sounds\n\
+- Removed aim lock on daisy hands and turkey fist\n\
 "
 
 // Menu Text
 
 #define WELCOME "\
-Welcome to DoomWare, a fast paced competitive minigame wad. Every few seconds you are\n\
+ Welcome to DoomWare, a fast paced competitive minigame wad. Every few seconds you are\n\
 thrown into a new minigame with variying different goals. The longer you play, the\n\
 faster and harder the game gets...\n\n\
 Before you get started, make sure you have mouselook and jump bound, as you're going\n\
@@ -509,7 +497,12 @@ Script "DoomWare_Server_Initialize" (void)
     ACS_NamedExecute("DoomWare_Server_ClearObservers", 0);
 	
     // Wait a bit so everyone knows the game is starting
-    delay(SECOND*5);
+	minigame_timer = GetCVar("doomware_gamestarttime")*SECOND; // Used for the HUD  timer
+	while (minigame_timer > 0)
+	{
+		minigame_timer--;
+		delay(1);
+	}
 	
 	// Do wacky modifiers
 	if (GetCVar("doomware_wackymods") && !game_solo)
@@ -897,7 +890,7 @@ Script "DoomWare_Server_Wackymod" (void)
 		// Pick a wackymod at random
 		if (DEBUG_WACKY == -1)
 		{
-			if (GetCVar("doomware_bossfight"))
+			if (GetCVar("doomware_bossfight") && !game_teams)
 				game_wackymod = 1+random(0, NUMBEROFWACKYMODS-1);
 			else
 				game_wackymod = 2+random(0, NUMBEROFWACKYMODS-2);
@@ -1697,12 +1690,12 @@ function void DB_NetworkStats(str namespace, str cvarname) // Updates the global
 		for (int i=0; i<c; i++)
 			stat_g += GetDBResultValue(res, i);
 		stat_t = GetDBResultValue(res, 0);
-		FreeDBResults(res);
 		
 		Player_SetCVar(StrParam(s:"__clientsync_stats_t_", s:cvarname), stat_t);
 		Player_SetCVar(StrParam(s:"__clientsync_stats_g_", s:cvarname), stat_g);
 		Player_SetCVarString(StrParam(s:"__clientsync_stats_n_", s:cvarname), stat_n);
 	}
+	FreeDBResults(res);
 }
 
 Script "DoomWare_Server_SyncGlobals" (void)
@@ -1726,6 +1719,7 @@ Script "DoomWare_Server_SyncGlobals" (void)
     Player_SetCVar("__clientsync_gamesolo", game_solo);
     Player_SetCVar("__clientsync_roundcurrent", round_current[game_roundnum-1]);
     Player_SetCVar("__clientsync_wackymod", game_wackymod);
+    Player_SetCVar("__clientsync_teams", game_teams);
 	
 	// Sync the team scores, or the top 2 scores if we're not in a team mode
 	if (game_teams)
@@ -2281,6 +2275,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
         str syncdata_canobserve = GetCvar("__clientsync_canobserve");
         str syncdata_timer = GetCvar("__clientsync_minigametimer");
         str syncdata_roundcurrent = GetCvar("__clientsync_roundcurrent");
+        str syncdata_teams = GetCvar("__clientsync_teams");
 
         int syncdata_score = Unpack_CVar_Array("__clientsync_player_score");
         str syncdata_checklost = Unpack_CVar_Array("__clientsync_player_checklost");
@@ -2298,7 +2293,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
         {
             // Make some sounds
             if (hud_toppos == -92.0 && GetUserCVar(plynum, "doomware_huddynamic") && GetUserCVar(plynum, "doomware_hudsounds"))
-                LocalAmbientSound("DoomWare/HUDMove", 127);
+                AmbientSound("DoomWare/HUDMove", 127);
 
             // Move the hud
             if (GetUserCVar(plynum, "doomware_huddynamic"))
@@ -2317,8 +2312,13 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
         }
         else if (syncdata_gamestatus == STATUS_STARTING) // We're ready to go
         {
+			int waittime = ((FixedDiv(syncdata_timer, SECOND)*100)&0xFFFF0000) >> 16;
+			int waittens = waittime/1000;
+			int waitones = (waittime/100)%10;
+			int waittenths = (waittime/10)%10;
+			int waithundredths = waittime%10;
             HUDMessage(s:"READY TO PLAY!"; HUDMSG_PLAIN, MSGID_CENTER, CR_PURPLE, w/2, FixedMul(h, 0.25), 1);
-            HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER2, CR_BLACK, 0, 0, 1);
+            HUDMessage(d:waittens, d:waitones, s:":", d:waittenths, d:waithundredths; HUDMSG_PLAIN, MSGID_CENTER2, CR_PURPLE, w/2, FixedMul(h, 0.25)+18.0, 1);
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER3, CR_BLACK, 0, 0, 1);
         }
 		else if (syncdata_gamestatus == STATUS_WACKYMOD) // Wacky modifier selection
@@ -2328,7 +2328,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
 			// Play roulette sound
 			if (!playedwackysound && GetUserCVar(plynum, "doomware_hudsounds"))
 			{
-				LocalAmbientSound("DoomWare/WackyMod", 127);
+				AmbientSound("DoomWare/WackyMod", 127);
 				playedwackysound = true;
 			}
 			
@@ -2467,10 +2467,10 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
             if (syncdata_gamestatus > STATUS_STARTING)
             {
 				// If the player is in a team
-				if (GetPlayerInfo(ConsolePlayerNumber(), PLAYERINFO_TEAM) < GetCVar("sv_maxteams"))
+				if (syncdata_teams)
 				{
 					int myteamscore = 0;
-					switch (GetPlayerInfo(ConsolePlayerNumber(), PLAYERINFO_TEAM))
+					switch (PlayerTeam())
 					{
 						case TEAM_BLUE:
 							myteamscore = syncdata_highscore1;
@@ -2586,61 +2586,63 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
                      Timer
         ==============================*/
 
-        if (GetUserCVar(plynum, "doomware_huddynamic"))
-        {
-            if (syncdata_timer != TIMER_EARLY && syncdata_timer <= 0 && hud_botpos < h+64.0)
-                hud_botpos += 4.0;
-            else if (syncdata_timer > 0 && hud_botpos > h)
-                hud_botpos -= 4.0;
+        if (syncdata_gamestatus != STATUS_STARTING)
+		{
+			if (GetUserCVar(plynum, "doomware_huddynamic"))
+			{
+				if (syncdata_timer != TIMER_EARLY && syncdata_timer <= 0 && hud_botpos < h+64.0)
+					hud_botpos += 4.0;
+				else if (syncdata_timer > 0 && hud_botpos > h)
+					hud_botpos -= 4.0;
 
-            // In case people decide to resize the hud midway through the round
-            if (hud_botpos < h)
-                hud_botpos = h;
-        }
-        else
-        {
-            if (syncdata_timer > 0)
-                hud_botpos = h;
-            else
-                hud_botpos = h+64.0;
-        }
+				// In case people decide to resize the hud midway through the round
+				if (hud_botpos < h)
+					hud_botpos = h;
+			}
+			else
+			{
+				if (syncdata_timer > 0)
+					hud_botpos = h;
+				else
+					hud_botpos = h+64.0;
+			}
 
-        SetHudSize(w>>16, h>>16, false);
-        if (syncdata_timer == TIMER_EARLY)
-            SetFont("HUDCLK2");
-        else
-            SetFont("HUDCLK1");
+			SetHudSize(w>>16, h>>16, false);
+			if (syncdata_timer == TIMER_EARLY)
+				SetFont("HUDCLK2");
+			else
+				SetFont("HUDCLK1");
 
-        if (hud_botpos != h+64.0)
-            HUDMessage(s:"a"; HUDMSG_PLAIN | HUDMSG_LAYER_UNDERHUD, MSGID_TIMER2, CR_GREEN, w/2, hud_botpos + 0.2, 1);
-        else
-            HUDMessage(s:""; HUDMSG_PLAIN, MSGID_TIMER2, CR_GREEN, 0.0, 0.0, 1);
-        SetFont("DW_FONT2");
-        int time = ((FixedDiv(syncdata_timer, SECOND)*100)&0xFFFF0000) >> 16;
-        int oldtime = ((FixedDiv(lasttimertime, SECOND)*100)&0xFFFF0000) >> 16;
-        int tens = time/1000;
-        int ones = (time/100)%10;
-        int oldones = (oldtime/100)%10;
-        int tenths = (time/10)%10;
-        int hundredths = time%10;
-        if (syncdata_timer > 0)
-        {
-            HUDMessage(d:tens, d:ones, s:":", d:tenths, d:hundredths; HUDMSG_PLAIN | HUDMSG_LAYER_UNDERHUD, MSGID_TIMER, CR_RED, w/2, hud_botpos - 16.0 + 0.2, 1);
+			if (hud_botpos != h+64.0)
+				HUDMessage(s:"a"; HUDMSG_PLAIN | HUDMSG_LAYER_UNDERHUD, MSGID_TIMER2, CR_GREEN, w/2, hud_botpos + 0.2, 1);
+			else
+				HUDMessage(s:""; HUDMSG_PLAIN, MSGID_TIMER2, CR_GREEN, 0.0, 0.0, 1);
+			SetFont("DW_FONT2");
+			int time = ((FixedDiv(syncdata_timer, SECOND)*100)&0xFFFF0000) >> 16;
+			int oldtime = ((FixedDiv(lasttimertime, SECOND)*100)&0xFFFF0000) >> 16;
+			int tens = time/1000;
+			int ones = (time/100)%10;
+			int oldones = (oldtime/100)%10;
+			int tenths = (time/10)%10;
+			int hundredths = time%10;
+			if (syncdata_timer > 0)
+			{
+				HUDMessage(d:tens, d:ones, s:":", d:tenths, d:hundredths; HUDMSG_PLAIN | HUDMSG_LAYER_UNDERHUD, MSGID_TIMER, CR_RED, w/2, hud_botpos - 16.0 + 0.2, 1);
 
-            // Play some ticking sounds when there's 3, 2, 1 seconds left
-            if (GetUserCvar(plynum, "doomware_hudsounds") && tens == 0)
-            {
-                if (ones == 2 && oldones == 3)
-                    LocalAmbientSound("DoomWare/Clock3", 127);
-                if (ones == 1 && oldones == 2)
-                    LocalAmbientSound("DoomWare/Clock2", 127);
-                if (ones == 0 && oldones == 1)
-                    LocalAmbientSound("DoomWare/Clock1", 127);
-            }
-        }
-        else
-            HUDMessage(s:""; HUDMSG_PLAIN | HUDMSG_LAYER_UNDERHUD, MSGID_TIMER, CR_RED, w/2, hud_botpos + 0.2, 1);
-
+				// Play some ticking sounds when there's 3, 2, 1 seconds left
+				if (GetUserCvar(plynum, "doomware_hudsounds") && tens == 0)
+				{
+					if (ones == 2 && oldones == 3)
+						AmbientSound("DoomWare/Clock3", 127);
+					if (ones == 1 && oldones == 2)
+						AmbientSound("DoomWare/Clock2", 127);
+					if (ones == 0 && oldones == 1)
+						AmbientSound("DoomWare/Clock1", 127);
+				}
+			}
+			else
+				HUDMessage(s:""; HUDMSG_PLAIN | HUDMSG_LAYER_UNDERHUD, MSGID_TIMER, CR_RED, w/2, hud_botpos + 0.2, 1);
+		}
 
         /*==============================
                 Wacky Mod Notice
@@ -2672,7 +2674,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE
             HUDMessage(s:"You are not logged in, your stats will not be tracked!\nPress ", k:"+use", s:" to dismiss this message."; HUDMSG_PLAIN, MSGID_WARNING, CR_RED, w/2 + 0.4, h-extray + 0.2, 1);
 
             // Allow players to dismiss that message
-            if (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_USE || syncdata_loggedin)
+            if (GetPlayerInput(plynum, MODINPUT_BUTTONS) & BT_USE || syncdata_loggedin)
                 remind_login = false;
         }
         else
@@ -3104,11 +3106,11 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
             h = h << 16;
 
             // Get input
-            dx = FixedMul(x_sensitivity, GetPlayerInput(-1, INPUT_YAW)) / 24;
-            dy = FixedMul(y_sensitivity, GetPlayerInput(-1, INPUT_PITCH)) / 12;
+            dx = FixedMul(x_sensitivity, GetPlayerInput(plynum, INPUT_YAW)) / 24;
+            dy = FixedMul(y_sensitivity, GetPlayerInput(plynum, INPUT_PITCH)) / 12;
             if (dy == 0)
             {
-                dy = -GetPlayerInput(-1, INPUT_FORWARDMOVE) / 1200;
+                dy = -GetPlayerInput(plynum, INPUT_FORWARDMOVE) / 1200;
                 moving_mouse = false;
             }
 
@@ -3132,8 +3134,8 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
             // Allow changing tabs
             if ((y <= (h/2-220.0)>>16 && y >= (h/2-240.0)>>16) && (x >= (w/2 - 318.00)>>16 && x <= (w/2 + 318.00)>>16))
             {
-                int input = GetPlayerInput(-1, INPUT_BUTTONS);
-                int oldinput = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+                int input = GetPlayerInput(plynum, INPUT_BUTTONS);
+                int oldinput = GetPlayerInput(plynum, INPUT_OLDBUTTONS);
                 if (!(oldinput & (BT_USE|BT_ATTACK)) && (input & (BT_USE|BT_ATTACK)))
                 {
                     int oldtab = tab;
@@ -3142,7 +3144,7 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                     {
                         changedtab = true;
                         if (GetUserCVar(plynum, "doomware_hudsounds"))
-                            LocalAmbientSound("DoomWare/MenuTab", 127);
+                            AmbientSound("DoomWare/MenuTab", 127);
                     }
 
                     if (tab == 6)
@@ -3159,7 +3161,7 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
             {
                 case 1:
                     SetFont("DW_FONT3");
-                    HUDMessage(s:WELCOME; HUDMSG_PLAIN, MSGID_MELEM, CR_WHITE, w/2-312.0 + 0.1, h/2 + 28.0 + 0.1, 1);
+                    HUDMessage(s:WELCOME; HUDMSG_PLAIN, MSGID_MELEM, CR_WHITE, w/2-322.0 + 0.1, h/2 + 28.0 + 0.1, 1);
 
                     // Clear unused elements
                     if (changedtab)
@@ -3358,7 +3360,7 @@ function void Handle_Menu_Option(int number, str command, str desc, int plynum, 
 
             // Play a sound
             if (GetUserCVar(plynum, "doomware_hudsounds"))
-                LocalAmbientSound("DoomWare/MenuSwitch", 127);
+                AmbientSound("DoomWare/MenuSwitch", 127);
         }
 }
 
@@ -8822,7 +8824,8 @@ Script "DoomWare_Server_Minigame74" (void) // Reach the End (Eclipse)
     SpawnSpotForced("Aguares", 683, TID_REMOVE, 128);
     SpawnSpotForced("ForbiddenOne", 684, TID_REMOVE, 128);
     SpawnSpotForced("SlimyWorm", 685, TID_REMOVE, 128);
-    SpawnSpotForced("Cacodemon2", 686, TID_REMOVE, 128);
+	if (game_speed > 2)
+		SpawnSpotForced("Cacodemon2", 686, TID_REMOVE, 128);
 
     // Move all the players to the arena
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 660, false, true);

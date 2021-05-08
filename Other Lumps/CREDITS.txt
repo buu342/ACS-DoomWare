@@ -65,7 +65,7 @@ Evil Laugh Sound - Strider (Genesis) - Capcom
 **Waiting Room/General DoomWare Stuff**
 Loading Music - Sonic CD Boss Theme (US) - SEGA
 Menu sound effects - Warioware - Nintendo
-Round Music - Warioware - Nintendo
+Round Music - Bumper (9-Volt) - WarioWare: Smooth Moves
 Round Music (Game Over, tie) - WarioMan Minigames - Warioware D.I.Y
 Round Music (Halloween) - Mystic Mansion - Sonic Heroes
 Round Music (Christmas) - Frosty Village - Diddy Kong Racing
@@ -151,11 +151,11 @@ Music - Acient Lake - Diddy Kong Racing
 Sounds - Diddy Kong Racing
 
 **Don't/Equip Weapon**
-Music - Wario's Microgames - Warioware
+Music - Dribble's Microgames - WarioWare: Smooth Moves
 
 **Swim Up**
 Idea by - Ichor
-Music - Underwater Level - Super Mario Bros (You really had to look this up?)
+Music - Underwater Level - Super Mario Bros
 
 **Reach The End (Factory)**
 Textures - Skulltag
@@ -163,7 +163,7 @@ Music - Nano Tech - Motherload Goldium Edition
 Sprites - Spikes taken from Sonic The Hedgehog (1991) - SEGA
 
 **Survive (Grenades)**
-Music - Not sure I'm afraid. It's a remix of the Pokemon battle theme and the second level in Super Mario Bros
+Music - Not sure I'm afraid. It's a remix of the Pokemon battle theme and the underground theme from Super Mario Bros
 
 **Collect 10 Rings**
 Music, textures, sprites, sounds - Green Hill Zone - Sonic The Hedgehog (1991)
@@ -254,14 +254,14 @@ Sounds - Diddy Kong Racing
 Dancing Banana Sprite - I can't find a source on the original thing. Someone made it. If you're old enough you should recognize it and won't need me to source this.
 Explosion Sprite - Metal Slug - SNK
 Sound - Original quote from Fosters' Home For Imaginary Friends, sound edited by Alvin-Earthworm for his C is for Cereal Animation (again, if you're old enough).
-AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a n64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
-Music - Not sure I'm afraid
+AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a N64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
+Music - Rush Hour - WarioWare Smooth Moves
 
 **Survive (Spikes)**
 Idea - Ichor
 Spikes - Hexen - Raven Software
 Music - Mona's microgame medley - WarioWare Smooth Moves
-AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a n64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
+AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a N64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
 
 **Math Problem**
 Carpet Rug Texture - I can't find the original source on this one, I had it lying around in my disk.
@@ -270,7 +270,7 @@ TV Screen Texture - Skulltag
 Music - Ghostly Gold - WarioWare, Inc.: Mega Party Game$!
 
 **Survive (Bullet Hell)**
-Idea - Came from a unfinished singleplayer wad of mine (https://www.youtube.com/watch?v=4qGPbuJeM8Y). Contact me if you're interested or whatnot I guess.
+Idea - Came from a unfinished singleplayer WAD of mine (https://www.youtube.com/watch?v=4qGPbuJeM8Y).
 Monster sprite - Yuraofthehairfan
 Music - Gospel Of The Throttle - Minutes Til Midnight
 
@@ -290,7 +290,7 @@ Music - Running The Giant Wheel - Mystical Ninja 2 Starring Goemon
 **Survive (chilli)**
 Chilli/Explosion sprite - Metal Slug 3 - SNK
 Small flame sprites - Duke Nukem 3D - 3D Realms
-Sound - WTF Boom - Internet I guess? I really can't credit this one since it's from multiple sources. If you had to look it up then for shame...
+Sound - WTF Boom - C4 Sound from Counter Strike. WTF Sound from Episode 3 of Steven Moustache Show. Explosion + laugh from Mega64: Cold Fear Ad #3.
 Music - Groan! Rampage of the Wind - Mystical Ninja 2 Starring Goemon
 
 **Hit The Real Barrel**
@@ -368,7 +368,7 @@ Music - Last Dinosaur - The Pillows
 Sprites, Music, Textures - Sushi-Go-Round - Pokémon Studio
 
 **Catch a Pokémon**
-Honestly if you don't know where any of this is from then you must be killed to death.
+Honestly if you don't know where any of this is from then you're too young to be playing Doom.
 It's all from Pokémon Red/Blue/Yellow. Game Boy game.
 
 **Survive (disappearing floor)**
@@ -401,7 +401,7 @@ Music - To The Beach - From CoTeCiO's Town Infection Wad (This guy makes awesome
 **Shoot The Apple Off The Imp's Head**
 Idea - Ichor
 Bow and Arrow sprites - Ghoul's Forest 3 - Cutman Mike
-Apple Sprite - Minecraft - Mojang (You had to look this up???)
+Apple Sprite - Minecraft - Mojang
 Music - Bad Dog No Biscuits - The Seatbelts
 
 **Shoot An Imp**

@@ -213,13 +213,9 @@ DoomWare/Christmas/Intro5		W3_INTR5
 DoomWare/Christmas/Win5			W3_WIN5
 DoomWare/Christmas/FAIL5		W3_FAIL5
 
-
 DoomWare/GameOver				WW_Over
 DoomWare/TieBreaker				WW_TIEBK
 DoomWare/TieStart				WW_TSTRT
-
-DoomWare/Check					WW_Check
-DoomWare/Failure				WW_Failr
 
 DoomWare/Quit1					SONCJUMP
 DoomWare/Quit2					Honk
@@ -241,6 +237,11 @@ DoomWare/Quit17					ACHIEVEM
 
 DoomWare/SpoopyGhost			DSGHOST
 
+DoomWare/Check					WW_Check
+DoomWare/Failure				WW_Failr
+DoomWare/1UP	  				1UP
+DoomWare/Achievement 			ACHIEVEM
+
 
 // HUD Sounds
 
@@ -251,7 +252,6 @@ DoomWare/Clock1					WW_TICK1
 DoomWare/HUDMove				HUDMOVE
 DoomWare/MenuSwitch				SOTESWCH
 DoomWare/MenuTab				MENUTAB
-DoomWare/Achievement 			ACHIEVEM
 
 DoomWare/WackyMod				DSMKITEM
 
@@ -264,7 +264,6 @@ DoomWare/JitterskullCackle3		SKULL3
 DoomWare/JitterskullCackle4		SKULL4
 DoomWare/JitterskullAttack		SKULL5
 
-DoomWare/1UP	  				1UP
 DoomWare/Barrel  				WW_BRL
 
 DoomWare/Jihad  				DW_Jihad

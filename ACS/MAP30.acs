@@ -2127,7 +2127,7 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
         {
             // Make some sounds
             if (hud_toppos == -92.0 && GetUserCVar(plynum, "doomware_huddynamic") && GetUserCVar(plynum, "doomware_hudsounds"))
-                LocalAmbientSound("DoomWare/HUDMove", 127);
+                AmbientSound("DoomWare/HUDMove", 127);
 
             // Move the hud
             if (GetUserCVar(plynum, "doomware_huddynamic"))
@@ -2275,11 +2275,11 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
             if (GetUserCvar(plynum, "doomware_hudsounds") && tens == 0)
             {
                 if (ones == 2 && oldones == 3)
-                    LocalAmbientSound("DoomWare/Clock3", 127);
+                    AmbientSound("DoomWare/Clock3", 127);
                 if (ones == 1 && oldones == 2)
-                    LocalAmbientSound("DoomWare/Clock2", 127);
+                    AmbientSound("DoomWare/Clock2", 127);
                 if (ones == 0 && oldones == 1)
-                    LocalAmbientSound("DoomWare/Clock1", 127);
+                    AmbientSound("DoomWare/Clock1", 127);
             }
         }
         else
@@ -2298,7 +2298,7 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
             HUDMessage(s:"You are not logged in, your stats will not be tracked!\nPress ", k:"+use", s:" to dismiss this message."; HUDMSG_PLAIN, MSGID_WARNING, CR_RED, w/2 + 0.4, h + 0.2, 1);
 
             // Allow players to dismiss that message
-            if (GetPlayerInput(-1, MODINPUT_BUTTONS) & BT_USE || syncdata_loggedin)
+            if (GetPlayerInput(plynum, MODINPUT_BUTTONS) & BT_USE || syncdata_loggedin)
                 remind_login = false;
         }
         else
@@ -2424,11 +2424,11 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
             h = h << 16;
 
             // Get input
-            dx = FixedMul(x_sensitivity, GetPlayerInput(-1, INPUT_YAW)) / 24;
-            dy = FixedMul(y_sensitivity, GetPlayerInput(-1, INPUT_PITCH)) / 12;
+            dx = FixedMul(x_sensitivity, GetPlayerInput(plynum, INPUT_YAW)) / 24;
+            dy = FixedMul(y_sensitivity, GetPlayerInput(plynum, INPUT_PITCH)) / 12;
             if (dy == 0)
             {
-                dy = -GetPlayerInput(-1, INPUT_FORWARDMOVE) / 1200;
+                dy = -GetPlayerInput(plynum, INPUT_FORWARDMOVE) / 1200;
                 moving_mouse = false;
             }
 
@@ -2452,8 +2452,8 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
             // Allow changing tabs
             if ((y <= (h/2-220.0)>>16 && y >= (h/2-240.0)>>16) && (x >= (w/2 - 318.00)>>16 && x <= (w/2 + 318.00)>>16))
             {
-                int input = GetPlayerInput(-1, INPUT_BUTTONS);
-                int oldinput = GetPlayerInput(-1, INPUT_OLDBUTTONS);
+                int input = GetPlayerInput(plynum, INPUT_BUTTONS);
+                int oldinput = GetPlayerInput(plynum, INPUT_OLDBUTTONS);
                 if (!(oldinput & (BT_USE|BT_ATTACK)) && (input & (BT_USE|BT_ATTACK)))
                 {
                     int oldtab = tab;
@@ -2462,7 +2462,7 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                     {
                         changedtab = true;
                         if (GetUserCVar(plynum, "doomware_hudsounds"))
-                            LocalAmbientSound("DoomWare/MenuTab", 127);
+                            AmbientSound("DoomWare/MenuTab", 127);
                     }
 
                     if (tab == 6)
@@ -2674,7 +2674,7 @@ function void Handle_Menu_Option(int number, str command, str desc, int plynum, 
 
             // Play a sound
             if (GetUserCVar(plynum, "doomware_hudsounds"))
-                LocalAmbientSound("DoomWare/MenuSwitch", 127);
+                AmbientSound("DoomWare/MenuSwitch", 127);
         }
 }
 

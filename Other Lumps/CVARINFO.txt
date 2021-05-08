@@ -12,6 +12,7 @@ server int    doomware_wackymodschance = 3;      // Odds of a wacky mod? (The hi
 server bool   doomware_bossfight = true;         // Allow the boss fight wacky mod?
 server bool   doomware_bossfightrespawn = true;  // Allow players to respawn after a minigame during the boss fight?
 server bool   doomware_unsafedb = false;         // Allow stat tracking for non logged in players?
+server int    doomware_gamestarttime = 5;        // Time to wait (in seconds) before starting a new game
 
 
 /*===================================================================================================
@@ -50,6 +51,7 @@ server noarchive int __clientsync_gamesolo = 0;
 server noarchive int __clientsync_roundcurrent = 0;
 server noarchive int __clientsync_wincondition1 = 0;
 server noarchive int __clientsync_wackymod = 0;
+server noarchive int __clientsync_teams = 0;
 
 // Sync database values for CLIENTSIDE scripts
 server noarchive int __clientsync_stats_t_wins = 0;
