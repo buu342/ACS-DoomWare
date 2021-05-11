@@ -4,41 +4,9 @@
     more stable, but more importantly to make it easier to read and modify. This has allowed me to add all sorts of new features
     really easily, as I didn't have to keep writing exceptions/rewriting entire blocks of code to implement new stuff.
 
-    Typically, I call scripts that have an activator a CLIENT script, and scripts that don't a SERVER script. This also helps
-    differentiate between code that handles the game itself (Server) and code that doesn't (Client). That doesn't mean that the
-    client isn't important! Both need to be in balance to work perfectly!
-    Client scripts also require ExecuteAlways (as each client runs a version of the script), Server scripts do not.
-
-    To add a new minigame, simply increment the value of NUMBEROFGAMES, and create a Client and Server script with the number
-    of your minigame. The Serverside script will dictate the duration of the minigame. The Client script should loop for
-    as long as the minigame is occuring (while(game_status == STATUS_MINIGAME)). If you're a bit confused, just copy code from
-    other minigames.
-
-    The same applies to tie breakers. TieBreaker is for 1v1 games and TiebreakerM is for Non-1v1 games.
-
-    When a game starts, players are put inside the player_midround array. Players win if they are inside player_wonround array,
-    or if they are in the player_midround array WHILE round_winifmid == true. To ensure you don't forget to remove players from the
-    midround array when you make them win/lose, please use Player_Lose() or Player_Win().
-
-    I recommend reading through the list of global variables so you can familiarize yourself with a minigame's customizability,
-    as well as check the Client and Server code of a minigame I've already implemented that is similar to the one you want to make.
-
-    Extra miscallaneous notes:
-    - All players have a TID of 1337 plus their PlayerNumber
-    - Objects tagged with TID 7337 are usually marked for deletion at the end of each round.
-    - Unless your minigame has a very specific scripted sequence from start to finish, I recommend that you don't use delays to wait
-      until a game is over serverside, use DoomWare_Server_GameWait() instead, as it will end a game early if all the players have
-      died/won the round (to prevent people from waiting until a long game is over (you can force this to not happen using
-      round_noforceend)), and because it also automatically places a timer on the screen.
-    - To move players to an area, use the script DoomWare_Server_TeleportPlayers(int destination_tid, int telesector) and then use the script
-      DoomWare_Server_ReturnPlayers(int move_if_lost) to move them back. You can teleport them to individual map spots (telesector = 0) or
-      Teleport them into an area the same size as the main hub with only a single map spot (telesector = 1).
-      Alterntatively, use the script DoomWare_Server_TeleportSingle(int plynum, int dest) to teleport a single player.
-    - To freeze players via PROP_TOTALLYFROZEN, please use Player_FreezeTotally(int who) and Player_UnFreezeTotally(int who) to prevent
-      incompatibilities with the fact that the menu also freezes player movement (to allow for the cursor to move)
-    - To add observers to your minigame, place a camera, give it a TID, and then in the beginning of your Server Minigame code, do
-      Add_Observer(TID). This will automatically set minigame_canobserve to true, and the observer array will be automatically cleared
-      after your script has ended so there is no need to call Clear_Observers.
+    DoomWare's Source Code should be pretty well commented, but if you want a better overview, or are interested in adding in more minigames,
+    I highly recommend reading the Wiki on DoomWare's GitHub page!
+    https://github.com/buu342/ACS-DoomWare/wiki
 
     Have fun!
 
@@ -292,16 +260,11 @@
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.9675A\n\
+Version Beta 1.9675B\n\
 What's new in the Beta?\n\n\
-+ Added doomware_gamestarttime cvar\n\
-* Changed the Corridor 7 gun to be a melee weapon\n\
-* Fixed HUD leader showing a team game when it isn't\n\
-* Fixed menu mouse and sounds not working in singleplayer\n\
-* Tweaked difficulty in Eclipse minigame\n\
-- Disabled boss fight when in teams\n\
-- Reduced the filesize on some sounds\n\
-- Removed aim lock on daisy hands and turkey fist\n\
+* Cleaned up Skyhook polyobject code logic\n\
+* Moved turkey game down a little due to escape pods alarm\n\
+* Simplified the DoomWare_Server_ReturnPlayers script arguments\n\
 "
 
 // Menu Text
@@ -336,66 +299,66 @@ achievemnts will not be tracked.\
                                         Global Variables
 ===================================================================================================*/
 
-bool player_wonround[MAXPLAYERS];       // Players put here have won the round (usually denoted by the green particle effect)
-bool player_lostround[MAXPLAYERS];      // Players in here have lost the round (usually denoted by the red particle effect)
-bool player_midround[MAXPLAYERS];       // All players are put in here at the start of each round.
-bool player_viewingscore[MAXPLAYERS];   // List of players looking at the highscore
-bool player_viewingmenu[MAXPLAYERS];    // List of players looking at their menu
-bool player_musicwaiting[MAXPLAYERS];   // List of whether players are hearing the waiting/speedup music
-bool player_musicwinlose[MAXPLAYERS];   // List of whether players are hearing the win/lose music
-bool player_musicgameover[MAXPLAYERS];  // List of whether players are hearing the game over music
-int  player_observe[MAXPLAYERS];        // List of what players are observing
-bool player_frozen[MAXPLAYERS];         // List of what players have APROP_TOTALLYFROZEN
-bool player_haswackyscript[MAXPLAYERS]; // List of what players that have a wackymod script running
-str  player_achievement[MAXPLAYERS];    // Notification of achievements
-int  player_position[MAXPLAYERS][3];    // List player's XYZ pos before a minigame starts
-int  player_teleporter[MAXPLAYERS];     // Array to keep track of randomized player spawns
-int  player_frags[MAXPLAYERS];          // List player's frags
+bool player_wonround[MAXPLAYERS];       // (Internal) Players put here have won the round (usually denoted by the green particle effect)
+bool player_lostround[MAXPLAYERS];      // (Internal) Players in here have lost the round (usually denoted by the red particle effect)
+bool player_midround[MAXPLAYERS];       // (Internal) All players are put in here at the start of each round.
+bool player_viewingscore[MAXPLAYERS];   // (Internal) List of players looking at the highscore
+bool player_viewingmenu[MAXPLAYERS];    // (Internal) List of players looking at their menu
+bool player_musicwaiting[MAXPLAYERS];   // (Internal) List of whether players are hearing the waiting/speedup music
+bool player_musicwinlose[MAXPLAYERS];   // (Internal) List of whether players are hearing the win/lose music
+bool player_musicgameover[MAXPLAYERS];  // (Internal) List of whether players are hearing the game over music
+int  player_observe[MAXPLAYERS];        // (Internal) List of what players are observing
+bool player_frozen[MAXPLAYERS];         // (Internal) List of what players have APROP_TOTALLYFROZEN
+bool player_haswackyscript[MAXPLAYERS]; // (Internal) List of what players that have a wackymod script running
+str  player_achievement[MAXPLAYERS];    // (Internal) List of players with an achievement notification
+int  player_position[MAXPLAYERS][3];    // (Internal) List player's XYZ pos before a minigame starts
+int  player_teleporter[MAXPLAYERS];     // (Internal) Array to keep track of randomized player spawns
+int  player_frags[MAXPLAYERS];          // (Internal) List player's frags
 int  player_viewsprite[MAXPLAYERS];     // List of player's view sprite (like in the clean your weapon minigame)
 int  player_answer1[MAXPLAYERS];        // Variables for minigame stuff (like keeping track of laps in Kart races)
 int  player_answer2[MAXPLAYERS][4];     // Variables for minigame stuff (like keeping track of cacodemon answers)
 
-int  game_score[MAXPLAYERS];        // The score of each PlayerNumber()
-int  game_scoreteams[MAXTEAMS];     // The score of each team
-int  game_highscores[MAXPLAYERS];   // The global highscore table sorted by winner first
-int  game_highnames[MAXPLAYERS];    // The global highscore table of player names sorted by winner first
-int  game_roundnum;                 // A number containing the current round.
-int  game_status;                   // A number containing the status of the gamemode's logic.
-int  game_speed;                    // How fast is the game going
-int  game_over;                     // The reason the game ended
-bool game_solo;                     // Is someone playing alone?
-int  game_wackymod;                 // Wacky Modifier
-int  game_skin;						// Map seasonal skin
-bool game_teams;					// Whether a team game is happening
+int  game_score[MAXPLAYERS];        // (Internal) The score of each PlayerNumber()
+int  game_scoreteams[MAXTEAMS];     // (Internal) The score of each team
+int  game_highscores[MAXPLAYERS];   // (Internal) The global highscore table sorted by winner first
+int  game_highnames[MAXPLAYERS];    // (Internal) The global highscore table of player names sorted by winner first
+int  game_roundnum;                 // (Internal) A number containing the current round.
+int  game_status;                   // (Internal) A number containing the status of the gamemode's logic.
+int  game_speed;                    // (Internal) How fast is the game going
+int  game_over;                     // (Internal) The reason the game ended
+bool game_solo;                     // (Internal) Is someone playing alone?
+int  game_wackymod;                 // (Internal) Wacky Modifier
+int  game_skin;						// (Internal) Map seasonal skin
+bool game_teams;					// (Internal) Whether a team game is happening
 
-int  round_current[MAXROUNDS];      // An array containing a list of all minigames to be played/that have been played
-str  round_hints[MAXSPEEDUPS];      // An array containing a list of all hints to display
+int  round_current[MAXROUNDS];      // (Internal) An array containing a list of all minigames to be played/that have been played
+str  round_hints[MAXSPEEDUPS];      // (Internal) An array containing a list of all hints to display
 bool round_winifmid;                // Allow a player to win if he is in the midround array (like in games where you don't do anything to win)
 bool round_winifsuicide;            // Pass the player if he killed himself
 int  round_noforceend;              // Prevent the game from ending prematurely (unless everyone lost). Useful so people can collect 1ups.
-int  round_tiebreaker;              // Which tiebreaker round are we playing
+int  round_tiebreaker;              // (Internal) Which tiebreaker round are we playing
 int  round_observers[NUMOBSERVERS]; // An array containing all the possible observer TID's
 bool round_forceobservers; 		    // Does this round need observers to work? Only used for game_solo.
 
 int  minigame_wincondition1;            // A generic global variable for minigames
 int  minigame_wincondition2;            // A generic global variable for minigames
 int  minigame_wincondition3;            // A generic global variable for minigames
-int  minigame_timer;                    // A timer that is displayed during the minigame
-bool minigame_canmove;                  // Used to signal players can play in tiebreaker rounds
-bool minigame_canobserve;               // Can this minigame be observed?
+int  minigame_timer;                    // (Internal) A timer that is displayed during the minigame
+bool minigame_canmove;                  // (Internal) Used to signal players can play in tiebreaker rounds
+bool minigame_canobserve;               // (Internal) Can this minigame be observed?
 bool minigame_fragpoints;               // Can you get points for frags?
 bool minigame_invisiblehats; 		    // Does this minigame need to hide the hats?
 str  minigame_instruction1[MAXPLAYERS]; // Center text during minigame
 str  minigame_instruction2[MAXPLAYERS]; // Center text below center text during minigame
 str  minigame_instruction3[MAXPLAYERS]; // Center text below center text below center text during minigame
 
-int data_points[MAXPLAYERS];    // List of points each player has received in total
-int data_wins[MAXPLAYERS];      // List of wins each player has achieved in total
-int data_deaths[MAXPLAYERS];    // List of deaths each player suffered in total
-int data_1ups[MAXPLAYERS];      // List of 1Ups each player got in total
-int data_role[MAXPLAYERS];      // List of each player's role
-int data_achieve[MAXPLAYERS];   // List of each player's achievements
-int data_bosskills[MAXPLAYERS]; // List of each player's boss kills
+int data_points[MAXPLAYERS];    // (Internal) List of points each player has received in total
+int data_wins[MAXPLAYERS];      // (Internal) List of wins each player has achieved in total
+int data_deaths[MAXPLAYERS];    // (Internal) List of deaths each player suffered in total
+int data_1ups[MAXPLAYERS];      // (Internal) List of 1Ups each player got in total
+int data_role[MAXPLAYERS];      // (Internal) List of each player's role
+int data_achieve[MAXPLAYERS];   // (Internal) List of each player's achievements
+int data_bosskills[MAXPLAYERS]; // (Internal) List of each player's boss kills
 
 
 /*===================================================================================================
@@ -785,7 +748,12 @@ Script "DoomWare_Server_InitHints" (void)
 // Return a string with the list of banned minigames during solo play
 function str SoloBanList(void)
 {
-	return "11 26 40 69 85 87 88 90 93";
+	switch (GetLevelInfo(LEVELINFO_LEVELNUM))
+	{
+		case 1:
+			return "11 26 40 69 85 87 88 90 93";
+	}
+	return "";
 }
 
 bool temp_bannedrounds[NUMBEROFGAMES];
@@ -1025,6 +993,7 @@ Script "DoomWare_Server_GameLogic" (void)
         player_midround[i] = PlayerInGame(i);
         player_wonround[i] = false;
         player_lostround[i] = false;
+		Player_InvalidatePosition(i);
     }
 
     // Stop the game if a solo match has more than one person
@@ -1291,6 +1260,20 @@ function void Player_SetWackymod(int plynum)
 	}	
 }
 
+function void Player_SavePosition(int plynum)
+{
+	player_position[plynum][0] = GetActorX(TID_PLAYER+plynum);
+	player_position[plynum][1] = GetActorY(TID_PLAYER+plynum);
+	player_position[plynum][2] = GetActorZ(TID_PLAYER+plynum);
+}
+
+function void Player_InvalidatePosition(int plynum)
+{
+	player_position[plynum][0] = 0xFFFFFFFF;
+	player_position[plynum][1] = 0xFFFFFFFF;
+	player_position[plynum][2] = 0xFFFFFFFF;
+}
+
 Script "DoomWare_Server_GameWait" (int time)
 {
     int time_passed;
@@ -1315,21 +1298,6 @@ Script "DoomWare_Server_GameWait" (int time)
         }
     }
     minigame_timer = TIMER_OFF;
-}
-
-Script "DoomWare_Server_SavePlayerPositions" (void)
-{
-    for (int i=0; i<MAXPLAYERS; i++)
-    {
-        // Don't bother if the player doesn't exist
-        if (!PlayerInGame(i))
-            continue;
-
-        // Get all player positions
-        player_position[i][0] = GetActorX(TID_PLAYER+i);
-        player_position[i][1] = GetActorY(TID_PLAYER+i);
-        player_position[i][2] = GetActorZ(TID_PLAYER+i);
-    }
 }
 
 Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog)
@@ -1359,11 +1327,10 @@ Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog)
         if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && !game_teams && game_score[i] != game_highscores[0]))
             continue;
 
-        // Get all player positions
-        player_position[i][0] = GetActorX(TID_PLAYER+i);
-        player_position[i][1] = GetActorY(TID_PLAYER+i);
-        player_position[i][2] = GetActorZ(TID_PLAYER+i);
+        // Get the player's position
+        Player_SavePosition(i);
 
+		// Teleport them
         if (!telesector)
         {
             Thing_Move(TID_PLAYER+i, player_teleporter[i], !fog); // Move to an individual TID
@@ -1453,24 +1420,22 @@ Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog)
 
 Script "DoomWare_Server_TeleportSingle" (int plynum, int dest)
 {
-    player_position[plynum][0] = GetActorX(TID_PLAYER+plynum);
-    player_position[plynum][1] = GetActorY(TID_PLAYER+plynum);
-    player_position[plynum][2] = GetActorZ(TID_PLAYER+plynum);
+    Player_SavePosition(plynum);
     Thing_Move(TID_PLAYER+plynum, dest, false);
 	SetActorPitch(TID_PLAYER+plynum, 0.0);
     SetActorAngle(TID_PLAYER+plynum, GetActorAngle(dest));
 }
 
-Script "DoomWare_Server_ReturnPlayers" (int move_if_lost, int fog)
+Script "DoomWare_Server_ReturnPlayers" (int fog)
 {
     for (int i=0; i<MAXPLAYERS; i++)
 	{
-		if (!PlayerInGame(i))
+		// Don't teleport the player if they're not ingame or if their return position is invalid
+		if (!PlayerInGame(i) || (player_position[i][0] == 0xFFFFFFFF && player_position[i][1] == 0xFFFFFFFF && player_position[i][2] == 0xFFFFFFFF))
 			continue;
 
 		// Move the player back to their original spot
-        if ((!move_if_lost && !player_lostround[i]) || move_if_lost)
-            SetActorPosition(TID_PLAYER+i, player_position[i][0], player_position[i][1], player_position[i][2], fog);
+		SetActorPosition(TID_PLAYER+i, player_position[i][0], player_position[i][1], player_position[i][2], fog);
 
 		// If for some reason they're not at the spawn, force them back to the center
 		while (Distance(TID_PLAYER+i, 1) > 512)
@@ -1887,6 +1852,9 @@ Script "DoomWare_Client_Death" DEATH
         else
             Player_Win(PlayerNumber());
     }
+	
+	// Invalidate the player teleport position to prevent them from being re-teleported to the arena (because they respawn there)
+	Player_InvalidatePosition(PlayerNumber());
 
 	// Spawn a spoopy ghost
 	if (game_skin == MAPSKIN_HALLOWEEN)
@@ -2186,7 +2154,7 @@ Script "DoomWare_Client_GameLogic" (void)
     minigame_instruction3[PlayerNumber()] = "";
 
     delay(1);
-    if (PlayerInGame(PlayerNumber()) && !PlayerIsSpectator(PlayerNumber())) // Unless the player disconnected
+    if (PlayerInGame(PlayerNumber()) && !PlayerIsSpectator(PlayerNumber())) // Unless the player disconnected, restart the script
         restart;
 }
 
@@ -5934,7 +5902,7 @@ Script "DoomWare_Server_Minigame1" (void) // The floor/air is lava
 		delay(SECOND+32-(7*game_speed));
 
 		// Silently bring everyone back
-		ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+		ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
 	}
 	
 	// Make everything safe again
@@ -6033,7 +6001,7 @@ Script "DoomWare_Server_Minigame3" (void) // Survive (ghouls)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*10-(SECOND*game_speed));
 
     // Move the players back if they didn't die
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame4" (void) // Survive (archviles)
@@ -6188,7 +6156,7 @@ Script "DoomWare_Server_Minigame6" (void) // Reach the End (Corridor 7)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*20-(SECOND*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame7" (void) // Kill Ned Flanders
@@ -6215,7 +6183,7 @@ Script "DoomWare_Server_Minigame7" (void) // Kill Ned Flanders
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame8" (void) // Destroy a Barrel
@@ -6258,7 +6226,7 @@ Script "DoomWare_Server_Minigame9" (void) // Shoot A Target
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(2*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame10" (void) // Evade the Kamikazi
@@ -6320,12 +6288,15 @@ Script "DoomWare_Server_Minigame12" (void) // Blow Your Brains Out
 
 Script "DoomWare_Server_Minigame13" (void) // Enter The Door
 {
+	int i;
     hudmessage(s:"Enter The Door"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
     minigame_wincondition1 = random(0, 3);
     SetMusic("d_door");
 
     // Store player positions in case they win
-    ACS_NamedExecute("DoomWare_Server_SavePlayerPositions", 0);
+	for (i=0; i<MAXPLAYERS; i++)
+		if (PlayerInGame(i))
+			Player_SavePosition(i);
 
     // Raise the doors
     floor_raisebyvalue(24, 32, 128);
@@ -6342,13 +6313,13 @@ Script "DoomWare_Server_Minigame13" (void) // Enter The Door
     floor_lowerbyvalue(39, 32, 128);
     floor_lowerbyvalue(44, 32, 128);
 
-    // Mark players who didn't do anything as lost (to prevent getting teleported)
-    for (int i=0; i<MAXPLAYERS; i++)
+    // Invalidate the positions of players who didn't do anything to prevent them from getting teleported.
+    for (i=0; i<MAXPLAYERS; i++)
         if (player_midround[i])
-            Player_Lose(i, true);
+			Player_InvalidatePosition(i);
 
     // Bring players back if they're at the island
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame14" (void) // Meet the Worm
@@ -6364,7 +6335,7 @@ Script "DoomWare_Server_Minigame14" (void) // Meet the Worm
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*4-(3*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame15" (void) // Reach the End (Swapping Boxes)
@@ -6441,7 +6412,7 @@ Script "DoomWare_Server_Minigame15" (void) // Reach the End (Swapping Boxes)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Fix the boxes
     if (box == 1)
@@ -6490,7 +6461,7 @@ Script "DoomWare_Server_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*18-(SECOND*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame18" (void) // Equip Weapon
@@ -6515,7 +6486,7 @@ Script "DoomWare_Server_Minigame19" (void) // Reach Surface
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*4-(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame20" (void) // Reach The End (Factory)
@@ -6531,7 +6502,7 @@ Script "DoomWare_Server_Minigame20" (void) // Reach The End (Factory)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*7-(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame21" (void) // Survive (Grenades)
@@ -6598,7 +6569,7 @@ Script "DoomWare_Server_Minigame22" (void) // Collect 10 Rings
     while (minigame_timer != TIMER_OFF);
 
     // Move the players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame23" (void) // Stay Off The Ground
@@ -6669,7 +6640,7 @@ Script "DoomWare_Server_Minigame25" (void) // Shoot the Target (Popup)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame26" (void) // Survive (Boxing)
@@ -6718,7 +6689,7 @@ Script "DoomWare_Server_Minigame26" (void) // Survive (Boxing)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame27" (void) // Survive (Terry)
@@ -6737,7 +6708,7 @@ Script "DoomWare_Server_Minigame27" (void) // Survive (Terry)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*10-(10*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame28" (void) // Finish a Lap (E1M1)
@@ -6762,7 +6733,7 @@ Script "DoomWare_Server_Minigame28" (void) // Finish a Lap (E1M1)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*14-(SECOND*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame29" (void) // Duck Hunt
@@ -6791,7 +6762,7 @@ Script "DoomWare_Server_Minigame29" (void) // Duck Hunt
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame30" (void) // Dive into the Water
@@ -6832,7 +6803,7 @@ Script "DoomWare_Server_Minigame30" (void) // Dive into the Water
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame31" (void) // Server - Reach the End (Boulders)
@@ -6862,7 +6833,7 @@ Script "DoomWare_Server_Minigame31" (void) // Server - Reach the End (Boulders)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame32" (void) // Server - Reach the End (Ice)
@@ -6902,7 +6873,7 @@ Script "DoomWare_Server_Minigame32" (void) // Server - Reach the End (Ice)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Fix the floor
     for (int i=0;i<31;i++)
@@ -6986,7 +6957,7 @@ Script "DoomWare_Server_Minigame34" (void) // Survive (Hoth)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*14-(SECOND*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame35" (void) // Climb the Colossus
@@ -7004,7 +6975,7 @@ Script "DoomWare_Server_Minigame35" (void) // Climb the Colossus
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*25-(SECOND*game_speed));
 
     // Return players back and stop the rain
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 	SetActorState(577, "Deactivated");
 }
 
@@ -7050,7 +7021,7 @@ Script "DoomWare_Server_Minigame36" (void) // Get on the Colored Circle
     delay(70);
 
     // Return the players
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Raise the floors back up
     for (i=0; i<5; i++)
@@ -7105,7 +7076,7 @@ Script "DoomWare_Server_Minigame37" (void) // Dive Down
     while(minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame38" (void) // Repeat the Pattern
@@ -7186,7 +7157,7 @@ Script "DoomWare_Server_Minigame38" (void) // Repeat the Pattern
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame39" (void) // Storm the Beach
@@ -7206,7 +7177,7 @@ Script "DoomWare_Server_Minigame39" (void) // Storm the Beach
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*5-(2*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame40" (void) // Survive (Dark Corridors)
@@ -7236,7 +7207,7 @@ Script "DoomWare_Server_Minigame40" (void) // Survive (Dark Corridors)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame41" (void) // Go To The Light
@@ -7261,7 +7232,7 @@ Script "DoomWare_Server_Minigame41" (void) // Go To The Light
     delay(SECOND*3+17 -(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Raise the ceiling back up
     for (i=0; i<13; i++)
@@ -7292,7 +7263,7 @@ Script "DoomWare_Server_Minigame42" (void) // Survive (Rockets)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame43" (void) // Don't Blow Your Brains Out
@@ -7336,7 +7307,7 @@ Script "DoomWare_Server_Minigame45" (void) // Finish a Lap (Rainbow Road)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*39-(SECOND*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame46" (void) // Reach the End (Bigger Swapping Boxes)
@@ -7418,7 +7389,7 @@ Script "DoomWare_Server_Minigame46" (void) // Reach the End (Bigger Swapping Box
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Fix the boxes
     if (box == 1)
@@ -7571,7 +7542,7 @@ Script "DoomWare_Server_Minigame49" (void) // Math
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame50" (void) // Survive (Bullet Hell)
@@ -7592,7 +7563,7 @@ Script "DoomWare_Server_Minigame50" (void) // Survive (Bullet Hell)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*4+17 + (SECOND*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Award survivors with an achievement
 	delaY(2);
@@ -7632,7 +7603,7 @@ Script "DoomWare_Server_Minigame52" (void) // Gib a Turkey
     while (minigame_timer != TIMER_OFF);
 	
 	// Teleport the players back to the main arena
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
 }
 
 Script "DoomWare_Server_Minigame53" (void) // Drink
@@ -7727,7 +7698,7 @@ Script "DoomWare_Server_Minigame56" (void) // Survive (Spike Circle)
     thing_deactivate(65);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame57" (void) // Eat The Chocolate
@@ -7752,7 +7723,7 @@ Script "DoomWare_Server_Minigame58" (void) // Survive (Wind)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*5+20-(12*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame59" (void) // Get to Hissy
@@ -7780,7 +7751,7 @@ Script "DoomWare_Server_Minigame59" (void) // Get to Hissy
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*8+20-(10*game_speed));
 
     // Move the players back if they didn't die
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame60" (void) // Count the Lost Souls
@@ -7851,7 +7822,7 @@ Script "DoomWare_Server_Minigame60" (void) // Count the Lost Souls
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame61" (void) // Reach the End (Hurdles)
@@ -7877,7 +7848,7 @@ Script "DoomWare_Server_Minigame61" (void) // Reach the End (Hurdles)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*12+10-(17*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame62" (void) // Cross the Road
@@ -7918,7 +7889,7 @@ Script "DoomWare_Server_Minigame62" (void) // Cross the Road
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame63" (void) // Collect a Potion
@@ -7937,7 +7908,7 @@ Script "DoomWare_Server_Minigame63" (void) // Collect a Potion
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*5+25-(15*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame64" (void) // Reach the End (Skyhook)
@@ -7946,374 +7917,52 @@ Script "DoomWare_Server_Minigame64" (void) // Reach the End (Skyhook)
     hudmessage(s:"Reach the End (Skyhook)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
     SetMusic("D_SKYHOK");
 
-    // Place the polyobjects in the correct place (TEARS AHEAD, TRY BACK)
-    int thing1 = random(1, 4);
-    int thing2 = random(1, 4);
-    int thing3 = random(1, 4);
-    int thing4 = random(1, 4);
-    int thing5 = random(1, 4);
-    int thing6 = random(1, 4);
-    int thing7 = random(1, 4);
-    int thing8 = random(1, 4);
-    {{if (thing1 == 1)
+	// Place the polyobjects in the correct place.
+    for (i=0; i<8; i++)
     {
-        SetLineTexture(2, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(2, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(4, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(4, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(0, 128, 10592, 3584);
-        Polyobj_MoveTo(1, 128, 10784, 3584);
-    }
-    if (thing1 == 2)
-    {
-        SetLineTexture(2, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(2, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(4, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(4, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(0, 128, 10592, 3584);
-        Polyobj_MoveTo(2, 128, 10592, 3584);
-    }
-    if (thing1 == 3)
-    {
-        SetLineTexture(2, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(2, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(4, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(4, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(2, 128, 10592, 3584);
-        Polyobj_MoveTo(3, 128, 10784, 3584);
-    }
-    if (thing1 == 4)
-    {
-        SetLineTexture(2, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(2, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(4, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(4, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(1, 128, 10784, 3584);
-        Polyobj_MoveTo(3, 128, 10784, 3584);
-    }}
-
-    {if (thing2 == 1)
-    {
-        SetLineTexture(5, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(5, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(6, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(6, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(7, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(7, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(4, 128, 10592, 3584+384);
-        Polyobj_MoveTo(5, 128, 10784, 3584+384);
-    }
-    if (thing2 == 2)
-    {
-        SetLineTexture(5, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(5, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(6, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(6, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(7, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(7, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(4, 128, 10592, 3584+384);
-        Polyobj_MoveTo(6, 128, 10592, 3584+384);
-    }
-    if (thing2 == 3)
-    {
-        SetLineTexture(5, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(5, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(6, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(6, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(7, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(7, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(6, 128, 10592, 3584+384);
-        Polyobj_MoveTo(7, 128, 10784, 3584+384);
-    }
-    if (thing2 == 4)
-    {
-        SetLineTexture(5, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(5, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(6, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(6, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(7, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(7, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(5, 128, 10784, 3584+384);
-        Polyobj_MoveTo(7, 128, 10784, 3584+384);
-    }}
-
-    {if (thing3 == 1)
-    {
-        SetLineTexture(8, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(8, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(9, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(9, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(10, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(10, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(8, 128, 10592, 3584+384*2);
-        Polyobj_MoveTo(9, 128, 10784, 3584+384*2);
-    }
-    if (thing3 == 2)
-    {
-        SetLineTexture(8, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(8, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(9, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(9, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(10, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(10, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(8, 128, 10592, 3584+384*2);
-        Polyobj_MoveTo(10, 128, 10592, 3584+384*2);
-    }
-    if (thing3 == 3)
-    {
-        SetLineTexture(8, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(8, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(9, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(9, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(10, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(10, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(10, 128, 10592, 3584+384*2);
-        Polyobj_MoveTo(11, 128, 10784, 3584+384*2);
-    }
-    if (thing3 == 4)
-    {
-        SetLineTexture(8, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(8, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(9, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(9, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(10, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(10, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(9, 128, 10784, 3584+384*2);
-        Polyobj_MoveTo(11, 128, 10784, 3584+384*2);
-    }}
-
-    {if (thing4 == 1)
-    {
-        SetLineTexture(11, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(11, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(12, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(12, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(13, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(13, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(8+4, 128, 10592, 3584+384*3);
-        Polyobj_MoveTo(9+4, 128, 10784, 3584+384*3);
-    }
-    if (thing4 == 2)
-    {
-        SetLineTexture(11, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(11, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(12, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(12, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(13, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(13, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(8+4, 128, 10592, 3584+384*3);
-        Polyobj_MoveTo(10+4, 128, 10592, 3584+384*3);
-    }
-    if (thing4 == 3)
-    {
-        SetLineTexture(11, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(11, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(12, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(12, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(13, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(13, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(10+4, 128, 10592, 3584+384*3);
-        Polyobj_MoveTo(11+4, 128, 10784, 3584+384*3);
-    }
-    if (thing4 == 4)
-    {
-        SetLineTexture(11, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(11, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(12, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(12, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(13, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(13, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(9+4, 128, 10784, 3584+384*3);
-        Polyobj_MoveTo(11+4, 128, 10784, 3584+384*3);
-    }}
-
-    {if (thing5 == 1)
-    {
-        SetLineTexture(14, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(14, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(15, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(15, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(16, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(16, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(8+8, 128, 10592, 3584+384*4);
-        Polyobj_MoveTo(9+8, 128, 10784, 3584+384*4);
-    }
-    if (thing5 == 2)
-    {
-        SetLineTexture(14, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(14, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(15, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(15, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(16, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(16, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(8+8, 128, 10592, 3584+384*4);
-        Polyobj_MoveTo(10+8, 128, 10592, 3584+384*4);
-    }
-    if (thing5 == 3)
-    {
-        SetLineTexture(14, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(14, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(15, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(15, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(16, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(16, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(10+8, 128, 10592, 3584+384*4);
-        Polyobj_MoveTo(11+8, 128, 10784, 3584+384*4);
-    }
-    if (thing5 == 4)
-    {
-        SetLineTexture(14, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(14, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(15, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(15, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(16, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(16, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(9+8, 128, 10784, 3584+384*4);
-        Polyobj_MoveTo(11+8, 128, 10784, 3584+384*4);
-    }}
-
-    {if (thing6 == 1)
-    {
-        SetLineTexture(17, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(17, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(18, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(18, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(19, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(19, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(8+12, 128, 10592, 3584+384*5);
-        Polyobj_MoveTo(9+12, 128, 10784, 3584+384*5);
-    }
-    if (thing6 == 2)
-    {
-        SetLineTexture(17, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(17, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(18, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(18, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(19, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(19, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(8+12, 128, 10592, 3584+384*5);
-        Polyobj_MoveTo(10+12, 128, 10592, 3584+384*5);
-    }
-    if (thing6 == 3)
-    {
-        SetLineTexture(17, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(17, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(18, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(18, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(19, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(19, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(10+12, 128, 10592, 3584+384*5);
-        Polyobj_MoveTo(11+12, 128, 10784, 3584+384*5);
-    }
-    if (thing6 == 4)
-    {
-        SetLineTexture(17, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(17, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(18, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(18, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(19, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(19, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(9+12, 128, 10784, 3584+384*5);
-        Polyobj_MoveTo(11+12, 128, 10784, 3584+384*5);
-    }}
-
-    {if (thing7 == 1)
-    {
-        SetLineTexture(20, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(20, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(21, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(21, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(22, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(22, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(8+16, 128, 10592, 3584+384*6);
-        Polyobj_MoveTo(9+16, 128, 10784, 3584+384*6);
-    }
-    if (thing7 == 2)
-    {
-        SetLineTexture(20, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(20, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(21, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(21, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(22, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(22, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(8+16, 128, 10592, 3584+384*6);
-        Polyobj_MoveTo(10+16, 128, 10592, 3584+384*6);
-    }
-    if (thing7 == 3)
-    {
-        SetLineTexture(20, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(20, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(21, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(21, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(22, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(22, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(10+16, 128, 10592, 3584+384*6);
-        Polyobj_MoveTo(11+16, 128, 10784, 3584+384*6);
-    }
-    if (thing7 == 4)
-    {
-        SetLineTexture(20, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(20, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(21, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(21, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(22, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(22, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(9+16, 128, 10784, 3584+384*6);
-        Polyobj_MoveTo(11+16, 128, 10784, 3584+384*6);
-    }}
-
-    {if (thing8 == 1)
-    {
-        SetLineTexture(23, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(23, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(24, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(24, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(25, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
-        SetLineTexture(25, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
-        Polyobj_MoveTo(8+20, 128, 10592, 3584+384*7);
-        Polyobj_MoveTo(9+20, 128, 10784, 3584+384*7);
-    }
-    if (thing8 == 2)
-    {
-        SetLineTexture(23, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(23, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(24, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(24, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(25, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(25, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        Polyobj_MoveTo(8+20, 128, 10592, 3584+384*7);
-        Polyobj_MoveTo(10+20, 128, 10592, 3584+384*7);
-    }
-    if (thing8 == 3)
-    {
-        SetLineTexture(23, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(23, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(24, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(24, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(25, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
-        SetLineTexture(25, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
-        Polyobj_MoveTo(10+20, 128, 10592, 3584+384*7);
-        Polyobj_MoveTo(11+20, 128, 10784, 3584+384*7);
-    }
-    if (thing8 == 4)
-    {
-        SetLineTexture(23, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(23, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(24, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(24, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        SetLineTexture(25, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
-        SetLineTexture(25, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
-        Polyobj_MoveTo(9+20, 128, 10784, 3584+384*7);
-        Polyobj_MoveTo(11+20, 128, 10784, 3584+384*7);
-    }}
+        switch (random(1, 4))
+        {
+            case 1:
+                SetLineTexture(2+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
+                SetLineTexture(2+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
+                SetLineTexture(3+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
+                SetLineTexture(3+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
+                SetLineTexture(4+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB1");
+                SetLineTexture(4+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB1");
+                Polyobj_MoveTo(0+i*4, 128, 10592, 3584+384*i);
+                Polyobj_MoveTo(1+i*4, 128, 10784, 3584+384*i);
+                break;
+            case 2:
+                SetLineTexture(2+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
+                SetLineTexture(2+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
+                SetLineTexture(3+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
+                SetLineTexture(3+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
+                SetLineTexture(4+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
+                SetLineTexture(4+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
+                Polyobj_MoveTo(0+i*4, 128, 10592, 3584+384*i);
+                Polyobj_MoveTo(2+i*4, 128, 10592, 3584+384*i);
+                break;
+            case 3:
+                SetLineTexture(2+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
+                SetLineTexture(2+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
+                SetLineTexture(3+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
+                SetLineTexture(3+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
+                SetLineTexture(4+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB3");
+                SetLineTexture(4+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB3");
+                Polyobj_MoveTo(2+i*4, 128, 10592, 3584+384*i);
+                Polyobj_MoveTo(3+i*4, 128, 10784, 3584+384*i);
+                break;
+            case 4:
+                SetLineTexture(2+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB4");
+                SetLineTexture(2+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB2");
+                SetLineTexture(3+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
+                SetLineTexture(3+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
+                SetLineTexture(4+i*3, SIDE_FRONT, TEXTURE_MIDDLE, "SKYHOKB2");
+                SetLineTexture(4+i*3, SIDE_BACK, TEXTURE_MIDDLE, "SKYHOKB4");
+                Polyobj_MoveTo(1+i*4, 128, 10784, 3584+384*i);
+                Polyobj_MoveTo(3+i*4, 128, 10784, 3584+384*i);
+                break;
+        }
     }
 
     // Move all the players to the arena
@@ -8323,7 +7972,7 @@ Script "DoomWare_Server_Minigame64" (void) // Reach the End (Skyhook)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*8-(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Reset the Skyhook
     for (i=0; i<8; i++)
@@ -8467,7 +8116,7 @@ Script "DoomWare_Server_Minigame66" (void) // Don't Get Wet
     delay(SECOND*4+15-(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Raise the water back up
     for (i=0; i<16; i++)
@@ -8565,7 +8214,7 @@ Script "DoomWare_Server_Minigame67" (void) // Reach the End (Factory Line)
         delay(1);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame68" (void) // Pick Up The Key
@@ -8604,7 +8253,7 @@ Script "DoomWare_Server_Minigame68" (void) // Pick Up The Key
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*3-(10*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Reset the color
     SetLineTexture(1, SIDE_FRONT, TEXTURE_BOTTOM, "PURE");
@@ -8639,7 +8288,7 @@ Script "DoomWare_Server_Minigame69" (void) // Survive (Hell Deathmatch)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame70" (void) // Eat
@@ -8672,7 +8321,7 @@ Script "DoomWare_Server_Minigame70" (void) // Eat
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*7-(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame71" (void) // Find a Pokemon
@@ -8689,7 +8338,7 @@ Script "DoomWare_Server_Minigame71" (void) // Find a Pokemon
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*4-(7*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame72" (void) // Survive (Disappearing Floor)
@@ -8771,7 +8420,7 @@ Script "DoomWare_Server_Minigame72" (void) // Survive (Disappearing Floor)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Put the floors back to normal
     for (i=0;i<9;i++)
@@ -8803,7 +8452,7 @@ Script "DoomWare_Server_Minigame73" (void) // Mine an ore
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*5+25-(10*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame74" (void) // Reach the End (Eclipse)
@@ -8834,7 +8483,7 @@ Script "DoomWare_Server_Minigame74" (void) // Reach the End (Eclipse)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*25+25-(20*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame75" (void) // Reach the end (Automap)
@@ -8849,7 +8498,7 @@ Script "DoomWare_Server_Minigame75" (void) // Reach the end (Automap)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*5+25-(5*game_speed));
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame76" (void) // Score a Basketball
@@ -8895,7 +8544,7 @@ Script "DoomWare_Server_Minigame76" (void) // Score a Basketball
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame77" (void) // Reach the End (Bit Trip)
@@ -8970,7 +8619,7 @@ Script "DoomWare_Server_Minigame77" (void) // Reach the End (Bit Trip)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
     // Move the camera back
     SetActorPosition(709, GetActorX(709), -5536.0, GetActorZ(709), 0);
@@ -9004,7 +8653,7 @@ Script "DoomWare_Server_Minigame78" (void) // Shoot Apple Imp Head
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame79" (void) // Shoot an Imp
@@ -9043,7 +8692,7 @@ Script "DoomWare_Server_Minigame79" (void) // Shoot an Imp
     Line_SetBlocking(26, 0, BLOCKF_CREATURES);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame80" (void) // Survive (Pyoro)
@@ -9077,15 +8726,17 @@ Script "DoomWare_Server_Minigame80" (void) // Survive (Pyoro)
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
 	// Fix the floors
 	for (int i=0; i<15; i++)
+	{
 		if (GetSectorFloorZ(222+i, GetActorX(814)+32.0*i, GetActorY(814)) != 72.0)
 		{
 			Floor_RaiseInstant(222+i, 0, 64);
 			Sector_SetDamage(222+i, 0, MOD_UNKNOWN);
 		}
+	}
 }
 
 Script "DoomWare_Server_Minigame81" (void) // Dodge the Car
@@ -9107,7 +8758,7 @@ Script "DoomWare_Server_Minigame81" (void) // Dodge the Car
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*4);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame82" (void) // Whack a Diglett
@@ -9202,7 +8853,7 @@ Script "DoomWare_Server_Minigame84" (void) // Stay on the Road
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame85" (void) // Survive (Time Freeze)
@@ -9235,14 +8886,14 @@ Script "DoomWare_Server_Minigame86" (void) // Reach the End (Chasm)
     // Move all the players to the arena
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 857, true, true);
 	
-	// Because this map isn't cruel enough
+	// Because this map isn't cruel enough, create Imps
 	Thing_SpawnNoFog(879, T_IMP, GetActorAngle(879), TID_REMOVE);
 
     // Start a timer
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*25-game_speed*SECOND);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame87" (void) // Be the highest player
@@ -9335,7 +8986,7 @@ Script "DoomWare_Server_Minigame88" (void) // Choose a side
     while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 
 	// Fix the seesaw
 	if (shifted == 1)
@@ -9401,7 +9052,7 @@ Script "DoomWare_Server_Minigame89" (void) // Abandon Ship
 	while (minigame_timer != TIMER_OFF);
 
     // Return players back
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 	
 	// Open all the doors again and stop the alarm
 	for (i=7; i>=PlayerCount()/2; i--)
@@ -9432,7 +9083,7 @@ Script "DoomWare_Server_Minigame90" (void) // Survive (Captain Falcon)
     while (minigame_timer != TIMER_OFF);
 	
 	// Teleport the players back to the main arena
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
 }
 
 Script "DoomWare_Server_Minigame91" (void) // Reach the End (Golden Idol)
@@ -9452,7 +9103,7 @@ Script "DoomWare_Server_Minigame91" (void) // Reach the End (Golden Idol)
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*15-(25*game_speed));
 	
 	// Teleport the players back to the main arena
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
 }
 
 Script "DoomWare_Server_Minigame92" (void) // Pet Daisy :)
@@ -9533,7 +9184,7 @@ Script "DoomWare_Server_Minigame93" (void) // Choose a source port
 	delay(17);
 	
 	// Teleport the players back to the main arena
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, false);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
 }
 
 
@@ -9561,7 +9212,7 @@ Script "DoomWare_Server_TieBreaker1" (void) // Gun Duel
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, (SECOND*2));
 
     // Move the players back if they didn't die
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_TieBreaker2" (void) // Rope Tug
@@ -9584,7 +9235,7 @@ Script "DoomWare_Server_TieBreaker2" (void) // Rope Tug
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, (SECOND*10));
 
     // Move the players back if they didn't die
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_TieBreaker3" (void) // Barrels 1v1
@@ -9629,7 +9280,7 @@ Script "DoomWare_Server_TieBreaker3" (void) // Barrels 1v1
     // Move the players back if they didn't die
     SetActorProperty(TID_PLAYER+game_highnames[0], APROP_Invulnerable, 0);
     SetActorProperty(TID_PLAYER+game_highnames[1], APROP_Invulnerable, 0);
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 
@@ -9662,7 +9313,7 @@ Script "DoomWare_Server_TieBreakerM1" (void) // Survive (Grenades Fight)
     }
     while (minigame_timer != TIMER_OFF);
 
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_TieBreakerM2" (void) // Survive (Decreasing Ring)
@@ -9712,7 +9363,7 @@ Script "DoomWare_Server_TieBreakerM2" (void) // Survive (Decreasing Ring)
     }
 
     // Return survivors to the waiting room
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
@@ -9757,7 +9408,7 @@ Script "DoomWare_Server_TieBreakerM3" (void) // Shoot the Target (1 shot)
         Floor_LowerInstant(217+minigame_wincondition1, 0, 16);
 
 	// Bring people back to the main arena
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false, true);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 
@@ -9867,7 +9518,7 @@ Script 15 (void) // Flash the screen with the NES Zapper
     FadeTo(0, 0, 0, 0.0, 0.01);
 }
 
-Script 16 (void) // Teleport players in Chasm
+Script 16 (void) // Teleport players in Chasm 1UP spot
 {
 	Teleport(858, 0, 0);
 }
