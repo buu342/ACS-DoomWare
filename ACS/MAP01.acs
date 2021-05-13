@@ -83,36 +83,36 @@
 
 #define MELEMENTS       48  // Number of reserved slots for menu elements
 
-#define MSGID_CONSOLE   -1                      // Console only messages
-#define MSGID_HSPLAYR   1                       // Highscore background
-#define MSGID_HSBACK    2+MAXPLAYERS            // Highscore table player name (occupies MAXPLAYERS numbers)
-#define MSGID_CURSOR    3+MAXPLAYERS            // Menu Cursor
-#define MSGID_MELEM     4+MAXPLAYERS            // Menu element (occopies 64 slots)
-#define MSGID_MENU      5+MAXPLAYERS+MELEMENTS  // Menu background
-#define MSGID_CENTER    6+MAXPLAYERS+MELEMENTS  // Centered messages (eg You Win!)
-#define MSGID_CENTER2   7+MAXPLAYERS+MELEMENTS  // Centered messages below above (eg speedup hints)
-#define MSGID_SCORE     8+MAXPLAYERS+MELEMENTS  // HUD Score background
-#define MSGID_ROUND     9+MAXPLAYERS+MELEMENTS  // HUD Round background
-#define MSGID_ROUND2    10+MAXPLAYERS+MELEMENTS // HUD Round counter
-#define MSGID_LEADER    11+MAXPLAYERS+MELEMENTS // HUD Leader background
-#define MSGID_SPREAD    12+MAXPLAYERS+MELEMENTS // HUD Spread
-#define MSGID_LEADER2   13+MAXPLAYERS+MELEMENTS // HUD Leader name
-#define MSGID_SCORE2    14+MAXPLAYERS+MELEMENTS // HUD score counter
-#define MSGID_SCORE3    15+MAXPLAYERS+MELEMENTS // HUD score text
-#define MSGID_ROUND3    16+MAXPLAYERS+MELEMENTS // HUD Round text
-#define MSGID_VIEWHS    17+MAXPLAYERS+MELEMENTS // HUD Highscore reminder
-#define MSGID_STFACE    18+MAXPLAYERS+MELEMENTS // STATUSBAR Face
-#define MSGID_STBAR     19+MAXPLAYERS+MELEMENTS // STATUSBAR Extra
-#define MSGID_TIMER     20+MAXPLAYERS+MELEMENTS // Timer on the HUD
-#define MSGID_TIMER2    21+MAXPLAYERS+MELEMENTS // Timer on the HUD background
-#define MSGID_CENTER3   22+MAXPLAYERS+MELEMENTS // Centered messages below CENTER2
-#define MSGID_OBSERVE   23+MAXPLAYERS+MELEMENTS // Press # to observe this minigame
-#define MSGID_MENUBIND  24+MAXPLAYERS+MELEMENTS // Press # to open the menu
-#define MSGID_VIEWSP    25+MAXPLAYERS+MELEMENTS // View sprite
-#define MSGID_WARNING   26+MAXPLAYERS+MELEMENTS // Warnings
-#define MSGID_WACKYMOD  27+MAXPLAYERS+MELEMENTS // Wackymod reminder
-#define MSGID_ACHIEVEM  28+MAXPLAYERS+MELEMENTS // Achievement notifications
-#define MSGID_PLYHERE   29+MAXPLAYERS+MELEMENTS // You are Here
+#define MSGID_CONSOLE   -1                        // Console only messages
+#define MSGID_HSPLAYR   1                         // Highscore background
+#define MSGID_HSBACK    2+MAXPLAYERS+1            // Highscore table player name (occupies MAXPLAYERS+1 numbers)
+#define MSGID_CURSOR    3+MAXPLAYERS+1            // Menu Cursor
+#define MSGID_MELEM     4+MAXPLAYERS+1            // Menu element (occopies 64 slots)
+#define MSGID_MENU      5+MAXPLAYERS+1+MELEMENTS  // Menu background
+#define MSGID_CENTER    6+MAXPLAYERS+1+MELEMENTS  // Centered messages (eg You Win!)
+#define MSGID_CENTER2   7+MAXPLAYERS+1+MELEMENTS  // Centered messages below above (eg speedup hints)
+#define MSGID_SCORE     8+MAXPLAYERS+1+MELEMENTS  // HUD Score background
+#define MSGID_ROUND     9+MAXPLAYERS+1+MELEMENTS  // HUD Round background
+#define MSGID_ROUND2    10+MAXPLAYERS+1+MELEMENTS // HUD Round counter
+#define MSGID_LEADER    11+MAXPLAYERS+1+MELEMENTS // HUD Leader background
+#define MSGID_SPREAD    12+MAXPLAYERS+1+MELEMENTS // HUD Spread
+#define MSGID_LEADER2   13+MAXPLAYERS+1+MELEMENTS // HUD Leader name
+#define MSGID_SCORE2    14+MAXPLAYERS+1+MELEMENTS // HUD score counter
+#define MSGID_SCORE3    15+MAXPLAYERS+1+MELEMENTS // HUD score text
+#define MSGID_ROUND3    16+MAXPLAYERS+1+MELEMENTS // HUD Round text
+#define MSGID_VIEWHS    17+MAXPLAYERS+1+MELEMENTS // HUD Highscore reminder
+#define MSGID_STFACE    18+MAXPLAYERS+1+MELEMENTS // STATUSBAR Face
+#define MSGID_STBAR     19+MAXPLAYERS+1+MELEMENTS // STATUSBAR Extra
+#define MSGID_TIMER     20+MAXPLAYERS+1+MELEMENTS // Timer on the HUD
+#define MSGID_TIMER2    21+MAXPLAYERS+1+MELEMENTS // Timer on the HUD background
+#define MSGID_CENTER3   22+MAXPLAYERS+1+MELEMENTS // Centered messages below CENTER2
+#define MSGID_OBSERVE   23+MAXPLAYERS+1+MELEMENTS // Press # to observe this minigame
+#define MSGID_MENUBIND  24+MAXPLAYERS+1+MELEMENTS // Press # to open the menu
+#define MSGID_VIEWSP    25+MAXPLAYERS+1+MELEMENTS // View sprite
+#define MSGID_WARNING   26+MAXPLAYERS+1+MELEMENTS // Warnings
+#define MSGID_WACKYMOD  27+MAXPLAYERS+1+MELEMENTS // Wackymod reminder
+#define MSGID_ACHIEVEM  28+MAXPLAYERS+1+MELEMENTS // Achievement notifications
+#define MSGID_PLYHERE   29+MAXPLAYERS+1+MELEMENTS // You are Here
 
 
 // Special TID's
@@ -295,8 +295,20 @@ achievemnts will not be tracked.\
 #define CHANGES "\
 Version Beta 1.9675B\n\
 What's new in the Beta?\n\n\
++ Added brightmaps to Corridor7 textures\n\
++ Added sonic speed to chickens\n\
 * Cleaned up the ACS source\n\
 * Cleaned up Skyhook polyobject code logic\n\
+* Fixed BFG being awarded incorrectly in team games\n\
+* Fixed Darwinism achievement being incorrectly given in team games\n\
+* Fixed Golden Axe kick always doing hit sound\n\
+* Fixed players staying frozen when dying as captain falcon\n\
+* Fixed potential winning exploit with door keys\n\
+* Fixed red team's spread being incorrect\n\
+* Included disconnected team member's scores in final score\n\
+* Made the Colossus path a little easier\n\
+* Made the petting hand faster\n\
+* Made pressure plates on Temple of Warriors less sensitive\n\
 * Moved turkey game down a little due to escape pods alarm\n\
 * Simplified the DoomWare_Server_ReturnPlayers script arguments\n\
 "
@@ -324,18 +336,19 @@ str  player_viewsprite[MAXPLAYERS];     // List of player's view sprite (like in
 int  player_answer1[MAXPLAYERS];        // Variables for minigame stuff (like keeping track of laps in Kart races)
 int  player_answer2[MAXPLAYERS][4];     // Variables for minigame stuff (like keeping track of cacodemon answers)
 
-int  game_score[MAXPLAYERS];      // (Internal) The score of each PlayerNumber()
-int  game_scoreteams[MAXTEAMS];   // (Internal) The score of each team
-int  game_highscores[MAXPLAYERS]; // (Internal) The global highscore table sorted by winner first
-int  game_highnames[MAXPLAYERS];  // (Internal) The global highscore table of player names sorted by winner first
-int  game_roundnum;               // (Internal) A number containing the current round.
-int  game_status;                 // (Internal) A number containing the status of the gamemode's logic.
-int  game_speed;                  // (Internal) How fast is the game going
-int  game_over;                   // (Internal) The reason the game ended
-bool game_solo;                   // (Internal) Is someone playing alone?
-int  game_wackymod;               // (Internal) Wacky Modifier
-int  game_skin;                   // (Internal) Map seasonal skin
-bool game_teams;                  // (Internal) Whether a team game is happening
+int  game_score[MAXPLAYERS];           // (Internal) The score of each PlayerNumber()
+int  game_scoreteams[MAXTEAMS];        // (Internal) The score of each team
+int  game_extrascoreteams[MAXTEAMS+1]; // (Internal) The extra score of each team (team members that disconnected)
+int  game_highscores[MAXPLAYERS];      // (Internal) The global highscore table sorted by winner first
+int  game_highnames[MAXPLAYERS];       // (Internal) The global highscore table of player names sorted by winner first
+int  game_roundnum;                    // (Internal) A number containing the current round.
+int  game_status;                      // (Internal) A number containing the status of the gamemode's logic.
+int  game_speed;                       // (Internal) How fast is the game going
+int  game_over;                        // (Internal) The reason the game ended
+bool game_solo;                        // (Internal) Is someone playing alone?
+int  game_wackymod;                    // (Internal) Wacky Modifier
+int  game_skin;                        // (Internal) Map seasonal skin
+bool game_teams;                       // (Internal) Whether a team game is happening
 
 int  round_current[MAXROUNDS];      // (Internal) An array containing a list of all minigames to be played/that have been played
 str  round_hints[MAXSPEEDUPS];      // (Internal) An array containing a list of all hints to be/that have been displayed.
@@ -1028,6 +1041,7 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
     round_winifsuicide = false;
     round_noforceend = false;
     round_forceobservers = false;
+	round_is1vmtiebreaker = false;
     minigame_wincondition1 = 0;
     minigame_wincondition2 = 0;
     minigame_wincondition3 = 0;
@@ -1143,22 +1157,24 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
         game_status = STATUS_WAITING;
 
         // Calculate a tiebreaker beforehand to help lagging players
-        if (Is_1v1_TieBreaker())
-        {
-            if (DEBUG_TIEB > 0)
-                round_tiebreaker = DEBUG_TIEB;
-            else
-                round_tiebreaker = random(1, NUMBEROFTIEBREAKERS);
-			round_is1vmtiebreaker = false;
-        }
-        else
-        {
-            if (DEBUG_TIEBM > 0)
-                round_tiebreaker = DEBUG_TIEBM;
-            else
-                round_tiebreaker = random(1, NUMBEROFTIEBREAKERSM);
-			round_is1vmtiebreaker = true;
-        }
+		if (game_roundnum > MAXROUNDS)
+		{
+			if (Is_1v1_TieBreaker())
+			{
+				if (DEBUG_TIEB > 0)
+					round_tiebreaker = DEBUG_TIEB;
+				else
+					round_tiebreaker = random(1, NUMBEROFTIEBREAKERS);
+			}
+			else
+			{
+				if (DEBUG_TIEBM > 0)
+					round_tiebreaker = DEBUG_TIEBM;
+				else
+					round_tiebreaker = random(1, NUMBEROFTIEBREAKERSM);
+				round_is1vmtiebreaker = true;
+			}
+		}
 
         // Wait until the music is done playing
         switch (game_speed)
@@ -1519,6 +1535,11 @@ Script "DoomWare_Client_Disconnect" (int gone) DISCONNECT // Called when the pla
     HUDMessage(s:""; HUDMSG_PLAIN, MSGID_VIEWHS, CR_WHITE, 0.5, 0.3, 1);
     HUDMessage(s:""; HUDMSG_PLAIN, MSGID_HSPLAYR, CR_WHITE, 0.5, 0.3, 1);
     HUDMessage(s:""; HUDMSG_PLAIN, MSGID_HSBACK, CR_WHITE, 0.5, 0.3, 1);
+	
+	// If the player was in a team, save his score
+	// We can't get their team in DISCONNECT scripts, so we'll have to figure it out later
+	if (game_teams)
+		game_extrascoreteams[MAXTEAMS] += game_score[gone];
 
     // Reset that player's score and data
     game_score[gone] = 0;
@@ -1650,7 +1671,7 @@ Script "DoomWare_Client_GameLogic" (void) // Main client gamemode logic "thread"
         if (game_over == OVER_WINNER || game_over == OVER_WINNERRED || game_over == OVER_WINNERBLUE)
         {
             // Award the winner with a BFG
-            if (((game_over == OVER_WINNERRED && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_RED) || (game_over == OVER_WINNERBLUE && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_BLUE) || (game_score[PlayerNumber()] == game_highscores[0])) && !CheckInventory("BFG9000"))
+            if (!CheckInventory("BFG9000") && (game_teams && ((game_over == OVER_WINNERRED && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_RED) || (game_over == OVER_WINNERBLUE && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_BLUE))) || (!game_teams && game_score[PlayerNumber()] == game_highscores[0]))
             {
                 GiveInventory("BFG9000", 1000);
                 GiveInventory("Cell", 1000);
@@ -1878,7 +1899,6 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
         str syncdata_loggedin = Unpack_CVar_Array("__clientsync_player_loggedin");
         str syncdata_viewsprite = Unpack_CVar_Array_String("__clientsync_player_viewsprite");
 
-
         /*==============================
                  Center Text
         ==============================*/
@@ -2065,7 +2085,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
                 if (syncdata_teams)
                 {
                     int myteamscore = 0;
-                    switch (PlayerTeam())
+                    switch (GetPlayerInfo(ConsolePlayerNumber(), PLAYERINFO_TEAM))
                     {
                         case TEAM_BLUE:
                             myteamscore = syncdata_highscore1;
@@ -2694,6 +2714,10 @@ function void Player_UnFreezeTotally(int who) // Totally unfreezes the player wi
 function void Give_Achievement(int plynum, int achievement) // Gives the player an achievement
 {
 	str name = "";
+	
+	if (!PlayerInGame(plynum))
+		return;
+	
     if ((PlayerIsLoggedIn(plynum) || GetCVar("doomware_unsafedb")) && game_status != STATUS_NOTSTARTED && !game_solo && (data_achieve[plynum] & (1<<achievement)) == 0)
     {
         data_achieve[plynum] = data_achieve[plynum] | (1<<achievement);
@@ -2780,8 +2804,8 @@ Script "DoomWare_Server_SyncGlobals" (void) // Global variable networking "threa
     // Sync the team scores, or the top 2 scores if we're not in a team mode
     if (game_teams)
     {
-        Player_SetCVar("__clientsync_highscore1", game_scoreteams[0]);
-        Player_SetCVar("__clientsync_highscore2", game_scoreteams[1]);
+        Player_SetCVar("__clientsync_highscore1", game_scoreteams[TEAM_BLUE]);
+        Player_SetCVar("__clientsync_highscore2", game_scoreteams[TEAM_RED]);
     }
     else
     {
@@ -2968,65 +2992,112 @@ Script 257 (void) NET // Highscore table bind
     ACS_NamedExecuteAlways("DoomWare_Client_DrawHighscore", 0);
 }
 
+int lastteamscore[MAXTEAMS];
 script "DoomWare_Server_CalcHighscore" (void) // A "thread" which continually updates the highscore table
 {
-    int i, j;
+	while (1)
+	{
+		int i, j;
 
-    // Fill the highscore list with the players that are ingame
-    for (i=0; i<MAXPLAYERS; i++)
-    {
-        game_highscores[i] = game_score[i];
-        game_highnames[i] = i;
+		// Fill the highscore list with the players that are ingame
+		for (i=0; i<MAXPLAYERS; i++)
+		{
+			game_highscores[i] = game_score[i];
+			game_highnames[i] = i;
 
-        if (PlayerInGame(i) == false)
-        {
-            game_highscores[i] = -1;
-            game_highnames[i] = -1;
-        }
+			if (PlayerInGame(i) == false)
+			{
+				game_highscores[i] = -1;
+				game_highnames[i] = -1;
+			}
+		}
+
+		// Order the list based on who has the highest score
+		for (i=0; i<MAXPLAYERS; i++)
+		{
+			for (j=1; j<MAXPLAYERS-i; j++)
+			{
+				int temp_value;
+				if (game_highscores[j-1] < game_highscores[j])
+				{
+					temp_value = game_highscores[j-1];
+					game_highscores[j-1] = game_highscores[j];
+					game_highscores[j] = temp_value;
+
+					temp_value = game_highnames[j-1];
+					game_highnames[j-1] = game_highnames[j];
+					game_highnames[j] = temp_value;
+				}
+			}
+		}
+		
+		// Update team scores
+		game_scoreteams[TEAM_BLUE] = game_extrascoreteams[TEAM_BLUE];
+		game_scoreteams[TEAM_RED] = game_extrascoreteams[TEAM_RED];
+		if (game_teams)
+		{    
+			for (j=0; j<PlayerCount(); j++)
+			{
+				int team = GetPlayerInfo(game_highnames[j], PLAYERINFO_TEAM);
+				game_scoreteams[team] += game_highscores[j];
+			}
+		}
+		
+		// If a player disconnected, fix the score (hacky, because we can't get player teams in DISCONNECT scripts)
+		if (game_extrascoreteams[MAXTEAMS] != 0)
+		{
+			for (i=0; i<MAXTEAMS; i++)
+			{
+				if (lastteamscore[i] > game_scoreteams[i])
+				{
+					game_extrascoreteams[i] += game_extrascoreteams[MAXTEAMS];
+					game_extrascoreteams[MAXTEAMS] = 0;
+					break;
+				}
+			}
+		}
+		
+		// Store the team's last score
+		for (i=0; i<MAXTEAMS; i++)
+			lastteamscore[i] = game_scoreteams[i];
+
+		// Restart this script
+		delay(1);
     }
-
-    // Order the list based on who has the highest score
-    for (i=0; i<MAXPLAYERS; i++)
-    {
-        for (j=1; j<MAXPLAYERS-i; j++)
-        {
-            int temp_value;
-            if (game_highscores[j-1] < game_highscores[j])
-            {
-                temp_value = game_highscores[j-1];
-                game_highscores[j-1] = game_highscores[j];
-                game_highscores[j] = temp_value;
-
-                temp_value = game_highnames[j-1];
-                game_highnames[j-1] = game_highnames[j];
-                game_highnames[j] = temp_value;
-            }
-        }
-    }
-    
-    // Update team scores
-    game_scoreteams[TEAM_BLUE] = 0;
-    game_scoreteams[TEAM_RED] = 0;
-    if (game_teams)
-    {    
-        for (j=0; j<PlayerCount(); j++)
-        {
-            int team = GetPlayerInfo(game_highnames[j], PLAYERINFO_TEAM);
-            game_scoreteams[team] += game_highscores[j];
-        }
-    }
-
-    // Restart this script
-    delay(1);
-    restart;
 }
 
 Script "DoomWare_Client_DrawHighscore" (void) // Draws the highscore table for the activator
 {
+	str extrascore = "";
     int i;
     if (player_viewingscore[PlayerNumber()] == true)
     {
-        int hud_y_counter=0;
+        int hud_y_counter = 0;
+		bool hasextrascore = false;
+		
+		// Check extra team score
+		for (i=0; i<MAXTEAMS; i++)
+		{
+			if (game_extrascoreteams[i] != 0)
+			{
+				str col = "";
+				switch(i)
+				{
+					case TEAM_BLUE:
+						col = "\chBlue: ";
+						break;
+					case TEAM_RED:
+						col = "\cgRed: ";
+						break;
+				}
+				extrascore = StrParam(s:extrascore, s:" ", s:col, d:game_extrascoreteams[i]);
+				hasextrascore = true;
+			}
+		}
+		
+		// If we're displaying extra score and we've got a full game, move the names up a bit
+		if (hasextrascore && PlayerCount() == MAXPLAYERS)
+			hud_y_counter = -6;
 
         // Initialize the GUI
         SetHudSize(800, 600, false);
@@ -3062,7 +3133,10 @@ Script "DoomWare_Client_DrawHighscore" (void) // Draws the highscore table for t
             else
                 HUDMessage(s:""; HUDMSG_PLAIN, MSGID_HSPLAYR+i, CR_ORANGE, 400.0, 200.0+hud_y_counter, 1);
         }
-
+		
+		// Draw extra team score
+		if (hasextrascore)
+			HUDMessage(s:"Extra score:", s:extrascore; HUDMSG_PLAIN, MSGID_HSPLAYR+MAXPLAYERS, CR_ORANGE, 400.0, 210.0+208.0, 1);
         SetHudSize(0, 0, false);
 
         // Restart the script to keep drawing the scoreboard
@@ -3074,7 +3148,7 @@ Script "DoomWare_Client_DrawHighscore" (void) // Draws the highscore table for t
     {
         // Overwrite the scoreboard with blank if it's not being viewed anymore
         HUDMessage(s:""; HUDMSG_PLAIN, MSGID_HSBACK, CR_ORANGE, 0.5, 0.5, 1);
-        for (i=0; i<MAXPLAYERS; i++)
+        for (i=0; i<MAXPLAYERS+1; i++)
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_HSPLAYR+i, CR_ORANGE, 400.0, 200.0+hud_y_counter, 1);
     }
 }
@@ -5068,6 +5142,8 @@ Script "DoomWare_Client_Minigame62" (void) // Cross the Road
 
     // Turn the player into a chicken
     str class = "ChickenPlayer2";
+	if (game_wackymod == WACKYMOD_SPEED)
+		class = "ChickenPlayer2Speed";
     while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
     {
         Player_Morph(PlayerNumber(), class);
@@ -9722,26 +9798,11 @@ Script 11 (void) // Give FailRoundItem for DECORATE
     GiveInventory("FailRoundItem", 1);
 }
 
-Script 12 (int variable) // Win players for accomplishing tasks
+Script 12 (void) // Win players for accomplishing tasks
 {
     int current_minigame = round_current[game_roundnum-1];
     switch (current_minigame)
     {
-        case 13:
-            if (minigame_timer == TIMER_OFF)
-                terminate;
-            if (variable == minigame_wincondition1)
-            {
-                thing_move(0, 130+PlayerNumber(), false);
-                Player_Win(PlayerNumber());
-            }
-            else
-            {
-                thing_move(0, 19, false);
-                Player_Lose(PlayerNumber(), false);
-                Give_Achievement(PlayerNumber(), ACHIEVE_ID_WRONGDOOR);
-            }
-            break;
         case 14:
             if (!Check_Player_Won(PlayerNumber()))
                 LocalAmbientSound("DoomWare/Worm", 127);
@@ -9780,6 +9841,24 @@ Script 17 (int door) // Abandon Ship Doors
 {
     Ceiling_LowerAndCrushDist(900 + door, 120, 1337, 0, 1);
     Player_Win(PlayerNumber());
+}
+
+Script 18 (int door) // Teleporting players when pressing doors with keys
+{
+	if (round_current[game_roundnum-1] != 13 || minigame_timer == TIMER_OFF)
+		terminate;
+		
+	if (door == minigame_wincondition1)
+	{
+		thing_move(0, 130+PlayerNumber(), false);
+		Player_Win(PlayerNumber());
+	}
+	else
+	{
+		thing_move(0, 19, false);
+		Player_Lose(PlayerNumber(), false);
+		Give_Achievement(PlayerNumber(), ACHIEVE_ID_WRONGDOOR);
+	}
 }
 
 Script 241 (void) // Lose invulnerability in rocket launcher minigame

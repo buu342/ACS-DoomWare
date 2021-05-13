@@ -35,6 +35,17 @@ texture C7CONSL1
 pic 1 tics 2
 pic 2 tics 2
 pic 3 tics 2
+pic 4 tics 2
+pic 5 tics 2
+pic 6 tics 2
+pic 7 tics 2
+
+texture C7MONIT1
+pic 1 tics 2
+pic 2 tics 2
+pic 3 tics 2
+pic 4 tics 2
+pic 5 tics 2
 
 texture C7LASR1
 pic 1 tics 2

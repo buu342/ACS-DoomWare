@@ -65,3 +65,18 @@ object WhitePoint
     frame TNT1 { light WHITEPOINT }
     frame TNT1A { light WHITEPOINT }
 }
+
+brightmap texture C7CONSL1 { map C7CONSLB }
+brightmap texture C7CONSL2 { map C7CONSLB }
+brightmap texture C7CONSL3 { map C7CONSLB }
+brightmap texture C7CONSL4 { map C7CONSLB }
+brightmap texture C7CONSL5 { map C7CONSLB }
+brightmap texture C7CONSL6 { map C7CONSLB }
+brightmap texture C7CONSL7 { map C7CONSLB }
+
+brightmap texture C7MONIT1 { map C7MONIB1 }
+brightmap texture C7MONIT2 { map C7MONIB2 }
+brightmap texture C7MONIT3 { map C7MONIB3 }
+brightmap texture C7MONIT4 { map C7MONIB4 }
+brightmap texture C7MONIT5 { map C7MONIB5 }
+
