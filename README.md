@@ -22,7 +22,7 @@ DoomWare is a fast paced, competitive multiplayer WAD for Zandronum. Similar to 
 
 
 ## Wiki
-DoomWare's source code is fully commented, but I highly recommend checking out [the wiki](wiki) to learn more about the WAD, how to play it, configure it on servers, and even how to extend it!
+DoomWare's source code is fully commented, but I highly recommend checking out [the wiki](../../wiki) to learn more about the WAD, how to play it, configure it on servers, and even how to extend it!
 
 
 ## Credits
