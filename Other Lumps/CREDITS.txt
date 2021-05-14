@@ -241,9 +241,15 @@ Music - DOOM - Doom 2: Hell On Earth
 Idea - VGA
 Music - Bye Bye American Pie - Doom 2: Hell On Earth
 
-**Survive (Rocket Launchers)**
+**Survive (Rockets)**
 Idea - Kapanyo
 Music - Not sure I'm afraid. Had it lying around in my computer.
+
+**Reach the End (Void)**
+Inspired by - Void - Cyb
+Textures - Skulltag
+Sound Effects - Hexen - Raven Software
+Music - Exquisite - TSEC
 
 **Finish A Lap (Rainbow Road)**
 Music - Rainbow Road - Mario Kart Super Circuit

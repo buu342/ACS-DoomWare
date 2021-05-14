@@ -309,6 +309,7 @@ What's new in the Beta?\n\n\
 * Made the Colossus path a little easier\n\
 * Made the petting hand faster\n\
 * Made pressure plates on Temple of Warriors less sensitive\n\
+* Merged a minigame and added a new one\n\
 * Moved turkey game down a little due to escape pods alarm\n\
 * Simplified the DoomWare_Server_ReturnPlayers script arguments\n\
 "
@@ -470,6 +471,7 @@ Script "DoomWare_Server_Initialize" (void) // Initializes the rest of the gamemo
 
 Script "DoomWare_Server_InitMap" (void) // Initializes the map
 {
+	int i;	
     Sector_SetCurrent(160, 300, 192, false);
 
     CreateTranslation(1, 168:191=112:127, 32:47=120:127, 16:31=112:119, 160:167=112:120);
@@ -485,6 +487,8 @@ Script "DoomWare_Server_InitMap" (void) // Initializes the map
     CreateTranslation(13, 112:127=199:207);
     CreateTranslation(14, 112:127=5:8);
     CreateTranslation(15, 112:127=176:191);
+	createtranslation(16, 64:79=[50,50,50]:[0,0,0]); // Black Imp (Void)
+	createtranslation(17, 64:79=80:95); // White Imp (Void)
 
     // Rotating spikes arena fog
     Sector_SetFade(150, 255, 106, 0);
@@ -509,6 +513,27 @@ Script "DoomWare_Server_InitMap" (void) // Initializes the map
     Thing_SetTranslation(331, 5);
     Thing_SetTranslation (108, 10);
     
+	// VOID Map
+	Scroll_Ceiling(956, 0, 64, 0); // A for loop doesn't work???
+	Scroll_Ceiling(957, 0, 64, 0);
+	Scroll_Ceiling(958, 0, 64, 0);
+	Scroll_Ceiling(959, 0, 64, 0);
+	Scroll_Ceiling(960, 0, 64, 0);
+	Scroll_Ceiling(961, 0, 64, 0);
+	Scroll_Ceiling(967, 32, -32, 0);
+	Scroll_Ceiling(968, -32, -32, 0);
+	Scroll_Ceiling(969, -32, 32, 0);
+	Scroll_Ceiling(970, 32, 32, 0);
+	Floor_Waggle(965, 32, 64, 32, 0);
+	Ceiling_Waggle(937, 32, 64, 64, 0);
+	Floor_Waggle(977, 32, 64, 32, 0);
+	delay(10);
+	Ceiling_Waggle(938, 32, 64, 64, 0);
+	delay(10);
+	Ceiling_Waggle(939, 32, 64, 64, 0);
+	delay(10);
+	Ceiling_Waggle(962, 32, 64, 64, 0);
+
     Ceiling_Waggle(109, 32, 64, 0, 0);
     Floor_Waggle(133, 32, 64, 0, 0);
     Floor_Waggle(254, 256, 24, 0, 0);
@@ -529,7 +554,7 @@ Script "DoomWare_Server_InitMap" (void) // Initializes the map
     Ceiling_CrushAndRaise(179, 64, 100, 1);
 
     // Pyoro level gravity
-    for (int i=0; i<15; i++)
+    for (i=0; i<15; i++)
         Sector_SetGravity(222+i, 10, 0);
 
     Scroll_Floor(140, -64, 0, 2);
@@ -4202,7 +4227,7 @@ Script "DoomWare_Client_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
     StopSound(TID_PLAYER+PlayerNumber(), 6);
 }
 
-Script "DoomWare_Client_Minigame18" (void) // Equip Weapon
+Script "DoomWare_Client_Minigame18" (void) // Equip/Don't Equip Weapon
 {
     str wep;
     int ticcount = 0; // Needed to fix a bug where players would auto win for some reason
@@ -4221,7 +4246,7 @@ Script "DoomWare_Client_Minigame18" (void) // Equip Weapon
     delaY(1);
     SetWeapon("Fist");
 
-    Switch(minigame_wincondition1)
+    Switch(minigame_wincondition1%10)
     {
         case 1:
             minigame_instruction1[PlayerNumber()] = "Equip your Chainsaw";
@@ -4252,15 +4277,22 @@ Script "DoomWare_Client_Minigame18" (void) // Equip Weapon
             wep = "BFG9000Fake";
             break;
     }
+	if (minigame_wincondition1 >= 10)
+		minigame_instruction1[PlayerNumber()] = StrParam(s:"Don't ", s:minigame_instruction1[PlayerNumber()]);
     Delay(SECOND);
 
-    // Award points if they got the right weapon (for multiple ticks)
+    // Award (or fail) players if they got the right weapon
     while (game_status == STATUS_MINIGAME)
     {
         if (!StrIcmp(GetWeapon(), wep))
             ticcount++;
-        if (ticcount == 5)
-            Player_Win(PlayerNumber());
+        if (ticcount == 5) // If they held the weapon for 5 ticks
+		{
+			if (minigame_wincondition1 < 10)
+				Player_Win(PlayerNumber());
+			else
+				Player_Lose(PlayerNumber(), false);
+		}
         delay(1);
     }
 }
@@ -4707,67 +4739,17 @@ Script "DoomWare_Client_Minigame43" (void) // Don't Blow Your Brains Out
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame44" (void) // Don't Equip Weapon
+Script "DoomWare_Client_Minigame44" (void) // Reach the End (Void)
 {
-    str wep;
-    int ticcount; // Needed to fix a bug where players would auto win for some reason
+    minigame_instruction1[PlayerNumber()] = "Reach the End";
 
-    // Give the player everything
-    setplayerproperty(1, 2, prop_invulnerability);
-    GiveInventory("ChainsawFake", 1); // Fake weapons that have no ammo (because some people can't switch weapons without ammo)
-    GiveInventory("PistolFake", 1);
-    GiveInventory("SuperShotgunFake", 1);
-    GiveInventory("ChaingunFake", 1);
-    GiveInventory("RocketLauncherFake", 1);
-    GiveInventory("PlasmaRifleFake", 1);
-    GiveInventory("BFG9000Fake", 1);
-    GiveInventory("Fist", 1);
-    SetWeapon("Fist");
-    delaY(1);
-    SetWeapon("Fist");
+    // Give the player a push staff so he can be a dick
+    GiveInventory("PushStaff", 1);
+    SetWeapon("PushStaff");
 
-    Switch(minigame_wincondition1)
-    {
-        case 1:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your Chainsaw";
-            wep = "ChainsawFake";
-            break;
-        case 2:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your Pistol";
-            wep = "PistolFake";
-            break;
-        case 3:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your Super Shotgun";
-            wep = "SuperShotgunFake";
-            break;
-        case 4:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your Chaingun";
-            wep = "ChaingunFake";
-            break;
-        case 5:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your Rocket Launcher";
-            wep = "RocketLauncherFake";
-            break;
-        case 6:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your Plasma Gun";
-            wep = "PlasmaRifleFake";
-            break;
-        case 7:
-            minigame_instruction1[PlayerNumber()] = "Don't Equip your BFG9000";
-            wep = "BFG9000Fake";
-            break;
-    }
-    Delay(SECOND);
-
-    // Fail them if they got the right weapon
+    // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
-    {
-        if (!StrIcmp(GetWeapon(), wep))
-            ticcount++;
-        if (ticcount == 5)
-            Player_Lose(PlayerNumber(), false);
         delay(1);
-    }
 }
 
 Script "DoomWare_Client_Minigame45" (void) // Finish a lap (Rainbow Road)
@@ -6826,11 +6808,15 @@ Script "DoomWare_Server_Minigame17" (void) // Finish a lap (Ancient Lake DDKR)
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
-Script "DoomWare_Server_Minigame18" (void) // Equip Weapon
+Script "DoomWare_Server_Minigame18" (void) // Equip/Don't Equip Weapon
 {
     HUDMessage(s:"Equip Weapon"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
-    minigame_wincondition1 = random(1, 7);
     SetMusic("d_weapon");
+	
+	// Pick the weapon (and whether to allow equipping or not)
+    minigame_wincondition1 = random(1, 7)+(10*random(0, 1));
+	if (minigame_wincondition1 >= 10)
+		round_winifmid = true;
 
     // Start a timer
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(3*game_speed));
@@ -7638,15 +7624,37 @@ Script "DoomWare_Server_Minigame43" (void) // Don't Blow Your Brains Out
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(5*game_speed));
 }
 
-Script "DoomWare_Server_Minigame44" (void) // Don't Equip Weapon
+Script "DoomWare_Server_Minigame44" (void) // Reach the End (Void)
 {
-    HUDMessage(s:"Don't Equip Weapon"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
-    minigame_wincondition1 = random(1, 7);
-    SetMusic("d_weapon");
-    round_winifmid = true;
+	int i;
+    HUDMessage(s:"Reach the End (Void)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("d_void");
+	minigame_wincondition1 = 0; // This is a bit field that tells us which platforms are raised
+	Add_Observer(965);
+	Add_Observer(984);
+	Add_Observer(985);
+	
+	// Spawn some Imps
+	SpawnSpotForced("DoomImpVoid", 963, TID_REMOVE, 180);
+	SpawnSpotForced("DoomImpVoid", 964, TID_REMOVE+1, 180);
+	thing_settranslation(TID_REMOVE, 16);
+	thing_settranslation(TID_REMOVE+1, 17);
+	Thing_ChangeTID(TID_REMOVE+1, TID_REMOVE);
+	
+	// Make the map move all fancy
+	ACS_NamedExecute("DoomWare_VoidMapBooks", 0);
+	ACS_NamedExecute("DoomWare_VoidMapLights", 0);
+	ACS_NamedExecute("DoomWare_VoidMapSky", 0);
+	ACS_NamedExecute("DoomWare_VoidMapPillars", 0);
+
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 966, true, true);
 
     // Start a timer
-    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(3*game_speed));
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*20-(SECOND*game_speed));
+	
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame45" (void) // Finish a Lap (Rainbow Road)
@@ -10028,4 +10036,155 @@ Script 253 (void) // Corridor 7 1UP Box
             C71UpState = 2;
             break;
     }
+}
+
+Script "DoomWare_VoidMapBooks" (void) // Void books Polyobjects
+{
+	if (game_status != STATUS_MINIGAME)
+		terminate;
+	
+	Polyobj_Move(34, 64, 64, 64);
+	Polyobj_Move(35, 64, -64, 64);
+	delay(10);
+	Polyobj_Move(38, 64, 64, 64);
+	Polyobj_Move(39, 64, -64, 64);
+	delay(10);
+	Polyobj_Move(36, 64, 64, 64);
+	Polyobj_Move(37, 64, -64, 64);
+	delay(10);
+	Polyobj_Move(34, 64, -64, 64);
+	Polyobj_Move(35, 64, 64, 64);
+	delay(10);
+	Polyobj_Move(38, 64, -64, 64);
+	Polyobj_Move(39, 64, 64, 64);
+	delay(10);
+	Polyobj_Move(36, 64, -64, 64);
+	Polyobj_Move(37, 64, 64, 64);
+	delay(10);
+	restart;
+}
+
+Script "DoomWare_VoidMapPillars" (void) // Void books Pillars
+{
+	int i;
+	int speed = 32;
+	int height = 128;
+	
+	// Stop if we're not playing a minigame
+	if (game_status != STATUS_MINIGAME)
+		terminate;
+	
+	// Lower the pillars, then raise them
+	for(i=0; i<4; i++)
+	{
+		floor_lowerbyvalue(980+i, speed, height);
+		delay(15);
+	}
+	for(i=0; i<4; i++)
+	{
+		floor_raisebyvalue(980+i, speed, height);
+		delay(15);
+	}
+	restart;
+}
+
+Script "DoomWare_VoidMapLights" (void) // Void tunnel lights
+{
+	if (game_status != STATUS_MINIGAME)
+		terminate;
+	for (int i=0; i<6; i++)
+	{
+		light_fade(957+i-1, 112, 5);
+		light_fade(956+(i+1)%6, 224, 5);
+		delay(5);
+	}
+	restart;
+}
+
+script "DoomWare_VoidMapSky" (void) // Void skybox
+{
+	int i;
+	int r = 255*random(0, 1);
+	int g = 255*random(0, 1);
+	int b;
+	
+	// Stop if we're not playing a minigame
+	if (game_status != STATUS_MINIGAME)
+		terminate;
+	
+	// If no red and green, then force blue (so we don't get a black sky) 
+	if (r == 0 && g == 0)
+		b = 255;
+	else
+		b = 255*random(0, 1);
+		
+	// Paint the sky
+	for (i=0; i<4; i++)
+	{
+		sector_setcolor(967+i, r, g, b, 255);
+		light_fade(967+i, 255, SECOND);	
+	}
+	delay(SECOND);
+
+	// Change the colors again
+	r = 255*random(0,1);
+	g = 255*random(0,1);
+	
+	// If no red and green, then force blue (so we don't get a black sky)
+	if (r == 0 && g == 0)
+		b = 255;
+	else
+		b = 255*random(0,1);
+		
+	// Paint the sky again
+	for (i=0; i<4; i++)
+	{
+		sector_setcolor(967+i, r, g, b, 255);
+		light_fade(967+i, 0, SECOND);	
+	}
+	delay(SECOND);
+	restart;
+}
+
+script 254 (int num) // Void floor platform popups
+{
+	int plat = -1;
+	
+	// Decide which platoform to popup
+	if (num == 1 && minigame_wincondition1 == 0)
+	{
+		plat = random(0, 1);
+		minigame_wincondition1 |= 1<<plat;
+
+	}
+	else if (num == 2 && (minigame_wincondition1&0x04) == 0)
+	{
+		plat = 2;
+		minigame_wincondition1 |= 0x04;
+	}
+	
+	if (plat != -1)
+	{
+		// Make the platform popup
+		ChangeFloor(971+plat*2, "NFMBGY01");
+		ChangeFloor(972+plat*2, "FLAT20_2");
+		Floor_RaiseByValue(971+plat*2, 255, 11);
+		Floor_RaiseByValue(972+plat*2, 255, 8);
+		
+		delay(1);
+		if (num == 1)
+		{
+			Floor_Waggle(978, 32, 64, 32, SECOND*10);
+			Floor_Waggle(971, 32, 64, 32, SECOND*10);
+			Floor_Waggle(972, 32, 64, 32, SECOND*10);
+			Floor_Waggle(973, 32, 64, 32, SECOND*10);
+			Floor_Waggle(974, 32, 64, 32, SECOND*10);
+		}
+		else
+		{
+			Floor_Waggle(975, 32, 64, 64, SECOND*10);
+			Floor_Waggle(976, 32, 64, 64, SECOND*10);
+			Floor_Waggle(979, 32, 64, 64, SECOND*10);
+		}
+	}
 }

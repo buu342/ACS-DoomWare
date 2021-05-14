@@ -1,3 +1,10 @@
+pointlight BLUELIGHT
+{
+    color 0.0 0.0 1.0
+    size 64
+    offset 0 0 0
+}
+
 pointlight ORANGELIGHT
 {
     color 1.0 0.5 0.0
@@ -40,6 +47,15 @@ object OrangeTorch
     frame TORGB { light ORANGELIGHT }
     frame TORGC { light ORANGELIGHT }
     frame TORGD { light ORANGELIGHT }
+}
+
+object BlueTorchVoid
+{
+    frame TBLU { light BLUELIGHT }
+    frame TBLUA { light BLUELIGHT }
+    frame TBLUB { light BLUELIGHT }
+    frame TBLUC { light BLUELIGHT }
+    frame TBLUD { light BLUELIGHT }
 }
 
 object OrangePoint

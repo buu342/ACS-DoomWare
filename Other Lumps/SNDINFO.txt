@@ -401,6 +401,11 @@ $random DoomWare/TurkeyPunch { DoomWare/TurkeyPunch1 DoomWare/TurkeyPunch2 }
 DoomWare/C7Gun					DSC7GUN
 DoomWare/C7Door					DSC7DOOR
 
+DoomWare/DoorCreak				DSDORCRK
+DoomWare/BookCase1				DSBOOKC1
+DoomWare/BookCase2				DSBOOKC2
+DoomWare/BookCase3				DSBOOKC3
+
 
 // Buu342 Sounds
 

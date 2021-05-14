@@ -1,0 +1,12 @@
+:DoorCreak
+	door		1
+	play		DoomWare/DoorCreak
+	nostopcutoff
+end
+
+:BookCase
+	door		2
+	play		DoomWare/BookCase1
+	playrepeat	DoomWare/BookCase2
+	stopsound	DoomWare/BookCase3
+end

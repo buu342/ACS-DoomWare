@@ -5924,3 +5924,52 @@ ACTOR C7Light 11162
 			Loop
 	}
 }
+
+// Void Candlestick
+ACTOR CandlestickVoid : Candlestick 11163
+{
+	+SPAWNCEILING
+	+CEILINGHUGGER
+	+NOGRAVITY
+	States
+	{
+		Spawn:
+			CNDU A -1 Bright
+			Stop
+	}
+}
+
+// Void Blue Torch 	
+ACTOR BlueTorchVoid : BlueTorch 11164
+{
+	+SPAWNCEILING
+	+CEILINGHUGGER
+	+NOGRAVITY
+	States
+	{
+		Spawn:
+			TBUU ABCD 4 Bright
+			Loop
+	}
+}
+
+ACTOR DoomImpVoid : DoomImp
+{
+	+CEILINGHUGGER
+	+NOGRAVITY
+	+SPAWNCEILING
+	States
+	{
+		Spawn:
+			TROU AB 10 A_Look
+			Loop
+		See:
+			TROU AABBCCDD 3 A_Chase
+			Loop
+		Melee:
+		Missile:
+			TROU EF 8 A_FaceTarget
+			TROU G 6 A_TroopAttack
+			Goto See
+	}
+}
