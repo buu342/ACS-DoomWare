@@ -172,6 +172,11 @@ Sonic Skin - CutmanMike
 **Stay On/Off The Ground**
 Music - Mona's Microgames - WarioWare Smooth Moves
 
+**Grab a balloon**
+City Textures - Skulltag
+Spider-Man Model and Sounds - Spider-Man 2 (PS2) - Treyarch
+Music - Ballad in City - Spider-Man 2 (PS2)
+
 **Survive (Boxing)**
 Boxing Gloves Model - Team Fortress 2 - Valve
 Music - The Aloof Soldier (Shishikakashi Appearance) - Mystical Ninja 2 Starring Goemon
@@ -208,7 +213,9 @@ Mecha Hitler Rotations Sprites - UnTrustable
 Music - Fight Against Death - Mystical Ninja 2 Starring Goemon
 
 **Survive (Hoth)**
-Cockpit sprites & Music - Battle Of Hoth - Star Wars: Shadows Of The Empire
+AT-ST Sprites - Star Wars: Dark Forces - LucasArts
+Cockpit sprites, Textures and Sound Effects - Star Wars: Shadows Of The Empire - LucasArts
+Music - The Battle Of Hoth - Star Wars Episode V: The Empire Strikes Back
 
 **Climb the Colossus**
 Textures - Shadow of the Colossus - ICO
@@ -244,6 +251,10 @@ Music - Bye Bye American Pie - Doom 2: Hell On Earth
 **Survive (Rockets)**
 Idea - Kapanyo
 Music - Not sure I'm afraid. Had it lying around in my computer.
+
+**Zorch a Flemoid**
+Textures, sounds, and sprites - Chex Quest + Chex Quest 3 - Digital Café
+Music - E1M1 - Chex Quest - Digital Café
 
 **Reach the End (Void)**
 Inspired by - Void - Cyb

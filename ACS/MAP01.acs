@@ -34,7 +34,7 @@
 #define NUMBEROFGAMES        93 // Number Of minigames
 #define NUMBEROFTIEBREAKERS  3  // Number Of 1v1 Tie Breakers
 #define NUMBEROFTIEBREAKERSM 3  // Number Of Non-1v1 Tie Breakers
-#define NUMBEROFWACKYMODS    8  // Number of wacky mods
+#define NUMBEROFWACKYMODS    10 // Number of wacky mods
 
 
 // Debugging single minigames (-1 to not debug, provide a different number to force that minigame number to play)
@@ -51,13 +51,14 @@
 #define MAXTEAMS    2  // The maximum amount of teams. Changing this will require modifying quite a few if and switch statements!
 #define MAXROUNDS   25 // How many rounds per game (Default 25)
 
-#define BANNEDSOLOGAMES "11 26 40 69 85 87 88 90 93" // List of games banned during solo play
+#define BANNEDSOLOGAMES "11 26 40 42 69 83 85 87 88 90 93" // List of games banned during solo play
 
 
 // Game Speedups
 
-#define MAXSPEEDUPS 4 // How many times should the game speedup (if increased from 4, edit the switches in Should_Speedup!!!)
+#define MAXSPEEDUPS 4 // How many times should the game speedup (Increase only if you know what you're doing!)
 
+// Round number(s) to speedup in
 #define SPEEDUP1 6  // default 6
 #define SPEEDUP2 11 // default 11
 #define SPEEDUP3 16 // default 16
@@ -237,6 +238,8 @@
 #define WACKYMOD_INVERT  6
 #define WACKYMOD_T1UPS   7
 #define WACKYMOD_SPEEDUP 8
+#define WACKYMOD_SPREAD  9
+#define WACKYMOD_RAGE    10
 
 #define WACKYMOD_NAME1  "Boss Round"
 #define WACKYMOD_NAME2  "Double Jump"
@@ -246,6 +249,8 @@
 #define WACKYMOD_NAME6  "Inverted Controls"
 #define WACKYMOD_NAME7  "1Ups are worth Triple"
 #define WACKYMOD_NAME8  "Max Game Speed"
+#define WACKYMOD_NAME9  "Bullet Spread"
+#define WACKYMOD_NAME10 "Double Fire Rate"
 
 
 // Map Skins
@@ -293,25 +298,29 @@ achievemnts will not be tracked.\
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.9675B\n\
+Version Beta 1.9675C\n\
 What's new in the Beta?\n\n\
-+ Added brightmaps to Corridor7 textures\n\
-+ Added sonic speed to chickens\n\
-* Cleaned up the ACS source\n\
-* Cleaned up Skyhook polyobject code logic\n\
-* Fixed BFG being awarded incorrectly in team games\n\
-* Fixed Darwinism achievement being incorrectly given in team games\n\
-* Fixed Golden Axe kick always doing hit sound\n\
-* Fixed players staying frozen when dying as captain falcon\n\
-* Fixed potential winning exploit with door keys\n\
-* Fixed red team's spread being incorrect\n\
-* Included disconnected team member's scores in final score\n\
-* Made the Colossus path a little easier\n\
-* Made the petting hand faster\n\
-* Made pressure plates on Temple of Warriors less sensitive\n\
-* Merged a minigame and added a new one\n\
-* Moved turkey game down a little due to escape pods alarm\n\
-* Simplified the DoomWare_Server_ReturnPlayers script arguments\n\
++ Added 'Survive (Rockets)' and 'Charge your Laz0r' to solo banlist\n\
++ Added Runescape blood splat\n\
++ Added two new wacky modifiers\n\
++ Added two new minigames to replace two merged games\n\
+* Allowed 1v1 tiebreaker games in team games with 2 players\n\
+* Buffed turkey slightly and fixed sound cutoff\n\
+* Changed basketballs to rip through players\n\
+* Color coded projectiles in team games\n\
+* Fixed a bug where activators would get changed mid script\n\
+* Fixed choose a side minigame not counting middle people\n\
+* Fixed choose a side minigame not inverting controls\n\
+* Fixed long-standing spelling mistake\n\
+* Fixed random number hint not generating properly\n\
+* Fixed wrong teleport TID on Bit Trip game\n\
+* Gave Falcon Punch more forward momentum\n\
+* Improved Boss battle string code\n\
+* Made the explosive barrels shorter in Bit Trip arena\n\
+* Made Flame objects' sound last longer\n\
+* Made Flanders minigame not forcibly end\n\
+- Removed aim lock from pushing stick\n\
+- Removed team marker sprite\n\
 "
 
 
@@ -487,8 +496,8 @@ Script "DoomWare_Server_InitMap" (void) // Initializes the map
     CreateTranslation(13, 112:127=199:207);
     CreateTranslation(14, 112:127=5:8);
     CreateTranslation(15, 112:127=176:191);
-	createtranslation(16, 64:79=[50,50,50]:[0,0,0]); // Black Imp (Void)
-	createtranslation(17, 64:79=80:95); // White Imp (Void)
+	CreateTranslation(16, 64:79=[50,50,50]:[0,0,0]); // Black Imp (Void)
+	CreateTranslation(17, 64:79=80:95); // White Imp (Void)
 
     // Rotating spikes arena fog
     Sector_SetFade(150, 255, 106, 0);
@@ -739,7 +748,7 @@ Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to di
     temp_hint[82] = "You were always such a kidder, Steve.";
     temp_hint[83] = "There are hidden SOMEMONG's in inaccessible areas.";
     temp_hint[84] = "I want to paint my house in FIREBLU.";
-    temp_hint[85] = StrParam(s:"Today's random number is: ", d:random(0, 0xFFFFFFFF));
+    temp_hint[85] = StrParam(s:"Today's random number is: ", d:random(0xFFFFFFFF, 0x7FFFFFFF)); // Maximum negative and positive integer
     temp_hint[86] = "This WAD contains war crimes, domestic abuse, and taxes.";
     temp_hint[87] = "Chameleon Machine. Ride on now!";
     temp_hint[88] = "It's ok, Marphy Black isn't here, he can't hurt you.";
@@ -1104,7 +1113,6 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
         }
         else
         {
-            
             // Figure out the game over reason if it doesn't exist yet
             if (game_over == OVER_NONE)
             {
@@ -1523,6 +1531,9 @@ Script "DoomWare_Entity_Cleanup" (void) // Cleans up entities with ThingID TID_R
 
 Script "DoomWare_Client_Death" DEATH // Called when a player dies
 {
+	int plynum = PlayerNumber();
+		
+	// Win or lose the player
     if ((game_status == STATUS_MINIGAME || game_status == STATUS_TIEBREAK || game_status == STATUS_TIEBREAKM))
     {
         if (!round_winifsuicide)
@@ -1535,14 +1546,14 @@ Script "DoomWare_Client_Death" DEATH // Called when a player dies
         else
             Player_Win(PlayerNumber());
     }
-    
-    // Invalidate the player teleport position to prevent them from being re-teleported to the arena (because they respawn there)
+	
+	// Invalidate the player teleport position to prevent them from being re-teleported to the arena (because they respawn there)
     Player_InvalidatePosition(PlayerNumber());
 
     // Spawn a spoopy ghost
     if (game_skin == MAPSKIN_HALLOWEEN)
         SpawnSpotForced("SpoopyGhost", TID_PLAYER+PlayerNumber(), TID_REMOVE, 0);
-
+	
     // Remove the player's TID if they're dead (to prevent corpses from emitting effects)
     if (GetActorProperty(TID_PLAYER+PlayerNumber(), APROP_HEALTH) <= 0)
         Thing_ChangeTID(TID_PLAYER+PlayerNumber(), 0);
@@ -2020,7 +2031,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
         else if (syncdata_gamestatus == STATUS_TIEDETECT)
         {
             HUDMessage(s:"Game Over"; HUDMSG_PLAIN, MSGID_CENTER, CR_WHITE, w/2, FixedMul(h, 0.25), 1);
-            HUDMessage(s:"\n\nThere is a tie, intitializing Tie Breaker round."; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
+            HUDMessage(s:"\n\nThere is a tie, initializing Tie Breaker round."; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
             HUDMessage(s:""; HUDMSG_PLAIN, MSGID_CENTER3, CR_GREEN, 0.5, 0.3, 1);
         }
         else if (syncdata_gamestatus == STATUS_GAMEOVER)
@@ -2427,6 +2438,18 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
                         SetFont("MMBAR2");
                     hudmessage(s:"a"; HUDMSG_PLAIN, MSGID_STBAR, cR_ORANGE, status_w, status_h, 1);
                     break;
+                case 43:
+                    SetFont("CHEXHUD");
+                    hudmessage(s:"a"; HUDMSG_PLAIN, MSGID_STBAR, cR_ORANGE, status_w, status_h, 1);
+
+                    if (hud_spindex < 3)
+                    {
+                        SetFont(StrParam(s:"CHEXFAC", d:hud_spindex));
+                        hudmessage(s:"A"; HUDMSG_PLAIN, MSGID_STFACE, cR_ORANGE, status_w, status_h, 1);
+                    }
+                    else
+                        hudmessage(s:""; HUDMSG_PLAIN, MSGID_STFACE, cR_ORANGE, status_w, status_h, 1);
+                    break;
             }
         }
         else
@@ -2585,7 +2608,7 @@ function bool Should_TieBreak(void) // Return true/false if we should initialize
 
 function bool Is_1v1_TieBreaker(void) // Return true/false if we are playing a 1v1 tiebreaker
 {
-    return (!game_teams && game_highscores[0] == game_highscores[1] && game_highscores[0] != game_highscores[2]);
+    return (((PlayerCount() == 2 && game_teams) || !game_teams) && game_highscores[0] == game_highscores[1] && game_highscores[0] != game_highscores[2]);
 }
 
 function bool No_MidRound_Array(void) // Return whether everyone has passed/failed
@@ -2605,11 +2628,18 @@ function void Player_Win(int plynum) // Make a player win
 {
     if (player_midround[plynum] == true)
     {
-        SetActivator(TID_PLAYER+plynum);
+		int active = ActivatorTID();
+		SetActivatorToPlayer(plynum);
         LocalAmbientSound("DoomWare/Check", 127);
         SpawnSpotForced("WonRoundEffect", TID_PLAYER+plynum, 0, 0);
         player_wonround[plynum] = true;
         player_midround[plynum] = false;
+            
+		// Reset the activator to prevent problems
+		if (active < TID_PLAYER)
+			SetActivator(0, AAPTR_NULL);
+		else
+			SetActivatorToPlayer(active-TID_PLAYER);
     }
 }
 
@@ -2620,9 +2650,16 @@ function void Player_Lose(int plynum, bool silent) // Make a player lose
         // Make the sound + effects
         if (!silent)
         {
-            SetActivator(TID_PLAYER+plynum);
+			int active = ActivatorTID();
+            SetActivatorToPlayer(plynum);
             LocalAmbientSound("DoomWare/Failure", 127);
             SpawnSpotForced("FailedRoundEffect", TID_PLAYER+plynum, 0, 0);
+            
+			// Reset the activator to prevent problems
+			if (active < TID_PLAYER)
+				SetActivator(0, AAPTR_NULL);
+			else
+				SetActivatorToPlayer(active-TID_PLAYER);
         }
         player_lostround[plynum] = true;
         player_midround[plynum] = false;
@@ -2646,16 +2683,30 @@ function void Player_Lose(int plynum, bool silent) // Make a player lose
 
 function void Player_SetWackymod(int plynum) // Sets the wacky modifier on a player
 {
+	// Set team items
+	if (game_teams)
+	{
+		switch (GetPlayerInfo(plynum, PLAYERINFO_TEAM))
+		{
+			case TEAM_BLUE:
+				GiveActorInventory(TID_PLAYER+plynum, "BlueTeamItem", 1);
+				break;
+			case TEAM_RED:
+				GiveActorInventory(TID_PLAYER+plynum, "RedTeamItem", 1);
+				break;
+		}
+	}
+	
     // Enable wacky mod    
     if (game_wackymod != WACKYMOD_NONE && game_status != STATUS_WACKYMOD)
     {
         switch (game_wackymod)
         {
             case WACKYMOD_JUMP:
-                if (!player_haswackyscript[PlayerNumber()])
+                if (!player_haswackyscript[plynum])
                 {
                     ACS_NamedExecuteAlways("DoomWare_WackyMod_DoubleJump", 0);
-                    player_haswackyscript[PlayerNumber()] = true;
+                    player_haswackyscript[plynum] = true;
                 }
                 break;
             case WACKYMOD_FLIGHT:
@@ -2665,10 +2716,16 @@ function void Player_SetWackymod(int plynum) // Sets the wacky modifier on a pla
                 setplayerproperty(1, 1, PROP_SPEED);
                 break;
             case WACKYMOD_INVERT:
-                SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Speed, -1.0);
+                SetActorProperty(TID_PLAYER+plynum, APROP_Speed, -1.0);
                 break;
             case WACKYMOD_1HP:
-                SetActorProperty(TID_PLAYER+PlayerNumber(), APROP_Health, 1);
+                SetActorProperty(TID_PLAYER+plynum, APROP_Health, 1);
+                break;
+            case WACKYMOD_SPREAD:
+                GiveActorInventory(TID_PLAYER+plynum, "PowerSpread", 1);
+                break;
+            case WACKYMOD_RAGE:
+                GiveActorInventory(TID_PLAYER+plynum, "PowerDoubleFiringSpeed", 1);
                 break;
         }
     }    
@@ -2738,6 +2795,7 @@ function void Player_UnFreezeTotally(int who) // Totally unfreezes the player wi
 
 function void Give_Achievement(int plynum, int achievement) // Gives the player an achievement
 {
+	int active = ActivatorTID();
 	str name = "";
 	
 	if (!PlayerInGame(plynum))
@@ -2771,7 +2829,7 @@ function void Give_Achievement(int plynum, int achievement) // Gives the player 
         ACS_NamedExecuteAlways("DoomWare_AchievementLog", 0, plynum, name); // We can't do Log() serverside, so this is a workaround
 
         // Notify the achievement got received
-        SetActivator(TID_PLAYER+plynum);
+        SetActivatorToPlayer(plynum);
         SpawnSpotForced("ConfettiEffect", TID_PLAYER+plynum, 0, 0);
         SetFont("DW_FONT1");
         if (game_status != STATUS_NOTSTARTED && name != "")
@@ -2791,6 +2849,12 @@ function void Give_Achievement(int plynum, int achievement) // Gives the player 
             if (GetUserCvar(PlayerNumber(), "doomware_hudsounds"))
                 LocalAmbientSound("DoomWare/Achievement", 127);
         }
+		
+		// Reset the activator to prevent problems
+		if (active < TID_PLAYER)
+			SetActivator(0, AAPTR_NULL);
+		else
+			SetActivatorToPlayer(active-TID_PLAYER);
         
         // Give the achiever role if this person unlocked all the achievements
         if (data_achieve[plynum] == 0x3FFFF && data_role[plynum] != ROLE_BETA && data_role[plynum] != ROLE_BUU342)
@@ -3770,9 +3834,9 @@ script "DoomWare_WackyMod_DoubleJump" (void)
                                               DECORATE
 ===================================================================================================*/
 
-Script "DoomWare_Entity_MarkCleanup" (void) // ACS so that I can use it in DECORATE
+Script "DoomWare_Entity_MarkCleanup" (void) // Marks an entity for cleanup at round end. ACS so that I can use it in DECORATE
 {
-    Thing_ChangeTID (0, TID_REMOVE);
+    Thing_ChangeTID(0, TID_REMOVE);
 }
 
 Script "DoomWare_Entity_CheckCleanup" (void) // In case it missed the first cleanup
@@ -4100,9 +4164,12 @@ Script "DoomWare_Client_Minigame11" (void) // Survive (super Shotgun)
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame12" (void) // Blow Your Brains Out
+Script "DoomWare_Client_Minigame12" (void) // Blow/Don't Blow Your Brains Out
 {
-    minigame_instruction1[PlayerNumber()] = "Blow Your Brains Out";
+	if (minigame_wincondition1 == 0)
+		minigame_instruction1[PlayerNumber()] = "Blow Your Brains Out";
+	else
+		minigame_instruction1[PlayerNumber()] = "Don't Blow Your Brains Out";
 
     // Give the player a suicide pistol
     GiveInventory("Suicide", 1);
@@ -4333,7 +4400,7 @@ Script "DoomWare_Client_Minigame22" (void) // Collect 10 Rings
     // Prevent a bug where some player's won't teleport after morphing
     delay(1);
 
-    // Morph the player into massmouth and give him the Ray Gun
+    // Morph the player into Sonic
     str class = "SonicPlayer";
     while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
     {
@@ -4357,13 +4424,16 @@ Script "DoomWare_Client_Minigame22" (void) // Collect 10 Rings
     UnMorphActor(TID_PLAYER+PlayerNumber(), true);
 }
 
-Script "DoomWare_Client_Minigame23" (void) // Stay Off The Ground
+Script "DoomWare_Client_Minigame23" (void) // Stay Off/On The Ground
 {
-    minigame_instruction1[PlayerNumber()] = "Stay Off The Ground";
+	if (minigame_wincondition1 == 0)
+		minigame_instruction1[PlayerNumber()] = "Stay Off The Ground";
+	else
+		minigame_instruction1[PlayerNumber()] = "Stay On The Ground";
 
     // Make the players invincible and give them a rocket launcher
-    GiveInventory("RocketLauncher", 2);
-    SetWeapon("RocketLauncher");
+    GiveInventory("RocketLauncher2", 2);
+    SetWeapon("RocketLauncher2");
     setplayerproperty(1, 2, prop_invulnerability);
 
     // Wait until the game's over
@@ -4371,14 +4441,20 @@ Script "DoomWare_Client_Minigame23" (void) // Stay Off The Ground
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame24" (void) // Stay On The Ground
+Script "DoomWare_Client_Minigame24" (void) // Grab a balloon
 {
-    minigame_instruction1[PlayerNumber()] = "Stay On The Ground";
+    minigame_instruction1[PlayerNumber()] = "Grab a balloon";
+	
+    // Prevent a bug where some player's won't teleport after morphing
+    delay(1);
 
-    // Make the players invincible and give them a rocket launcher
-    GiveInventory("RocketLauncher", 2);
-    SetWeapon("RocketLauncher");
-    setplayerproperty(1, 2, prop_invulnerability);
+    // Morph the player into Spider-Man
+    str class = "SpiderManPlayer";
+    while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
+    {
+        Player_Morph(PlayerNumber(), class);
+        delay(1);
+    }
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -4715,9 +4791,9 @@ Script "DoomWare_Client_Minigame42" (void) // Survive (Rockets)
     minigame_instruction1[PlayerNumber()] = "Survive";
 
     // Give the player a rocket launcher and make him invulnerable
-    GiveInventory("RocketLauncher", 2);
+    GiveInventory("RocketLauncher2", 2);
     GiveInventory("RocketBox", 20);
-    SetWeapon("RocketLauncher");
+    SetWeapon("RocketLauncher2");
     delay(10); // To prevent losing invulnerability during teleportation
     setplayerproperty(1, 2, prop_invulnerability);
 
@@ -4726,13 +4802,20 @@ Script "DoomWare_Client_Minigame42" (void) // Survive (Rockets)
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame43" (void) // Don't Blow Your Brains Out
+Script "DoomWare_Client_Minigame43" (void) // Zorch a Flemoid
 {
-    minigame_instruction1[PlayerNumber()] = "Don't Blow Your Brains Out";
+    minigame_instruction1[PlayerNumber()] = "Zorch a Flemoid";
 
-    // Give the player a suicide pistol
-    GiveInventory("Suicide", 1);
-    SetWeapon("Suicide");
+    // Prevent a bug where some player's won't teleport after morphing
+    delay(1);
+
+    // Morph the player into Spider-Man
+    str class = "FredPlayer";
+    while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
+    {
+        Player_Morph(PlayerNumber(), class);
+        delay(1);
+    }
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -5681,7 +5764,7 @@ Script "DoomWare_Client_Minigame82" (void) // Whack a Diglett
         delay(1);
 }
 
-Script "DoomWare_Client_Minigame83" (void) // Charge your Lazor
+Script "DoomWare_Client_Minigame83" (void) // Charge your Laz0r
 {
     minigame_instruction1[PlayerNumber()] = "Charge your Laz0r";
     minigame_instruction2[PlayerNumber()] = "Spam \cdshoot\cg. 1 Point Per Frag";
@@ -5779,6 +5862,8 @@ Script "DoomWare_Client_Minigame85" (void) // Survive (Time Freeze)
     // Give players a grenade launcher
     GiveInventory("GrenadeLauncher", 1);
     SetWeapon("GrenadeLauncher");
+	TakeInventory("RocketAmmo", 999);
+	GiveInventory("RocketAmmo", 5);
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
@@ -5827,8 +5912,7 @@ Script "DoomWare_Client_Minigame88" (void) // Choose a side
     Force_Observe(898);
 
     // Invert the player's controls and make him unable to jump
-    if (game_wackymod != WACKYMOD_INVERT)
-        SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
+	SetActorProperty(0, APROP_Speed, -GetActorProperty(0, APROP_Speed));
     SetActorProperty(0 ,APROP_JumpZ, 0<<16);
 
     // Wait until the game's over
@@ -6505,6 +6589,7 @@ Script "DoomWare_Server_Minigame6" (void) // Reach the End (Corridor 7)
 
 Script "DoomWare_Server_Minigame7" (void) // Kill Ned Flanders
 {
+	round_noforceend = true;
     hudmessage(s:"Kill Ned Flanders";HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
     SetMusic("D_SIMPSN");
 
@@ -6620,11 +6705,13 @@ Script "DoomWare_Server_Minigame11" (void) // Survive (super Shotgun)
     while (minigame_timer != TIMER_OFF);
 }
 
-Script "DoomWare_Server_Minigame12" (void) // Blow Your Brains Out
+Script "DoomWare_Server_Minigame12" (void) // Blow/Don't Blow Your Brains Out
 {
-    HUDMessage(s:"Blow Your Brains Out"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    HUDMessage(s:"Blow/Don't Blow Your Brains Out"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
     SetMusic("d_rave");
-    round_winifsuicide = true;
+	minigame_wincondition1 = random(0, 1);
+	if (minigame_wincondition1 == 0)
+		round_winifsuicide = true;
 
     // Start a timer
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(5*game_speed));
@@ -6920,45 +7007,130 @@ Script "DoomWare_Server_Minigame22" (void) // Collect 10 Rings
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
-Script "DoomWare_Server_Minigame23" (void) // Stay Off The Ground
+Script "DoomWare_Server_Minigame23" (void) // Stay Off/On The Ground
 {
     int time;
-    hudmessage(s:"Stay Off The Ground"; HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
+    hudmessage(s:"Stay Off/On The Ground"; HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
     SetMusic("D_ground");
     round_winifmid = true;
+	minigame_wincondition1 = random(0, 1);
     delay(SECOND+20 - (2*game_speed));
 
-    // Horribly maim anyone who is on the floor
+    // Horribly maim anyone who is on/off the floor (based on the value of minigame_wincondition1)
     time = 15;
     while (time > 0)
     {
         time--;
         for (int i=0; i<MAXPLAYERS; i++)
-            if ((GetActorZ(TID_PLAYER+i)>>16) < 11)
+            if ((minigame_wincondition1 == 0 && (GetActorZ(TID_PLAYER+i)>>16) < 11) || (minigame_wincondition1 == 1 && (GetActorZ(TID_PLAYER+i)>>16) > 11))
                 thing_damage(TID_PLAYER+i, 10000000, MOD_BARREL);
         delay(1);
     }
     delay(20);
 }
 
-Script "DoomWare_Server_Minigame24" (void) // Stay On The Ground
+Script "DoomWare_Server_Minigame24" (void) // Grab a balloon
 {
-    int time;
-    hudmessage(s:"Stay On The Ground"; HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
-    SetMusic("D_ground");
-    round_winifmid = true;
-    delay(SECOND+20 - (2*game_speed));
+	int i;
+    hudmessage(s:"Grab a balloon"; HUDMSG_LOG, MSGID_CONSOLE, cr_black, 2.0, 2.0, 0);
+    SetMusic("D_SPDRMN");
+	
+	// Spawn balloons based on the number of players
+	switch(PlayerCount())
+	{
+		default:
+			SpawnSpotForced("YellowBalloon", 993, TID_REMOVE, 0.0);
+		case 14:
+		case 13:
+			SpawnSpotForced("RedBalloon", 992, TID_REMOVE, 0.0);
+		case 12:
+		case 11:
+			SpawnSpotForced("GreenBalloon", 991, TID_REMOVE, 0.0);
+		case 10:
+		case 9:
+			SpawnSpotForced("BlueBalloon", 990, TID_REMOVE, 0.0);
+		case 8:
+		case 7:
+			SpawnSpotForced("YellowBalloon", 989, TID_REMOVE, 0.0);
+		case 6:
+		case 5:
+			SpawnSpotForced("RedBalloon", 988, TID_REMOVE, 0.0);
+		case 4:
+		case 3:
+			SpawnSpotForced("GreenBalloon", 987, TID_REMOVE, 0.0);
+		case 2:
+		case 1:
+			SpawnSpotForced("BlueBalloon", 986, TID_REMOVE, 0.0);
+			break;
+	}
 
-    // Horribly maim anyone who is off the floor
-    time = SECOND;
-    while (time > 0)
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 703, true, true);
+
+    // Start the timer
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*6-(20*game_speed));
+
+    // Check for winners
+    do
     {
-        time--;
-        for (int i=0; i<MAXPLAYERS; i++)
-            if ((GetActorZ(TID_PLAYER+i)>>16) > 11)
-                thing_damage(TID_PLAYER+i, 10000000, MOD_BARREL);
+        for (i=0; i<MAXPLAYERS; i++)
+		{
+			int plytid = TID_PLAYER+i;
+			
+			// If this player isn't in the game, skip them
+			if (!PlayerInGame(i))
+				continue;
+				
+			// If this player hasn't won yet
+			if (!Check_Player_Won(i))
+			{
+				str tocheck = "BlueBalloon";
+				
+				// Use a for loop to check all the different balloon types
+				for (int j=0; j<4; j++)
+				{
+					// Use a switch since we can't use temporary arrays
+					switch (j)
+					{
+						case 1:
+							tocheck = "GreenBalloon";
+							break;
+						case 2:
+							tocheck = "RedBalloon";
+							break;
+						case 3:
+							tocheck = "YellowBalloon";
+							break;
+					}
+					
+					// If the player has a balloon, then win and spawn a fake balloon
+					if (CheckActorInventory(plytid, tocheck))
+					{
+						Player_Win(i);
+						SetActorProperty(plytid, APROP_Gravity, -0.2);
+						SpawnSpotForced(StrParam(s:tocheck, s:"Still"), plytid, TID_REMOVE+(i+1), 0.0);
+						break;
+					}
+				}
+			}
+			
+			// If a fake balloon exists for this player, move it to their position
+			if (ThingCount(0, TID_REMOVE+(i+1)) > 0);
+				SetActorPosition(TID_REMOVE+(i+1), GetActorX(plytid), GetActorY(plytid), GetActorZ(plytid)+16.0, 0);
+		}
         delay(1);
     }
+    while (minigame_timer != TIMER_OFF);
+
+	// Remove all the balloons and reset player gravities
+	for (i=0; i<MAXPLAYERS; i++)
+	{
+		SetActorProperty(i, APROP_Gravity, 1.0);
+		Thing_Remove(TID_REMOVE+(i+1));
+	}
+	
+    // Move the players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame25" (void) // Shoot the Target (Popup)
@@ -7614,14 +7786,30 @@ Script "DoomWare_Server_Minigame42" (void) // Survive (Rockets)
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
-Script "DoomWare_Server_Minigame43" (void) // Don't Blow Your Brains Out
+Script "DoomWare_Server_Minigame43" (void) // Zorch a Flemoid
 {
-    HUDMessage(s:"Don't Blow Your Brains Out"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
-    SetMusic("d_rave");
-    round_winifmid = true;
+    HUDMessage(s:"Zorch a Flemoid"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_Chex");
+	
+	// Spawn the Flemoid invaders
+	SpawnSpotFacingForced("Flemoid", 995, TID_REMOVE);
 
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 994, true, true);
+	
     // Start a timer
-    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(5*game_speed));
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*10-(10*game_speed));
+	
+    // Check for winners
+    do
+    {
+        Check_WonRoundItem();
+        delay(1);
+    }
+    while (minigame_timer != TIMER_OFF);
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame44" (void) // Reach the End (Void)
@@ -9329,8 +9517,8 @@ Script "DoomWare_Server_Minigame88" (void) // Choose a side
         // If two seconds are left
         if (minigame_timer < SECOND*2 && shifted == 0)
         {
-            int side1count = ThingCountNameSector("DoomPlayer", 0, 837);
-            int side2count = ThingCountNameSector("DoomPlayer", 0, 836);
+            int side1count = ThingCountNameSector("DoomPlayer", 0, 837)+ThingCountNameSector("DoomPlayer", 0, 688);
+            int side2count = ThingCountNameSector("DoomPlayer", 0, 836)+ThingCountNameSector("DoomPlayer", 0, 690);
             
             if (side1count > side2count)
             {
@@ -9631,7 +9819,7 @@ Script "DoomWare_Server_TieBreaker3" (void) // Barrels 1v1
 
     // Check for winners
     do
-    {
+    {		
         if (player_lostround[game_highnames[0]])
         {
             Player_Win(game_highnames[1]);

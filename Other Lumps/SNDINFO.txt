@@ -135,6 +135,29 @@ $playersound	cfalcon	male	*gibbed		DSCFXDTH
 $playersound	cfalcon	female	*gibbed		DSCFXDTH
 $playersound	cfalcon	other	*gibbed		DSCFXDTH
 
+$playersound	SpiderMan	male	*taunt		DSSMTAUN
+$playersound	SpiderMan	male	*usefail	DSSMUSEF
+$playersound	SpiderMan	male	*death		DSSMDETH
+$playersound	SpiderMan	male	*xdeath		DSSMDETH
+$playersound	SpiderMan	male	*jump		DSSMJUMP
+$playersound	SpiderMan	female	*taunt		DSSMTAUN
+$playersound	SpiderMan	female	*usefail	DSSMUSEF
+$playersound	SpiderMan	female	*death		DSSMDETH
+$playersound	SpiderMan	female	*xdeath		DSSMDETH
+$playersound	SpiderMan	female	*jump		DSSMJUMP
+$playersound	SpiderMan	other	*taunt		DSSMTAUN
+$playersound	SpiderMan	other	*usefail	DSSMUSEF
+$playersound	SpiderMan	other	*death		DSSMDETH
+$playersound	SpiderMan	other	*xdeath		DSSMDETH
+$playersound	SpiderMan	other	*jump		DSSMJUMP
+
+$playersound	FredChexter	male	*taunt		DSFREDTA
+$playersound	FredChexter	male	*usefail	DSFREDNO
+$playersound	FredChexter	female	*taunt		DSFREDTA
+$playersound	FredChexter	female	*usefail	DSFREDNO
+$playersound	FredChexter	other	*taunt		DSFREDTA
+$playersound	FredChexter	other	*usefail	DSFREDNO
+
 
 chicken/death	CHICDTH
 
@@ -406,6 +429,21 @@ DoomWare/BookCase1				DSBOOKC1
 DoomWare/BookCase2				DSBOOKC2
 DoomWare/BookCase3				DSBOOKC3
 
+DoomWare/Zorcher				DSZORCHR
+DoomWare/ChexDoorOpen			DSCQDROP
+DoomWare/ChexDoorClose			DSCQDRCL
+
+DoomWare/FlemoidActive			DSFLEMAC
+DoomWare/FlemoidDie1			DSFLEMD1
+DoomWare/FlemoidDie2			DSFLEMD2
+DoomWare/FlemoidDie3			DSFLEMD3
+DoomWare/FlemoidPain			DSFLEMPA
+DoomWare/FlemoidSight1			DSFLEMS1
+DoomWare/FlemoidSight2			DSFLEMS2
+DoomWare/FlemoidSight3			DSFLEMS3
+DoomWare/FlemoidSight4			DSFLEMS4
+$random DoomWare/FlemoidSight { DoomWare/FlemoidSight1 DoomWare/FlemoidSight2 DoomWare/FlemoidSight3 DoomWare/FlemoidSight4 }
+$random DoomWare/FlemoidDie { DoomWare/FlemoidDie1 DoomWare/FlemoidDie2 DoomWare/FlemoidDie3 }
 
 // Buu342 Sounds
 

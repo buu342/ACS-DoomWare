@@ -82,6 +82,11 @@ object WhitePoint
     frame TNT1A { light WHITEPOINT }
 }
 
+object ChexLamp
+{
+    frame CQLTA { light WHITEPOINT }
+}
+
 brightmap texture C7CONSL1 { map C7CONSLB }
 brightmap texture C7CONSL2 { map C7CONSLB }
 brightmap texture C7CONSL3 { map C7CONSLB }

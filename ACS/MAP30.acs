@@ -197,6 +197,8 @@
 #define CHATSOUND_MSG  1
 #define CHATSOUND_CON  2
 
+#define BUU342NAME "\cqB\csu\cdu\cq3\cs4\cd2\c-"
+
 
 // Menu Text
 
@@ -321,14 +323,14 @@ script "DoomWare_Server_Boot" OPEN
     for (i=0; i<MAXPLAYERS; i++)
     {
         str plyname = StrParam(n:(i+1));
-        if (!strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
+        if (!strcmp(plyname, BUU342NAME))
             buuingame = true;
     }
     
     // If he isn't, connect him to the game
     if (!buuingame)
     {
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- has connected. (from: pt)", CHATSOUND_CON);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" has connected. (from: pt)"), CHATSOUND_CON);
         Delay(SECOND*2);
     }
     
@@ -336,31 +338,31 @@ script "DoomWare_Server_Boot" OPEN
     switch (random(1, 7))
     {
         case 1:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I hope you've made your prayers.", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I hope you've made your prayers."), CHATSOUND_MSG);
             break;
         case 2:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Killing you all is my favorite part.", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Killing you all is my favorite part."), CHATSOUND_MSG);
             break;
         case 3:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Hopefully you prepared new pants!", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Hopefully you prepared new pants!"), CHATSOUND_MSG);
             break;
         case 4:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Let's get it started in here.", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Let's get it started in here."), CHATSOUND_MSG);
             break;
         case 5:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Now it's my turn.", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Now it's my turn."), CHATSOUND_MSG);
             break;
         case 6:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you know: You're going to die.", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Did you know: You're going to die."), CHATSOUND_MSG);
             break;
         case 7:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'm curious how long you'll last.", CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I'm curious how long you'll last."), CHATSOUND_MSG);
             break;
     }
     delay(SECOND);
     
     // Make buu342 join the game
-    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the game.", CHATSOUND_NONE);
+    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" joined the game."), CHATSOUND_NONE);
     SpawnSpotForced("Buu342Phase1", 1, TID_BUU342, 192);
     SpawnSpotForced("TeleportFog", 1, 0, 0.25);
     Thing_Deactivate(TID_BUU342);
@@ -608,9 +610,9 @@ Script "DoomWare_Server_GameLogic" (void)
         delay(SECOND*3);
         
         // Make buu342 say some more edgy things
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Did you really think it'd be that easy?", CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Did you really think it'd be that easy?"), CHATSOUND_MSG);
         delay(SECOND*3);
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: This is just the beginning.", CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: This is just the beginning."), CHATSOUND_MSG);
         delay(SECOND*3);
         
         // Start the floor shake
@@ -663,13 +665,13 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: you FOOLS! This is MY WAD, MY GAMEMODE.", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: you FOOLS! This is MY WAD, MY GAMEMODE."), CHATSOUND_MSG);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'M THE ONE IN CONTROL HERE. WATCH!", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I'M THE ONE IN CONTROL HERE. WATCH!"), CHATSOUND_MSG);
                     delay(SECOND*3);
                     ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"", CHATSOUND_NONE);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Lets see how good you are at DoomWare!", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Lets see how good you are at DoomWare!"), CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -680,7 +682,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're a persistent bunch. Lets try this then.", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: You're a persistent bunch. Lets try this then."), CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -691,7 +693,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Gosh, you're annoying. How about this?", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Gosh, you're annoying. How about this?"), CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -702,7 +704,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Why won't you die already!?", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Why won't you die already!?"), CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -713,7 +715,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: fuckfuckfuckfuck!!!!!", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: fuckfuckfuckfuck!!!!!"), CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -726,15 +728,15 @@ Script "DoomWare_Server_GameLogic" (void)
                     game_status = STATUS_PHASE2OVER;
                     SetMusic("D_WRAPDR");
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I"), CHATSOUND_MSG);
                     delay(SECOND);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: WONT", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: WONT"), CHATSOUND_MSG);
                     delay(SECOND);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: FUCKING", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: FUCKING"), CHATSOUND_MSG);
                     delay(SECOND);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: LOSE!!!!!!!!!!!!!!!", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: LOSE!!!!!!!!!!!!!!!"), CHATSOUND_MSG);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: You might survive this next one, but you won't what comes after!", CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: You might survive this next one, but you won't what comes after!"), CHATSOUND_MSG);
                     delay(SECOND*3);
                     round_nextgame = random(SECOND*5, SECOND*8);
                 }
@@ -821,10 +823,10 @@ Script "DoomWare_Server_GameLogic" (void)
         
         // Say the last words
         AmbientSound("misc/chat", 127);
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Heh, looks like you really are...", CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Heh, looks like you really are..."), CHATSOUND_MSG);
         Delay(SECOND*2);
         AmbientSound("misc/chat", 127);
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Too strong...", CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Too strong..."), CHATSOUND_MSG);
         Delay(SECOND*2);
         Radius_Quake(3, SECOND*7, 0, 255, 1);
         
@@ -842,15 +844,15 @@ Script "DoomWare_Server_GameLogic" (void)
         for (i=0; i<MAXPLAYERS; i++)
         {
             plyname = StrParam(n:i);
-            if (strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
+            if (strcmp(plyname, BUU342NAME))
                 buuingame = true;
         }
         
         // If he isn't, disconnect him from the game
         if (!buuingame)
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.", CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:"Client ", s:BUU342NAME, s:" disconnected."), CHATSOUND_NONE);
         else
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.", CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" joined the spectators."), CHATSOUND_NONE);
         thing_remove(TID_BUU3422);
         Delay(SECOND*3);
         
@@ -895,25 +897,25 @@ Script "DoomWare_Server_GameLogic" (void)
         switch(random(1, 7))
         {
             case 2:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Try a little harder next time", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Try a little harder next time"), CHATSOUND_MSG);
                 break;
             case 3:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Pathetic", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Pathetic"), CHATSOUND_MSG);
                 break;
             case 4:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Whoops, looks like I accidentally obliterated you", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Whoops, looks like I accidentally obliterated you"), CHATSOUND_MSG);
                 break;
             case 5:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: I'll call next time I want to be tickled", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I'll call next time I want to be tickled"), CHATSOUND_MSG);
                 break;
             case 6:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Maybe try hurting me next time", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Maybe try hurting me next time"), CHATSOUND_MSG);
                 break;
             case 7:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: Maybe if you use IDDQD, you'll actually do some damage", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Maybe if you use IDDQD, you'll actually do some damage"), CHATSOUND_MSG);
                 break;
             default:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\cd: You're crazier than me if you thought you stood a chance", CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: You're crazier than me if you thought you stood a chance"), CHATSOUND_MSG);
                 break;
         }
         delay(SECOND*2);
@@ -922,15 +924,15 @@ Script "DoomWare_Server_GameLogic" (void)
         for (i=0; i<MAXPLAYERS; i++)
         {
             plyname = StrParam(n:i);
-            if (strcmp(plyname, "\cqB\csu\cdu\cq3\cs4\cd2\c-"))
+            if (strcmp(plyname, BUU342NAME))
                 buuingame = true;
         }
         
         // If he isn't, disconnect him from the game
         if (!buuingame)
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.", CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:"Client ", s:BUU342NAME, s:" disconnected."), CHATSOUND_NONE);
         else
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.", CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" joined the spectators."), CHATSOUND_NONE);
         thing_remove(TID_BUU342);
         thing_remove(TID_BUU3422);
         delay(SECOND*2);
@@ -1533,7 +1535,7 @@ Script "DoomWare_Client_GameLogic" (void)
     while (game_status == STATUS_PHASE1 || game_status == STATUS_PHASE2 || game_status == STATUS_PHASE2OVER || game_status == STATUS_PHASE3)
     {
         if (ClassifyActor(TID_BUU3422)&ACTOR_ALIVE)
-            minigame_instruction1[PlayerNumber()] = "Kill \cqB\csu\cdu\cq3\cs4\cd2\c-";
+            minigame_instruction1[PlayerNumber()] = StrParam(s:"Kill ", s:BUU342NAME);
         else
             minigame_instruction1[PlayerNumber()] = "";
             
@@ -2134,7 +2136,7 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
         SetFont("DW_FONT4");
         if (syncdata_gamestatus == STATUS_NOTSTARTED) // State that we're waiting for Buu342
         {
-            HUDMessage(s:"Waiting for \cqB\csu\cdu\cq3\cs4\cd2\c-"; HUDMSG_PLAIN, MSGID_CENTER, CR_PURPLE, w/2, FixedMul(h, 0.25), 1);
+            HUDMessage(s:"Waiting for ", s:BUU342NAME; HUDMSG_PLAIN, MSGID_CENTER, CR_PURPLE, w/2, FixedMul(h, 0.25), 1);
         }
         else if (syncdata_gamestatus == STATUS_STARTING) // We're ready to go
         {
@@ -2152,7 +2154,7 @@ Script "DoomWare_Client_DrawHUD" (int plynumhud) CLIENTSIDE
             switch (syncdata_gameover)
             {
                 case OVER_WINNER:
-                    HUDMessage(s:"\n\nYou beat \cqB\csu\cdu\cq3\cs4\cd2\c-!"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 0.3, 1);
+                    HUDMessage(s:"\n\nYou beat ", s:BUU342NAME, s:"!"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 0.3, 1);
                     break;
                 case OVER_FORCED:
                     HUDMessage(s:"\n\nThe game was forcefully ended"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
