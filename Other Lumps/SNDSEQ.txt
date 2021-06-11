@@ -10,3 +10,21 @@ end
 	playrepeat	DoomWare/BookCase2
 	stopsound	DoomWare/BookCase3
 end
+
+:ChexDoorOpen
+	play		DoomWare/ChexDoorOpen
+	nostopcutoff
+end
+
+:ChexDoorClose
+	play		DoomWare/ChexDoorClose
+	nostopcutoff
+end
+
+[ChexDoor
+	door	3
+	0      	ChexDoorOpen
+	1      	ChexDoorClose
+	2      	ChexDoorOpen
+	3      	ChexDoorClose
+]

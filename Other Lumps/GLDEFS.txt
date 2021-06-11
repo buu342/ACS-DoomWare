@@ -101,3 +101,8 @@ brightmap texture C7MONIT3 { map C7MONIB3 }
 brightmap texture C7MONIT4 { map C7MONIB4 }
 brightmap texture C7MONIT5 { map C7MONIB5 }
 
+brightmap texture FEARVEN1 { map FEARVEB1 }
+brightmap texture FEARVEN2 { map FEARVEB2 }
+brightmap texture FEARPANL { map FEARPANB }
+brightmap texture FEARCONS { map FEARCONB }
+brightmap texture FEARAD4  { map FEARAD4B }

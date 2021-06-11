@@ -1,0 +1,28 @@
+generator CoopShotgun		BulletChip
+generator CoopChaingun		BulletChip
+generator SimpsonsShotgun	BulletChip
+generator RailGun			BulletChip
+generator Rocket2			Scorch
+generator Rocket2Red		Scorch
+generator Rocket2Blue		Scorch
+generator DWGrenade			Scorch
+generator DWGrenadeBlue		Scorch
+generator DWGrenadeRed		Scorch
+generator SnowSpeederBlast	Scorch
+generator SnowSpeederWeapon	Scorch
+generator BowArrow			BulletChip
+generator ArrowShot			BulletChip
+generator Laz0r				Scorch
+generator C7Gun				BulletChip
+generator FearSPAS12		RevenantScorch
+generator FearBullet		RevenantScorch
+
+generator DickShot			Scorch
+generator FlandersBall		DoomImpScorch
+generator ATSTBlast			Scorch
+generator HothTurretBlast	Scorch
+generator Buu342BallBouncer	Scorch
+generator DelayedExplosion	Scorch
+generator FearExtinguisher	Scorch
+
+generator FearBlood			BloodSmear

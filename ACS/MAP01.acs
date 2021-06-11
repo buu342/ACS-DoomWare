@@ -31,7 +31,7 @@
 
 // Game selection
 
-#define NUMBEROFGAMES        93 // Number Of minigames
+#define NUMBEROFGAMES        95 // Number Of minigames
 #define NUMBEROFTIEBREAKERS  3  // Number Of 1v1 Tie Breakers
 #define NUMBEROFTIEBREAKERSM 3  // Number Of Non-1v1 Tie Breakers
 #define NUMBEROFWACKYMODS    10 // Number of wacky mods
@@ -298,29 +298,19 @@ achievemnts will not be tracked.\
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.9675C\n\
+Version Beta 1.9675D\n\
 What's new in the Beta?\n\n\
-+ Added 'Survive (Rockets)' and 'Charge your Laz0r' to solo banlist\n\
-+ Added Runescape blood splat\n\
-+ Added two new wacky modifiers\n\
-+ Added two new minigames to replace two merged games\n\
-* Allowed 1v1 tiebreaker games in team games with 2 players\n\
-* Buffed turkey slightly and fixed sound cutoff\n\
-* Changed basketballs to rip through players\n\
-* Color coded projectiles in team games\n\
-* Fixed a bug where activators would get changed mid script\n\
-* Fixed choose a side minigame not counting middle people\n\
-* Fixed choose a side minigame not inverting controls\n\
-* Fixed long-standing spelling mistake\n\
-* Fixed random number hint not generating properly\n\
-* Fixed wrong teleport TID on Bit Trip game\n\
-* Gave Falcon Punch more forward momentum\n\
-* Improved Boss battle string code\n\
-* Made the explosive barrels shorter in Bit Trip arena\n\
-* Made Flame objects' sound last longer\n\
-* Made Flanders minigame not forcibly end\n\
-- Removed aim lock from pushing stick\n\
-- Removed team marker sprite\n\
++ Added 2 new minigames\n\
++ Added decals for all DECORATE entities\n\
+* Finished decorating Chex arena\n\
+* Fixed 'Choose a Side' game not counting Buu342\n\
+* Fixed 'Don't Blow your Brains' being impossible\n\
+* Fixed missing skybox picker in hell deathmatch\n\
+* Fixed players being able to hurt each other in Chex minigame\n\
+* Fixed players not unmorphing after Chex minigame\n\
+* Fixed Rage Rune messing with Kart speed\n\
+* Made Fred Chexter's color translations work\n\
+* Moved Colossus 1UP\n\
 "
 
 
@@ -542,6 +532,10 @@ Script "DoomWare_Server_InitMap" (void) // Initializes the map
 	Ceiling_Waggle(939, 32, 64, 64, 0);
 	delay(10);
 	Ceiling_Waggle(962, 32, 64, 64, 0);
+	
+	// FEAR Map Glass special
+	for (i=29; i<=37; i++)
+		SetLineSpecial(i, 226, 240, 0, i);
 
     Ceiling_Waggle(109, 32, 64, 0, 0);
     Floor_Waggle(133, 32, 64, 0, 0);
@@ -658,7 +652,7 @@ Script "DoomWare_Server_InitMap" (void) // Initializes the map
     }
 }
 
-#define NUMBEROFHINTS 91
+#define NUMBEROFHINTS 93
 str temp_hint[NUMBEROFHINTS];
 Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to display during speedup
 {
@@ -721,7 +715,7 @@ Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to di
     temp_hint[56] = "Doom 3 is fun.";
     temp_hint[57] = "Still trying to figure out why the Major was a cyborg.";
     temp_hint[58] = "I finished Super Sonic Doom with a score of 2,282,450.";
-    temp_hint[59] = "I beat Dark Souls 1 and 2.";
+    temp_hint[59] = "Pushing people doesn't give points, you're just being an asshole.";
     temp_hint[60] = "Keikaku means plan.";
     temp_hint[61] = "*insert movie reference here*";
     temp_hint[62] = "Achievement Get!";
@@ -754,6 +748,8 @@ Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to di
     temp_hint[88] = "It's ok, Marphy Black isn't here, he can't hurt you.";
     temp_hint[89] = "I tried to sneak through the door man! Can't make it, can't make it, the shit's stuck!";
     temp_hint[90] = "I seem to be wounded, but I can keep going";
+	temp_hint[91] = "<Controversial Opinion about Star Wars Here>";
+	temp_hint[92] = "Node Graph Out of Date. Rebuilding...";
     
     // Shuffle the array of hints
     int i, j, k;
@@ -1060,6 +1056,13 @@ Script "DoomWare_Client_Initialize" (void) // Initializes variables related to t
     // Fail the player for this round if they joined late
     if (game_status == STATUS_MINIGAME || game_status == STATUS_TIEBREAK || game_status == STATUS_TIEBREAKM)
         Player_Lose(PlayerNumber(), true);
+}
+
+Script "DoomWare_Client_InitializeMap" ENTER CLIENTSIDE // Initializes some map things CLIENTSIDE
+{
+	// Make the glass in the F.E.A.R. minigame translucent
+	for (int i=29; i<=37; i++)
+		TranslucentLine(i, 128, 0);	
 }
 
 
@@ -3818,7 +3821,7 @@ script "DoomWare_WackyMod_DoubleJump" (void)
                 // Double jump if the counter is 2
                 if (counter == 2)
                 {
-                    ThrustThingZ(0, 40, 0, 0);
+					ThrustThingZ(0, FixedMul(GetActorProperty(TID_PLAYER+PlayerNumber(), APROP_JumpZ), 5.0) >> 16, 0, 0);
                     SpawnSpotForced("GrenadeSmokeTrail", TID_PLAYER+PlayerNumber(), 0, 0);
                     PlaySound(TID_PLAYER+PlayerNumber(), "skeleton/swing");
                 }
@@ -3949,6 +3952,13 @@ function int Max(int a, int b) // Returns the largest number
     if (a > b)
         return a;
     return b;
+}
+
+function int Abs(int n) // Returns absolute value
+{
+	if (n < 0)
+		return -n;
+	return n;
 }
 
 function int AToI(str s) // Converts a string to an integer
@@ -4809,17 +4819,21 @@ Script "DoomWare_Client_Minigame43" (void) // Zorch a Flemoid
     // Prevent a bug where some player's won't teleport after morphing
     delay(1);
 
-    // Morph the player into Spider-Man
+    // Morph the player into Fred Chexter and make them invulnerable
     str class = "FredPlayer";
     while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
     {
         Player_Morph(PlayerNumber(), class);
         delay(1);
     }
+    setplayerproperty(1, 2, prop_invulnerability);
 
     // Wait until the game's over
     while (game_status == STATUS_MINIGAME)
         delay(1);
+
+    // Set him back to normal
+    UnMorphActor(TID_PLAYER+PlayerNumber(), true);
 }
 
 Script "DoomWare_Client_Minigame44" (void) // Reach the End (Void)
@@ -6015,6 +6029,39 @@ Script "DoomWare_Client_Minigame93" (void) // Choose a source port
     }
 }
 
+Script "DoomWare_Client_Minigame94" (void) // Survive (Meteors)
+{
+    minigame_instruction1[PlayerNumber()] = "Survive";
+
+    // Wait until the minigame is over
+    while (game_status == STATUS_MINIGAME)
+        delay(1);
+}
+
+Script "DoomWare_Client_Minigame95" (void) // Survive (F.E.A.R. Deathmatch)
+{
+    minigame_instruction1[PlayerNumber()] = "Survive";
+    minigame_instruction2[PlayerNumber()] = "1 Point Per Frag";
+	
+	// Morph the player into a Replica Soldier
+    str class = "ReplicaPlayer";
+    while (StrCmp(GetActorClass(TID_PLAYER+PlayerNumber()), class) != 0)
+    {
+        Player_Morph(PlayerNumber(), class);
+        delay(1);
+    }
+	
+	// Play a slow mo sound
+	LocalAmbientSound("DoomWare/SlowMo", 127);
+
+    // Wait until the game's over
+    while (game_status == STATUS_MINIGAME)
+        delay(1);
+        
+    // Unmorph the player
+    UnMorphActor(TID_PLAYER+PlayerNumber(), true);
+}
+
 
 /*===================================================================================================
                                     1v1 TieBreakers (Clientside)
@@ -6712,6 +6759,8 @@ Script "DoomWare_Server_Minigame12" (void) // Blow/Don't Blow Your Brains Out
 	minigame_wincondition1 = random(0, 1);
 	if (minigame_wincondition1 == 0)
 		round_winifsuicide = true;
+	else
+		round_winifmid = true;
 
     // Start a timer
     ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*2-(5*game_speed));
@@ -7068,7 +7117,7 @@ Script "DoomWare_Server_Minigame24" (void) // Grab a balloon
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 703, true, true);
 
     // Start the timer
-    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*6-(20*game_speed));
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*7-(20*game_speed));
 
     // Check for winners
     do
@@ -7262,7 +7311,7 @@ Script "DoomWare_Server_Minigame29" (void) // Duck Hunt
     SetMusic("D_duck");
 
     // Move all the players to the arena
-    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 66, true, true);
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 996, true, true);
 
     // Spawn some birds to shoot
     SpawnSpotForced("Bird1", 126, TID_REMOVE, random(-180, 180));
@@ -8161,7 +8210,7 @@ Script "DoomWare_Server_Minigame52" (void) // Gib a Turkey
     while (minigame_timer != TIMER_OFF);
     
     // Teleport the players back to the main arena
-    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
 
 Script "DoomWare_Server_Minigame53" (void) // Drink
@@ -9519,6 +9568,8 @@ Script "DoomWare_Server_Minigame88" (void) // Choose a side
         {
             int side1count = ThingCountNameSector("DoomPlayer", 0, 837)+ThingCountNameSector("DoomPlayer", 0, 688);
             int side2count = ThingCountNameSector("DoomPlayer", 0, 836)+ThingCountNameSector("DoomPlayer", 0, 690);
+			side1count += ThingCountNameSector("Buu342Player", 0, 837)+ThingCountNameSector("Buu342Player", 0, 688);
+			side2count += ThingCountNameSector("Buu342Player", 0, 836)+ThingCountNameSector("Buu342Player", 0, 690);
             
             if (side1count > side2count)
             {
@@ -9743,6 +9794,73 @@ Script "DoomWare_Server_Minigame93" (void) // Choose a source port
     
     // Teleport the players back to the main arena
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, false);
+}
+
+Script "DoomWare_Server_Minigame94" (void) // Survive (Meteors)
+{
+    HUDMessage(s:"Survive (Meteors)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_RAGE");
+	round_winifmid = true;
+	
+	// Spawn a ton of meteors
+	for (int i=0; i<(25+game_speed*8); i++)
+	{
+		int x = random(-288, 288)<<16;
+		int y = random(-288, 288)<<16;
+		SpawnForced("Avoid", x, y, 0.0, TID_REMOVE, 0.0);
+		SpawnForced("Meteor", x, y, 220.0, 0, 0.0);
+		thing_destroy(TID_REMOVE, false, 0);
+		delay(2);
+	}
+	
+	// Wait a bit for the last one to crash
+	delay(SECOND*2);
+}
+
+Script "DoomWare_Server_Minigame95" (void) // Survive (F.E.A.R. Deathmatch)
+{
+	int i;
+    HUDMessage(s:"Survive (F.E.A.R. Deathmatch)"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_FEAR");
+    round_winifmid = true;
+    minigame_fragpoints = true;
+	minigame_wincondition1 = 0; // minigame_wincondition1 is being used as a bit mask for broken windows
+	Add_Observer(998);
+	Add_Observer(999);
+	Add_Observer(1019);
+
+	// Spawn some fire extinguishers to blow up
+    SpawnSpotForced("FearExtinguisher", 997, TID_REMOVE, 0);
+	
+    // Move all the players to the arena
+    ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 1020, false, true);
+
+    // Start the timer
+    ACS_NamedExecute("DoomWare_Server_GameWait", 0, SECOND*22+30-(10*game_speed));
+
+    // If there is only one player left, make him win to stop the timer
+    do
+    {
+        Check_LMS();
+        delay(1);
+    }
+    while (minigame_timer != TIMER_OFF);
+
+    // Return players back
+    ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
+	
+	// Fix any broken windows
+	for (i=0; i<9; i++)
+	{
+		if ((minigame_wincondition1 >> i) & 1)
+		{
+			int tag = 29+i;
+			minigame_wincondition1 &= ~(1 << i);
+			SetLineTexture(tag, SIDE_FRONT, TEXTURE_MIDDLE, "SHAWN2");
+			SetLineTexture(tag, SIDE_BACK, TEXTURE_MIDDLE, "SHAWN2");
+			Line_SetBlocking(tag, BLOCKF_EVERYTHING, 0);
+		}
+	}
 }
 
 
@@ -10374,5 +10492,42 @@ script 254 (int num) // Void floor platform popups
 			Floor_Waggle(976, 32, 64, 64, SECOND*10);
 			Floor_Waggle(979, 32, 64, 64, SECOND*10);
 		}
+	}
+}
+
+Script 240 (int tag) // Breakable glass in the FEAR minigame
+{
+	int t1, t2;
+	int window = tag-29;
+	
+	// Check that this window hasn't been borken
+	if ((minigame_wincondition1 >> window) & 1)
+		terminate;
+		
+	// Break the window
+	minigame_wincondition1 |= 1 << window;
+	t1 = 1001+(window)*2;
+	t2 = 1002+(window)*2;
+	SetLineTexture(tag, SIDE_FRONT, TEXTURE_MIDDLE, "-");
+	SetLineTexture(tag, SIDE_BACK, TEXTURE_MIDDLE, "-");
+	Line_SetBlocking(tag, 0, BLOCKF_EVERYTHING);
+	Thingsound(t1, "DoomWare/WindowBreak", 127);
+	Thingsound(t2, "DoomWare/WindowBreak", 127);
+	
+	// Spawn particles clientside
+	ACS_NamedExecuteAlways("DoomWare_ClientsideGlassSpawn", 0, t1, t2, ActivatorTID());
+}
+
+Script "DoomWare_ClientsideGlassSpawn" (int t1, int t2, int active) CLIENTSIDE // Spawning glass particles clientside
+{
+	int ang = VectorAngle(GetActorX(t2)-GetActorX(t1), GetActorY(t2)-GetActorY(t1));
+	int glassl = Max(Abs(GetActorX(t1)-GetActorX(t2)), Abs(GetActorY(t1)-GetActorY(t2)));
+	int glassh = GetActorCeilingZ(t2)-GetActorFloorZ(t1);
+	int plyang = GetActorAngle(active)>>8;
+	for (int i=2.0; i<glassh; i+=6.0)
+	{
+		int z = GetActorZ(t1)+i;
+		for (int j=2.0; j<glassl; j+=6.0)
+			SpawnForced("FearGlassShard", GetActorX(t1)+FixedMul(Cos(ang), j), GetActorY(t1)+FixedMul(sin(ang), j), z, TID_REMOVE, plyang);
 	}
 }

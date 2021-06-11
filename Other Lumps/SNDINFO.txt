@@ -91,8 +91,8 @@ $playersound	buu342	male	*pain75		DSBUPANT
 $playersound	buu342	male	*pain50		DSBUPANT
 $playersound	buu342	male	*pain25		DSBUPANT
 $playersound	buu342	male	*death		DSBUYEAH
-$playersound	buu342	male	*xdeath		DSBUWOO
 $playersound	buu342	male	*gibbed		DSBUWOO
+$playersound	buu342	male	*xdeath		DSBUWOO
 
 $playersound	C7Man	male	*death		DSC7DIE
 $playersound	C7Man	female	*death		DSC7DIE
@@ -100,6 +100,9 @@ $playersound	C7Man	other	*death		DSC7DIE
 $playersound	C7Man	male	*xdeath		DSC7DIE
 $playersound	C7Man	female	*xdeath		DSC7DIE
 $playersound	C7Man	other	*xdeath		DSC7DIE
+$playersound	C7Man	male	*gibbed		DSC7DIE
+$playersound	C7Man	female	*gibbed		DSC7DIE
+$playersound	C7Man	other	*gibbed		DSC7DIE
 $playersound	C7Man	male	*Taunt		DSC7SPOT
 $playersound	C7Man	female	*Taunt		DSC7SPOT
 $playersound	C7Man	other	*Taunt		DSC7SPOT
@@ -139,16 +142,19 @@ $playersound	SpiderMan	male	*taunt		DSSMTAUN
 $playersound	SpiderMan	male	*usefail	DSSMUSEF
 $playersound	SpiderMan	male	*death		DSSMDETH
 $playersound	SpiderMan	male	*xdeath		DSSMDETH
+$playersound	SpiderMan	male	*gibbed		DSSMDETH
 $playersound	SpiderMan	male	*jump		DSSMJUMP
 $playersound	SpiderMan	female	*taunt		DSSMTAUN
 $playersound	SpiderMan	female	*usefail	DSSMUSEF
 $playersound	SpiderMan	female	*death		DSSMDETH
 $playersound	SpiderMan	female	*xdeath		DSSMDETH
+$playersound	SpiderMan	female	*gibbed		DSSMDETH
 $playersound	SpiderMan	female	*jump		DSSMJUMP
 $playersound	SpiderMan	other	*taunt		DSSMTAUN
 $playersound	SpiderMan	other	*usefail	DSSMUSEF
 $playersound	SpiderMan	other	*death		DSSMDETH
 $playersound	SpiderMan	other	*xdeath		DSSMDETH
+$playersound	SpiderMan	other	*gibbed		DSSMDETH
 $playersound	SpiderMan	other	*jump		DSSMJUMP
 
 $playersound	FredChexter	male	*taunt		DSFREDTA
@@ -157,6 +163,37 @@ $playersound	FredChexter	female	*taunt		DSFREDTA
 $playersound	FredChexter	female	*usefail	DSFREDNO
 $playersound	FredChexter	other	*taunt		DSFREDTA
 $playersound	FredChexter	other	*usefail	DSFREDNO
+
+$playersound	Replica	male	*taunt		DSREPTAU
+$playersound	Replica	male	*usefail	DSREPNO
+$playersound	Replica	male	*land		DSREPOOF
+$playersound	Replica	male	*pain100	DSREPPAI
+$playersound	Replica	male	*pain75		DSREPPAI
+$playersound	Replica	male	*pain50		DSREPPAI
+$playersound	Replica	male	*pain25		DSREPPAI
+$playersound	Replica	male	*death		DSREPDIE
+$playersound	Replica	male	*xdeath		DSREPDIE
+$playersound	Replica	male	*gibbed		DSREPGIB
+$playersound	Replica	female	*taunt		DSREPTAU
+$playersound	Replica	female	*usefail	DSREPNO
+$playersound	Replica	female	*land		DSREPOOF
+$playersound	Replica	female	*pain100	DSREPPAI
+$playersound	Replica	female	*pain75		DSREPPAI
+$playersound	Replica	female	*pain50		DSREPPAI
+$playersound	Replica	female	*pain25		DSREPPAI
+$playersound	Replica	female	*death		DSREPDIE
+$playersound	Replica	male	*xdeath		DSREPDIE
+$playersound	Replica	female	*gibbed		DSREPGIB
+$playersound	Replica	other	*taunt		DSREPTAU
+$playersound	Replica	other	*usefail	DSREPNO
+$playersound	Replica	other	*land		DSREPOOF
+$playersound	Replica	other	*pain100	DSREPPAI
+$playersound	Replica	other	*pain75		DSREPPAI
+$playersound	Replica	other	*pain50		DSREPPAI
+$playersound	Replica	other	*pain25		DSREPPAI
+$playersound	Replica	other	*death		DSREPDIE
+$playersound	Replica	male	*xdeath		DSREPDIE
+$playersound	Replica	other	*gibbed		DSREPGIB
 
 
 chicken/death	CHICDTH
@@ -444,6 +481,19 @@ DoomWare/FlemoidSight3			DSFLEMS3
 DoomWare/FlemoidSight4			DSFLEMS4
 $random DoomWare/FlemoidSight { DoomWare/FlemoidSight1 DoomWare/FlemoidSight2 DoomWare/FlemoidSight3 DoomWare/FlemoidSight4 }
 $random DoomWare/FlemoidDie { DoomWare/FlemoidDie1 DoomWare/FlemoidDie2 DoomWare/FlemoidDie3 }
+
+DoomWare/Meteor					DSMETEOR
+
+DoomWare/SPAS12Fire				DSSPASFR
+DoomWare/SPAS12Pump				DSSPASPM
+
+DoomWare/SlowMo					DSSLOWMO
+DoomWare/ExtinguisherExplode	DSEXTEXP
+DoomWare/WindowBreak			DSWNDWBR
+DoomWare/ShellBounce1			DSSHELB1
+DoomWare/ShellBounce2			DSSHELB2
+$random DoomWare/ShellBounce { DoomWare/ShellBounce1 DoomWare/ShellBounce2 }
+
 
 // Buu342 Sounds
 

@@ -9,7 +9,7 @@ Seriously, I thank every single person in this document from the bottom of my he
 
 Massive thanks to people on Doomworld for contributing awesome minigame event ideas for my wad! You guys rock!!!
 And the ZDoom Forums community for helping me sort out some bugs with ACS and Decorate.
-MDF and Nuclear Empire have been instrumental in making playsessions happen, driving interest in the project and providing invaluable feedback.
+MDF, Hellforge, and Nuclear Empire have been instrumental in making playsessions happen, driving interest in the project and providing invaluable feedback.
 Another special thanks to the following people/users for beta-testing, and for being there whenever I updated the beta server to post suggestions and have a fun time. I love you all! Hats for all of you! :*
 - Vasco Pauthier
 - SuperSomariDX
@@ -40,6 +40,11 @@ Another special thanks to the following people/users for beta-testing, and for b
 - Dastan
 - Combinebobnt
 - KingDime
+- TMD
+- Dakkon
+- Draggor
+- The crew at Hellforge. So many names!
+
 
 I wish to credit the original authors of anything I used, since they deserve to know their content is being used. I emailed every one, but most emails bounced back, since I have content that is older than the pyramids. 
 If you don't want your stuff in this WAD, please email me at buu342@hotmail.com and I will remove the content. No biggie. 
@@ -101,7 +106,7 @@ Sprites, Jitterskull DECORATE, Music/Sounds, Tree Models/Textures - Ghoul's Fore
 Music - Map20 (Message For The Archvile) - Doom 2
 
 **Stop Moving/Don't Stop Moving**
-Music - Keep It Up - Warioware 
+Music - Keep It Up - Mario Party 7
 
 **Reach the End (Corridor 7)**
 Sprites, textures, etc... - Corridor 7: Alien Isolation - Capstone Software
@@ -475,8 +480,8 @@ Alarm Sound - Sonic the Hedgehog - SEGA
 Music - Kirby's Dreamland Theme - Super Smash Brothers
 Arena Textures - Super Smash Brothers - Nintendo
 Captain Falcon Model and Sounds - Super Smash Brothers - Nintendo
-Dust sprite - TVnGames
-Smoke sprite - Guilty Gear XX - Arc System Works
+Floor dust sprite - TVnGames
+Smoke stack sprite - Guilty Gear XX - Arc System Works
 Fist sprite - TheDarkAxrchon's Haunt
 
 **Reach the End (Golden Idol)**
@@ -492,6 +497,23 @@ Hand Sprites - Not sure... It was either Marty Kirra, wildweasel, Cory Whittle, 
 **Choose a port**
 Port Icons - By the port makers (Zandronum, ZDaemon, Odamex)
 Music - The Moon & The Prince - Katamari Damacy
+
+**Survive (Meteors)**
+Meteor Image - I'm not sure I'm afraid. It's a really old image I had lying around my PC...
+Meteor Sound Effect - Impossible Quiz - Splapp-me-do
+Music - Ghost Hideout - RAGE
+
+**Survive (F.E.A.R. Deathmatch)
+SPAS 12 Sprites - Marty Kirra
+Shotgun Shell Sprites - Shadow Warrior - 3D Realms
+Fire Extinguisher Sprites - /tg/station - Space Station 13
+Office Chair Sprites - Doom Beta Sprites - ID Software
+Office Plant Model - Counter Strike: Source - Valve Software
+Cabinet Textures - Half-Life 2 and Counter Strike: Source - Valve Software
+Player Sprites - Strife - Rogue Entertainment
+Glass break and shell bouncing sounds - Half-Life 2 - Valve
+Other Sounds and Textures - F.E.A.R. - Monolith Productions
+Music - Endurance - F.E.A.R. Original Soundtrack
 
 
 ==================================

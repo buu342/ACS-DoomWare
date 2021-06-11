@@ -1,12 +1,12 @@
 weaponsection DW
 
 setslot 1 Fist Chainsaw ChainsawFake BoxingGlove MaceWeapon SnowSpeederWeapon PushStaff FalconPunchWeapon PettingWeapon FastFist
-setslot 2 pistol PistolFake suicide clean Raygun NESZapper CoopPistol BowArrow C7Gun Zorcher
-setslot 3 Shotgun SuperShotgun SuperShotgunFake SimpsonsShotgun CoopShotgun
-setslot 4 Chaingun ChaingunFake Minigun CoopChaingun
+setslot 2 pistol PistolFake suicide clean Raygun NESZapper BowArrow C7Gun Zorcher
+setslot 3 Shotgun SuperShotgun SuperShotgunFake SimpsonsShotgun CoopShotgun FearSPAS12
+setslot 4 Chaingun ChaingunFake CoopChaingun
 setslot 5 RocketLauncher RocketLauncherFake GrenadeLauncher BBallLauncher
 setslot 6 PlasmaRifle PlasmaRifleFake RailGun 
-setslot 7 BFG9000 BFG9000Fake BFG10k
+setslot 7 BFG9000 BFG9000Fake
 
 addkeysection "DoomWare" DoomWare
 
