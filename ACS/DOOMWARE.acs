@@ -3509,7 +3509,7 @@ function void Handle_Menu_Achievement(int achieve_data, int number, str name, st
                                                 Hats
 ===================================================================================================*/
 
-#define BETATESTERSIZE 16
+#define BETATESTERSIZE 17
 str BetaTesterList[BETATESTERSIZE];
 function bool IsBetaTester(int plynum) // Returns true/false if the player is a beta tester
 {
@@ -3529,6 +3529,7 @@ function bool IsBetaTester(int plynum) // Returns true/false if the player is a 
 	BetaTesterList[13] = "haispawner";
 	BetaTesterList[14] = "daddykrabs";
 	BetaTesterList[15] = "obspogon";
+    BetaTesterList[16] = "bridgeburner";
 
     for (int i=0; i<BETATESTERSIZE; i++)
         if (!StrIcmp(BetaTesterList[i], GetPlayerAccountName(i)))
