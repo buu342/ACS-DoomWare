@@ -2,13 +2,13 @@
              Credits
 ==================================
 
-The entire Map's ACS scripting was (painfully) done by me. I have also made most decorate scripts and almost all of the map, some sprites, sounds, and textures.
+The entire gamemode's ACS scripting was (painfully) done by me. I have also made almost all DECORATE scripts and almost all of the map, some sprites, sounds, and textures.
 
 Despite all of my work, this project would be nothing without the people who contributed their ideas, time, and resources that resulted in this final product.
 Seriously, I thank every single person in this document from the bottom of my heart.
 
-Massive thanks to people on Doomworld for contributing awesome minigame event ideas for my wad! You guys rock!!!
-And the ZDoom Forums community for helping me sort out some bugs with ACS and Decorate.
+Massive thanks to people on Doomworld for contributing awesome minigame event ideas for my WAD! You guys rock!!!
+And the ZDoom Forums community for helping me sort out some bugs with ACS and DECORATE.
 MDF, Hellforge, and Nuclear Empire have been instrumental in making playsessions happen, driving interest in the project and providing invaluable feedback.
 Another special thanks to the following people/users for beta-testing, and for being there whenever I updated the beta server to post suggestions and have a fun time. I love you all! Hats for all of you! :*
 - Vasco Pauthier
@@ -42,14 +42,14 @@ Another special thanks to the following people/users for beta-testing, and for b
 - KingDime
 - TMD
 - Dakkon
-- Draggor
+- Draggor and his Hiss Den
 - The crew at Hellforge. So many names!
 
 
 I wish to credit the original authors of anything I used, since they deserve to know their content is being used. I emailed every one, but most emails bounced back, since I have content that is older than the pyramids. 
 If you don't want your stuff in this WAD, please email me at buu342@hotmail.com and I will remove the content. No biggie. 
 All content is used for entertainment purposes and is non-profit. Music clips are shorter than 15 seconds. This should keep those pesky lawyers away.
-Since the resources are used so sparingly, I will list the minigames (in order of their minigame number) and the resources used will be listed, as well as authors of said original content. 
+Since the resources are used so sparingly, I will list the minigames (in order of their minigame number) and the resources used, as well as authors of said original content. 
 Anything else not mentioned can be assumed that I made it. And yes, feel free to use it yourself. Credit would be nice but not required.
 
 Hope you enjoy DoomWare!
@@ -71,17 +71,18 @@ Evil Laugh Sound - Strider (Genesis) - Capcom
 Loading Music - Sonic CD Boss Theme (US) - SEGA
 Menu sound effects - Warioware - Nintendo
 Round Music - Bumper (9-Volt) - WarioWare: Smooth Moves
-Round Music (Game Over, tie) - WarioMan Minigames - Warioware D.I.Y
+Round Music (Game Over, Tie) - WarioMan Minigames - Warioware D.I.Y
 Round Music (Halloween) - Mystic Mansion - Sonic Heroes
 Round Music (Christmas) - Frosty Village - Diddy Kong Racing
 Waiting Music - Mario Elevator - KMax
 Waiting Music (Halloween) - Hang Castle - Sonic Heroes
 Waiting Music (Christmas) - Snowflake Mountain - Diddy Kong Racing
 Intermission Music - Pyoro Title Screen (GBA) - Nintendo
+3D Janitor Gif - Animation Factory
 Crown Hat Sprite - Sean Warton
 Skull Hat Sprite - RuneScape - Jagex
 Heart Hat Sprite - RuneScape - Jagex
-Leader Hat Sprite inspired by the Rainbow Badge from Pokemon
+Leader Hat Sprite - inspired by the Rainbow Badge from Pokemon
 Beta Tester Hat Sprite - Club Penguin - New Horizon Interactive
 HUD Sound Moving down - Cannon Sound Effect - Super Mario 64
 HUD Clock Ticking - WarioWare DIY - Nintendo
@@ -99,7 +100,7 @@ Music - Bowser's Road - Super Mario 64
 **Survive (Cyberdemon)**
 Music - Cyberdemon - Doom 4
 
-**Survive (Forest)**
+**Survive (Ghouls)**
 Sprites, Jitterskull DECORATE, Music/Sounds, Tree Models/Textures - Ghoul's Forest 3 - CutmanMike
 
 **Survive (Archviles)**
@@ -113,17 +114,18 @@ Sprites, textures, etc... - Corridor 7: Alien Isolation - Capstone Software
 Music - Floor 01 - Corridor 7
 
 **Kill Ned Flanders**
-Sprites, Sounds, Textures, Music - Ultimate Simpsons Doom - Myk Friedman (Unable to contact for permission)
+Sprites, Sounds, Textures - Ultimate Simpsons Doom - Myk Friedman (Unable to contact for permission)
+Music - MIDI version of Lum no Love Song (Used in MAP08 of Ultimate Simpsons Doom) - Myk Friedman. Original by Urusei Yatsura
 Map - Small section from Map08 - Doom 2
 
 **Destroy a Barrel**
-Sprites and sounds - Hexen
+Sprites and sounds - Hexen - Raven Software
 Widescreen weapon sprites by Doorhenge
-Muisc - Congo Jungle Theme - Super Smash Bros 64
+Music - Congo Jungle Theme - Super Smash Bros 64
 
-**Hit A Target**
+**Shoot a Target**
+Weapon Sprites and DECORATE - Skulltag
 Music - E3M2 (Donna To The Rescue) - Doom
-Weapon Sprites and Code - Skulltag
 
 **Survive (Kamikazi)**
 Sprites - Capitain Toenail
@@ -134,38 +136,39 @@ Music - Primary Colored Suicide Bombing Love Song - Ishii Yasushi
 Point Sound - 1UP Mushroom - Super Mario Bros
 Music - D_STELTH - Skulltag
 
-**Don't/Blow Your Brains Out**
+**Blow/Don't Blow Your Brains Out**
 Sprites - Room - TwinBeast (Unable to contact for permission)
 Music - D_RAVE (What Is Love Midi) - Skulltag
 
-**Pick a Door**
+**Enter the Door**
 Music - Tiny Wario's Microgames - WarioWare
 
-**Meet The Worm**
+**Meet the Worm**
 Map section, Music, sounds, textures and sprites - Massmouth - Cyb (Unable to contact for permission)
 
-**Reach the end (Boxes Swap To The Music)**
+**Reach the End (Swapping Boxes)**
 Music - Beep Block Skyway - Super Mario 3D World
 
-**Touch The Sky**
+**Touch the Sky**
 Music - Main Menu - WarioWare Twisted
 
-**Reach The End (Karts)**
-Sprites - Kart taken from Super Mario Kart (SNES)
-Music - Acient Lake - Diddy Kong Racing
-Sounds - Diddy Kong Racing
+**Reach the End (Karts)**
+Sprites - Kart taken from Super Mario Kart (SNES) - Nintendo
+Kart Sounds - Diddy Kong Racing - RareWare
+Music - Ancient Lake - Diddy Kong Racing
 
-**Don't/Equip Weapon**
+**Equip/Don't Equip Weapon**
 Music - Dribble's Microgames - WarioWare: Smooth Moves
 
-**Swim Up**
+**Reach Surface**
 Idea by - Ichor
+Fish Sprites - Insaniquarium Deluxe - PopCap Games
 Music - Underwater Level - Super Mario Bros
 
-**Reach The End (Factory)**
+**Reach the End (Factory)**
 Textures - Skulltag
+Spike tube sprite - Sonic The Hedgehog (1991) - SEGA
 Music - Nano Tech - Motherload Goldium Edition
-Sprites - Spikes taken from Sonic The Hedgehog (1991) - SEGA
 
 **Survive (Grenades)**
 Music - Not sure I'm afraid. It's a remix of the Pokemon battle theme and the underground theme from Super Mario Bros
@@ -174,13 +177,17 @@ Music - Not sure I'm afraid. It's a remix of the Pokemon battle theme and the un
 Music, textures, sprites, sounds - Green Hill Zone - Sonic The Hedgehog (1991)
 Sonic Skin - CutmanMike
 
-**Stay On/Off The Ground**
+**Stay Off/On the Ground**
 Music - Mona's Microgames - WarioWare Smooth Moves
 
-**Grab a balloon**
+**Grab a Balloon**
 City Textures - Skulltag
 Spider-Man Model and Sounds - Spider-Man 2 (PS2) - Treyarch
 Music - Ballad in City - Spider-Man 2 (PS2)
+
+**Shoot a Target (Popup)**
+Weapon Sprites and DECORATE - Skulltag
+Music - E3M2 (Donna To The Rescue) - Doom
 
 **Survive (Boxing)**
 Boxing Gloves Model - Team Fortress 2 - Valve
@@ -192,26 +199,27 @@ Music - Poison Queen - God Hand
 
 **Finish a Lap (E1M1)**
 Idea - scifista42
-Map - beggining section taken from E1M1 - Doom 
+Map - Beginning section inspired by E1M1 - Doom 
 Music - E1M1 - Doom
-Sprites - Kart taken from Super Mario Kart (SNES)
-Sounds - Diddy Kong Racing
+Sprites - Kart taken from Super Mario Kart (SNES) - Nintendo
+Kart Sounds - Diddy Kong Racing - RareWare
 Seriously though if you had to look up the map or music, then please unplug Windows from your hard drive and uninstall your computer.
 
-**Shoot A Duck**
+**Shoot a Duck**
 Sprites, music and sounds - Duck Hunt - Nintendo
+Rotated Duck Sprites - Shane Toner
 NES Zapper Sprites - Mike12
 
-**Dive Into The Water**
+**Dive Into the Water**
 Idea - Ichor
 Music - Bowser's Road - Super Mario 64
 
-**Reach The End (Boulders)**
+**Reach the End (Boulders)**
 Boulder Sprites - Doom Raider - Russel Pearson (Unable to contact for permission)
 Music - Sneakman - Jet Set Radio
 
-**Reach The End (Ice)**
-Music - Escape From Echo Base - Star Wars Shadows Of The Empire
+**Reach the End (Ice)**
+Music - Launch from the Fourth Moon - Star Wars Episode 4: A New Hope
 
 **Survive (Romero)**
 Mecha Hitler Rotations Sprites - UnTrustable
@@ -228,28 +236,33 @@ Skybox - Skulltag
 Rain sprites - Realm667
 Music - Demise of the Ritual - Shadow of the Colossus
 
-**Get On The Colored Circle**
+**Get On the Colored Circle**
 Idea - Ichor
 Music - Think - Jeopardy
 
 **Dive Down**
 Idea - Ichor
-Sprites - Lars Willmer
+Fish Sprites - Insaniquarium Deluxe - PopCap Games
+Submarine Sprites - Lars Willmer
 Music - Underwater Level - Super Mario Bros
 
-**Watch/Repeat**
+**Repeat the Pattern**
 Idea - Ichor
 Weapon Sprites and Code - Skulltag
 Music - The Healer Stalks - Doom 2
 
 **Storm The Beach**
+Landmine sprite - Ion Fury - Voidpoint Software
+Explosion sprite - Metal Slug 3 - SNK
+Barbed wire texture - TNT: Evilution - TeamTNT
+Explosion sound - RAGE - ID Software
 Music - Exit The Beach - Conker's Bad Fur Day (N64)
 
 **Survive (Dark Corridor)**
 Idea - Kapayano
 Music - DOOM - Doom 2: Hell On Earth
 
-**Get To The Light**
+**Go to the Light**
 Idea - VGA
 Music - Bye Bye American Pie - Doom 2: Hell On Earth
 
@@ -267,14 +280,17 @@ Textures - Skulltag
 Sound Effects - Hexen - Raven Software
 Music - Exquisite - TSEC
 
-**Finish A Lap (Rainbow Road)**
+**Finish a Lap (Rainbow Road)**
+Sprites - Kart taken from Super Mario Kart (SNES) - Nintendo
+Kart Sounds - Diddy Kong Racing - RareWare
 Music - Rainbow Road - Mario Kart Super Circuit
-Sprites - Kart taken from Super Mario Kart (SNES)
-Sounds - Diddy Kong Racing
 
-**Survive (banana)**
+**Reach the End (Bigger Swapping Boxes)**
+Music - Beep Block Skyway - Super Mario 3D World
+
+**Survive (Banana)**	
 Dancing Banana Sprite - I can't find a source on the original thing. Someone made it. If you're old enough you should recognize it and won't need me to source this.
-Explosion Sprite - Metal Slug - SNK
+Explosion Sprite - Metal Slug 3 - SNK
 Sound - Original quote from Fosters' Home For Imaginary Friends, sound edited by Alvin-Earthworm for his C is for Cereal Animation (again, if you're old enough).
 AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a N64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
 Music - Rush Hour - WarioWare Smooth Moves
@@ -309,13 +325,13 @@ Map - based off E4M9 - Ultimate Doom
 Can Model - Team Fortress 2 - Curious of what was on the can? I included the texture in this wad
 Music - Running The Giant Wheel - Mystical Ninja 2 Starring Goemon
 
-**Survive (chilli)**
+**Survive (Chilli)**
 Chilli/Explosion sprite - Metal Slug 3 - SNK
 Small flame sprites - Duke Nukem 3D - 3D Realms
 Sound - WTF Boom - C4 Sound from Counter Strike. WTF Sound from Episode 3 of Steven Moustache Show. Explosion + laugh from Mega64: Cold Fear Ad #3.
 Music - Groan! Rampage of the Wind - Mystical Ninja 2 Starring Goemon
 
-**Hit The Real Barrel**
+**Hit the Real Barrel**
 Idea, Sprites, and part of the Decorate - [Sun] MadCat
 Music - A Road difficult to Access - Mystical Ninja 2 Starring Goemon
 
@@ -325,7 +341,7 @@ Textures - Skulltag
 Music - Nano Tech - Motherload Goldium Edition
 Sprites - Spikes taken from Sonic The Hedgehog (1991) - SEGA
 
-**Eat The Chocolate**
+**Eat the Chocolate**
 Idea - Ichor
 Chocolate Model - Team Fortress 2
 Music - Running The Giant Wheel - Mystical Ninja 2 Starring Goemon
@@ -335,36 +351,36 @@ Idea - Ichor
 Fan Textures - Skulltag
 Music - Panic Restaurant - The Munchables
 
-**Get To Hissy**
+**Get to Hissy**
 Sprites - Skulltag
 Music - Taurus Demon - Dark Souls
 
-**Count The Lost Souls**
+**Count the Lost Souls**
 Carpet Rug Texture - I can't find the original source on this one, I had it lying around in my disk.
 Weapon Sprites and Code - Skulltag
 TV Screen Texture - Skulltag
 Music - Think About it - Mario Party 9
 
-**Reach The End (Hurdles)**
+**Reach the End (Hurdles)**
 Idea - Sgt Ender
 Music - Rival Eternity -  Mystical Ninja 2 Starring Goemon
 
-**Cross The Road**
+**Cross the Road**
 Idea - Ichor
 Chicken Sprites/Sounds - Heretic - Raven Software
 Car Sprites - Doom Center - Mike12
 Music - Wario Gold Mine - Mario Kart 8
 
-**Collect A Potion**
+**Collect a Potion**
 Idea and thief sprites - [Sun] Madcat
 Textures - Golden Axe - Sega
 Music - Thief's Theme - Golden Axe
 
-**Reach The End (Skyhook)**
+**Reach the End (Skyhook)**
 Cockpit sprites and textures- Star Wars: Shadows Of The Empire - LucasArts
 Music - Skyhook Battle - Star Wars: Shadows Of The Empire
 
-**Spam Shoot/Use/Jump**
+**Spam the Indicated Button**
 Mash-O-Meter - Impossible Quiz - Splapp Me Do
 Sound - Pokémon Stadium - Nintendo
 Music - Thundering Dynamo - Pokémon Stadium
@@ -377,10 +393,10 @@ Music - Bye Bye American Pie - Doom 2: Hell On Earth
 **Reach The End (Factory Line)
 Most textures - Skulltag
 Switch texture - Star Wars: Shadows Of The Empire - LucasArts
-Spike Tubes - Sonic The Hedgehog - SEGA
+Spike tube sprite - Sonic The Hedgehog (1991) - SEGA
 Music - Nano Tech - Motherload: Goldium Edition
 
-**Collect The Assigned Key**
+**Pickup the Key**
 Music - Think - Jeopardy
 
 **Survive (Hell Deathmatch)**
@@ -389,44 +405,44 @@ Music - Last Dinosaur - The Pillows
 **Eat Food**
 Sprites, Music, Textures - Sushi-Go-Round - Pokémon Studio
 
-**Catch a Pokémon**
-Honestly if you don't know where any of this is from then you're too young to be playing Doom.
-It's all from Pokémon Red/Blue/Yellow. Game Boy game.
+**Catch a Pokemon**
+Honestly if you don't know where any of this is from then, you're too young to be playing Doom.
+It's all from Pokémon Red/Blue/Yellow.
 
-**Survive (disappearing floor)**
+**Survive (Disappearing Floor)**
 Sounds - Half-Life 1 and Batman Cartoon Maker - Valve and Knowledge Adventure
 Music - Think - Jeopardy
 
-**Mine an ore**
+**Mine an Ore**
 Models and sprites were made by me from scratch. Obviously inspired from Oldschool Runescape.
 sounds - Runescape (Oldschool) - Jagex
 Music - Still Night - Runescape (Oldschool)
 
-**Reach the end (Eclipse)**
+**Reach the End (Eclipse)**
 Level Theme - Berserk - Kentaru Miura
 Tentacle Monster sprites - Dr. Doctor 
 Aguares Monster Sprites - Dreadopp
 Worm sprites and sounds - FreeDoom
 Music - The Demon Footsteps - Berserk and the Band of the Hawk
 
-**Reach the end (Automap)**
+**Reach the End (Automap)**
 Music - Countdown To Death - Doom 2
 
-**Score A Basket**
+**Score a Basketball**
 Idea - Ichor
 Music - Disco Prince - We Love Katamari
 
-**Reach The End (Jumping Scroller)**
+**Reach the End (Jumping Scroller)**
 Idea - Ichor
 Music - To The Beach - From CoTeCiO's Town Infection Wad (This guy makes awesome music go listen to it)
 
-**Shoot The Apple Off The Imp's Head**
+**Shoot the Apple Off the Imp's Head**
 Idea - Ichor
 Bow and Arrow sprites - Ghoul's Forest 3 - Cutman Mike
 Apple Sprite - Minecraft - Mojang
 Music - Bad Dog No Biscuits - The Seatbelts
 
-**Shoot An Imp**
+**Shoot an Imp**
 Idea - Ichor
 Sprites - Kart taken from Super Mario Kart (SNES)
 Music - Wario Gold Mine - Mario Kart 8
@@ -440,14 +456,14 @@ Sprites - Warioware GBA - Nintendo
 Sounds - PowerPoint 1999 - Microsoft
 Music - Wario's Microgames - Warioware Smooth Moves
 
-**Whack a Mole**
+**Whack a Diglett**
 Diglett sprite - JoshR691
 Diglett Sounds - Pokemon Stadium - Nintendo
 Diglett Damage Sound - Super Mario World - Nintendo
 Music - Ekans Loop Hurl - Pokemon Stadium
 Weapon Sprites and sounds - Hexen
 
-**Charge Your Laz0r**
+**Charge ur Laz0r**
 DBZ Aura and Smoke sprite - TVnGames
 Aura Sound Effects - Dragon Ball Z - Akira Toriyama
 Laz0r Sound Effect - The Lazer Collection - Dom Fera
@@ -465,15 +481,15 @@ Music - Burly Brawl - The Matrix Reloaded: The Album
 Idea by - Kapanyo - Based on the Doom 2's MAP24
 Music - In The Dark - Doom 2
 
-**Be the highest player**x
+**Be the Highest Player**
 Music - Night of Fate - Kingdom Hearts
 
-**Pick a side**
+**Choose a Side**
 Music - Steady Now - WarioWare: Smooth Moves
 
 **Abandon Ship**
 Music - Grievous and the Droids - Star Wars Episode 3 Soundtrack
-Some textures from Shadows of the Empire, some from SkullTag
+Some textures from Shadows of the Empire, some from SkullTag, some from Dark Forces
 Alarm Sound - Sonic the Hedgehog - SEGA
 
 **Survive (Captain Falcon)**
@@ -494,7 +510,7 @@ Music - Moo Moo Farm - Mario Kart 64
 Daisy Sprites - Action Doom
 Hand Sprites - Not sure... It was either Marty Kirra, wildweasel, Cory Whittle, or Scuba Steve.
 
-**Choose a port**
+**Choose a Source Port**
 Port Icons - By the port makers (Zandronum, ZDaemon, Odamex)
 Music - The Moon & The Prince - Katamari Damacy
 
@@ -503,7 +519,7 @@ Meteor Image - I'm not sure I'm afraid. It's a really old image I had lying arou
 Meteor Sound Effect - Impossible Quiz - Splapp-me-do
 Music - Ghost Hideout - RAGE
 
-**Survive (F.E.A.R. Deathmatch)
+**Survive (F.E.A.R. Deathmatch)**
 SPAS 12 Sprites - Marty Kirra
 Shotgun Shell Sprites - Shadow Warrior - 3D Realms
 Fire Extinguisher Sprites - /tg/station - Space Station 13
@@ -514,6 +530,34 @@ Player Sprites - Strife - Rogue Entertainment
 Glass break and shell bouncing sounds - Half-Life 2 - Valve
 Other Sounds and Textures - F.E.A.R. - Monolith Productions
 Music - Endurance - F.E.A.R. Original Soundtrack
+
+**Survive (Mr. Shifty Deathmatch)**
+Fist Sprites - Not sure... It was either Marty Kirra, wildweasel, Cory Whittle, or Scuba Steve.
+Model and Sound Effects - Mr. Shifty - Team Shifty
+Music - Dancing Between Bullets - Mr. Shifty
+
+**Survive (Rocket Pattern)**
+Idea Inspired From - Map 30 of Super Sonic Doom - Stephen Clark
+Music - Doomsday Zone  - Sonic 3 & Knuckles
+
+**Reach the End (Batman)**
+Sprites, Textures, and Sound Effects - Batman DOOM - ACE Team Software (Unable to contact for permission)
+Map inspired by MAP06 and MAP07 from Batman Doom - ACE Team Software
+Music - War Zone (MAP20 from Batman Doom) - Andrew Wood
+
+**Put Yourself Out**
+Fire sprites and Screaming Sounds - Blood - Monolith Productions
+One of the screaming sounds - Half-Life 2 - Valve Software
+Fire explosion sound - Doom 64 - Midway Games
+Extinguish sound - We <3 Katamari - Namco
+Music - Sea Shanty 2 - Oldschool Runescape
+
+**Match the Demon**
+Snake Imp - Cyb, Vader, ItsNatureToDie
+Wings Imp - Hexen - Raven Software
+Chicken Legs Imp and Scientist Sprite - CoTeCio (Unable to contact for permission)
+Map Idea - MAP04, MAP05, and MAP06 from Town Infection - CoTeCiO
+Music - Biological Lab (MAP06 from Town Infection) - CoTeCiO
 
 
 ==================================
@@ -529,6 +573,13 @@ Music - Let's Limbo - Mario party
 **Barrel Duel**
 Music - Kat & Ana Microgames - WarioWare: Smooth Moves
 
+**Score (Pong)**
+Music - The Final Conflict - RushJet1
+
+**Press the Keys in Order**
+Fist Marine Sprite - Mark Quinn (Boingo the Clown)
+Music - Orange City - Dragon Ball Z: Taiketsu
+
 
 ==================================
 Credits Part 4 (Other TieBreakers)
@@ -538,13 +589,24 @@ Credits Part 4 (Other TieBreakers)
 Music - Garage Battle - F.E.A.R.
 Weapon Sprites and Code - Skulltag
 
-**Survive (decreasing ring)**
+**Survive (Decreasing Ring)**
 Music - Athletic - Super Mario Bros 3
 Weapon Sprites - Heretic - Raven Software
 
-**Shoot the Target (one shot)**
+**Shoot the Target (One Shot)**
 Music - E3M2 (Donna To The Rescue) - Doom
 Weapon Sprites and Code - Skulltag
+
+**Survive (Brawler)**
+Fist Marine Sprite - Mark Quinn (Boingo the Clown)
+Impact Effect Sprites - Speed Brawl - Double Stallion Games
+Sound Effects - Mr. Shifty - Team Shifty
+Music - Threepenny League Throwdown - Vibe Avenue
+
+**Reach the End (Race)**
+Spike tube sprite - Sonic The Hedgehog (1991) - SEGA
+Spike Sound - Mystical Ninja 2: Starring Goemon - Konami
+Music - Right There, Right On! - Sonic Rush
 
 
 ==================================
@@ -557,6 +619,10 @@ Sky laser sprites - Dragon Ball Z: Legendary Super Warrior - Bandai Namco
 Bouncing Projectiles - Heresiarch lava head projectiles - Hexen
 Eye laser sounds - Dochuki Battle Phase 2 - Mystical Ninja 2: Starring Goemon
 Flame breath sound - Dochuki Battle Phase 2 - Mystical Ninja 2: Starring Goemon
+Buu (Phase 2) Death Sound - Umibozu Spawn Sound - Mystical Ninja 2: Starring Goemon
 Invisibility sound - Arachnotron Death Sound - Doom 64
 Boss Music - Wrapped in Black - Sonic Rush
+Boss Music (Final Phase) - Wrapped in Black (Part 2) - Sonic Rush
 Boss Death Sound - Umibōzu - Mystical Ninja 2: Starring Goemon
+Boos Win Music - Groove Rush #5 - Sonic Rush
+Boos Lose Music - Groove Rush #2 - Sonic Rush

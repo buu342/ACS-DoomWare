@@ -23,15 +23,25 @@ map map01 "DoomWare"
 	sky1 = STSKY2
 	NoCrouch
 	EnterPic = "DW_ENTER"
-	ExitPic = "DW_EXIT"
+	ExitPic = "$DW_EXITS"
+	Next = "MAP01"
+}
+
+map map02 "DoomWare (Community Minigames)"
+{
+	sky1 = STSKY2
+	NoCrouch
+	EnterPic = "DW_ENTER"
+	ExitPic = "$DW_EXITS"
+	Next = "MAP02"
 }
 
 map map30 "Icon of DoomWare"
 {
 	sky1 = SKY3
 	NoCrouch
-	EnterPic = "DW_ENTER"
-	ExitPic = "DW_EXIT"
+	EnterPic = "DW_ENTR2"
+	ExitPic = "$DW_EXTS2"
 	RandomPlayerStarts 
 }
 

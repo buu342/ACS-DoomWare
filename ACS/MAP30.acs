@@ -1,7 +1,7 @@
 /*===========================================================================================================================================
-    This is the DoomWare boss fight. A lot of the code is copy pasted from MAP01, which I'll try to fix by 
-    splitting the codebase into different libraries. That will, unfortunately, require that I change my Doom Builder
-    compilation system as it doesn't support #including multiple ACS files.
+    This is the DoomWare boss fight. A lot of the code is copy pasted from the DOOMWARE lump, which will require splitting the lump into
+	multiple libraries (so I can selectively not include certain scripts)... For now, I'm a bit lazy, so I'll leave the gamemode code in
+	its entirety here. This'll be cleaned up in a later version, hopefully.
 ===========================================================================================================================================*/
 
 #include "zcommon.acs"
@@ -18,12 +18,12 @@
 
 // Game selection
 
-#define NUMBEROFGAMES 13// Number Of minigames
+#define NUMBEROFGAMES 13 // Number Of minigames in the boss fight
 
 
 // Game settings
 
-#define MAXPLAYERS  16    // All minigames were designed with 16 players in mind! Change if you know what you're doing!
+#define MAXPLAYERS 16    // All minigames were designed with 16 players in mind! Change if you know what you're doing!
 
 
 // Game Status
@@ -134,14 +134,14 @@
 #define ACHIEVE_ID_501UPS      6
 #define ACHIEVE_ID_100DEATH    7
 #define ACHIEVE_ID_300POINTS   8
-#define ACHIEVE_ID_WRONGDOOR   9
+#define ACHIEVE_ID_JUMP        9
 #define ACHIEVE_ID_LONGJUMP    10
 #define ACHIEVE_ID_3FRAGS      11
 #define ACHIEVE_ID_BULLETHELL  12
 #define ACHIEVE_ID_KARTWIN     13
 #define ACHIEVE_ID_ATST        14
-#define ACHIEVE_ID_BOSS        15
-#define ACHIEVE_ID_BADAIM      16
+#define ACHIEVE_ID_WAIFU       15
+#define ACHIEVE_ID_BOSS        16
 #define ACHIEVE_ID_FULLSERVER  17
 
 #define ACHIEVE_NAME_1WIN        "Beginners Luck"
@@ -153,14 +153,14 @@
 #define ACHIEVE_NAME_501UPS      "Poor Kids in Africa Could Have Eaten Those"
 #define ACHIEVE_NAME_100DEATH    "The Final Frontier"
 #define ACHIEVE_NAME_300POINTS   "DoomWare veteran"
-#define ACHIEVE_NAME_WRONGDOOR   "Colorblind"
+#define ACHIEVE_NAME_JUMP        "Future Legend of Rhythm Alien"
 #define ACHIEVE_NAME_LONGJUMP    "Mike Powell"
 #define ACHIEVE_NAME_3FRAGS      "Point Man"
 #define ACHIEVE_NAME_BULLETHELL  "Mushihimesama"
 #define ACHIEVE_NAME_KARTWIN     "Tokyo Drifter"
 #define ACHIEVE_NAME_ATST        "Dash Rendar"
-#define ACHIEVE_NAME_BOSS        "Too Strong"
-#define ACHIEVE_NAME_BADAIM      "Bad Aim"
+#define ACHIEVE_NAME_WAIFU       "The Perfect Waifu"
+#define ACHIEVE_NAME_BOSS        "Deicide"
 #define ACHIEVE_NAME_FULLSERVER  "House party"
 
 #define ACHIEVE_DESC_1WIN        "Win a single game"
@@ -172,14 +172,14 @@
 #define ACHIEVE_DESC_501UPS      "Collect 50 1-ups"
 #define ACHIEVE_DESC_100DEATH    "Die 100 times"
 #define ACHIEVE_DESC_300POINTS   "Earn a total of 300 points"
-#define ACHIEVE_DESC_WRONGDOOR   "Enter the wrong door"
-#define ACHIEVE_DESC_LONGJUMP    "Get the 1-Up in the sonic minigame"
+#define ACHIEVE_DESC_JUMP        "Beat the Jumping Scroller minigame (without flying)"
+#define ACHIEVE_DESC_LONGJUMP    "Get the 1-Up in the sonic minigame (without flying)"
 #define ACHIEVE_DESC_3FRAGS      "Frag 3 players in a deathmatch minigame"
-#define ACHIEVE_DESC_BULLETHELL  "Survive the bullet hell minigame"
+#define ACHIEVE_DESC_BULLETHELL  "Survive the bullet hell minigame (without flying)"
 #define ACHIEVE_DESC_KARTWIN     "Finish first in a kart race"
 #define ACHIEVE_DESC_ATST        "Destroy an AT-ST"
+#define ACHIEVE_DESC_WAIFU       "Sucessfully match a fully scrambled Imp"
 #define ACHIEVE_DESC_BOSS        "Defeated the final boss"
-#define ACHIEVE_DESC_BADAIM      "Hurt the imp in the apple minigame"
 #define ACHIEVE_DESC_FULLSERVER  "Play on a full server"
 
 
@@ -330,39 +330,39 @@ script "DoomWare_Server_Boot" OPEN
     // If he isn't, connect him to the game
     if (!buuingame)
     {
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" has connected. (from: pt)"), CHATSOUND_CON);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- has connected. (from: pt)", CHATSOUND_CON);
         Delay(SECOND*2);
     }
     
     // Make buu342 say something edgy
-    switch (random(1, 7))
+    switch (1/*random(1, 7)*/)
     {
         case 1:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I hope you've made your prayers."), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: I hope you've made your prayers.", CHATSOUND_MSG);
             break;
         case 2:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Killing you all is my favorite part."), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Killing you all is my favorite part.", CHATSOUND_MSG);
             break;
         case 3:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Hopefully you prepared new pants!"), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Hopefully you prepared new pants!", CHATSOUND_MSG);
             break;
         case 4:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Let's get it started in here."), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Let's get it started in here.", CHATSOUND_MSG);
             break;
         case 5:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Now it's my turn."), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Now it's my turn.", CHATSOUND_MSG);
             break;
         case 6:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Did you know: You're going to die."), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Did you know: You're going to die.", CHATSOUND_MSG);
             break;
         case 7:
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I'm curious how long you'll last."), CHATSOUND_MSG);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: I'm curious how long you'll last.", CHATSOUND_MSG);
             break;
     }
     delay(SECOND);
     
     // Make buu342 join the game
-    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" joined the game."), CHATSOUND_NONE);
+    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the game.", CHATSOUND_NONE);
     SpawnSpotForced("Buu342Phase1", 1, TID_BUU342, 192);
     SpawnSpotForced("TeleportFog", 1, 0, 0.25);
     Thing_Deactivate(TID_BUU342);
@@ -561,7 +561,7 @@ Script "DoomWare_Client_Initialize" (void)
     HUDMessage(s:""; HUDMSG_PLAIN, MSGID_ACHIEVEM, CR_CYAN, 0, 0, 1.0);
 
     // Check the player's role or warn if they're not logged in
-    if (playerIsLoggedIn(PlayerNumber()))
+    if (!GetCVar("doomware_unsafedb") && playerIsLoggedIn(PlayerNumber()))
         Load_PlayerDB(PlayerNumber());
     else
         data_role[PlayerNumber()] = ROLE_UNLOGGED;
@@ -610,9 +610,9 @@ Script "DoomWare_Server_GameLogic" (void)
         delay(SECOND*3);
         
         // Make buu342 say some more edgy things
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Did you really think it'd be that easy?"), CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Did you really think it'd be that easy?", CHATSOUND_MSG);
         delay(SECOND*3);
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: This is just the beginning."), CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: This is just the beginning.", CHATSOUND_MSG);
         delay(SECOND*3);
         
         // Start the floor shake
@@ -665,13 +665,13 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: you FOOLS! This is MY WAD, MY GAMEMODE."), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: you FOOLS! This is MY WAD, MY GAMEMODE.", CHATSOUND_MSG);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I'M THE ONE IN CONTROL HERE. WATCH!"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: I'M THE ONE IN CONTROL HERE. WATCH!", CHATSOUND_MSG);
                     delay(SECOND*3);
                     ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "The Server Host or an RCON user is possibly cheating by calling \"puke \"DoomWare_Console_Buu342TakeOver\" 0 0 0 0\"", CHATSOUND_NONE);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Lets see how good you are at DoomWare!"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Lets see how good you are at DoomWare!", CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -682,7 +682,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: You're a persistent bunch. Lets try this then."), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: You're a persistent bunch. Lets try this then.", CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -693,7 +693,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Gosh, you're annoying. How about this?"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Gosh, you're annoying. How about this?", CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -704,7 +704,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Why won't you die already!?"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Why won't you die already!?", CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -715,7 +715,7 @@ Script "DoomWare_Server_GameLogic" (void)
                     dominigame = true;
                     SetActorState(TID_BUU3422, "TurnInvisible", true);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: fuckfuckfuckfuck!!!!!"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: fuckfuckfuckfuck!!!!!", CHATSOUND_MSG);
                     delay(SECOND*3);
                 }
                 break;
@@ -728,15 +728,15 @@ Script "DoomWare_Server_GameLogic" (void)
                     game_status = STATUS_PHASE2OVER;
                     SetMusic("D_WRAPDR");
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: I", CHATSOUND_MSG);
                     delay(SECOND);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: WONT"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: WONT", CHATSOUND_MSG);
                     delay(SECOND);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: FUCKING"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: FUCKING", CHATSOUND_MSG);
                     delay(SECOND);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: LOSE!!!!!!!!!!!!!!!"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: LOSE!!!!!!!!!!!!!!!", CHATSOUND_MSG);
                     delay(SECOND*3);
-                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: You might survive this next one, but you won't what comes after!"), CHATSOUND_MSG);
+                    ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: You might survive this next one, but you won't what comes after!", CHATSOUND_MSG);
                     delay(SECOND*3);
                     round_nextgame = random(SECOND*5, SECOND*8);
                 }
@@ -823,10 +823,10 @@ Script "DoomWare_Server_GameLogic" (void)
         
         // Say the last words
         AmbientSound("misc/chat", 127);
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Heh, looks like you really are..."), CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Heh, looks like you really are...", CHATSOUND_MSG);
         Delay(SECOND*2);
         AmbientSound("misc/chat", 127);
-        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Too strong..."), CHATSOUND_MSG);
+        ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Too strong...", CHATSOUND_MSG);
         Delay(SECOND*2);
         Radius_Quake(3, SECOND*7, 0, 255, 1);
         
@@ -850,9 +850,9 @@ Script "DoomWare_Server_GameLogic" (void)
         
         // If he isn't, disconnect him from the game
         if (!buuingame)
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:"Client ", s:BUU342NAME, s:" disconnected."), CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.", CHATSOUND_NONE);
         else
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" joined the spectators."), CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.", CHATSOUND_NONE);
         thing_remove(TID_BUU3422);
         Delay(SECOND*3);
         
@@ -862,7 +862,7 @@ Script "DoomWare_Server_GameLogic" (void)
         SetMusic("D_BOSWIN");
         for (i=0; i<MAXPLAYERS; i++)
         {
-            if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
+            if (PlayerInGame(i) || PlayerIsSpectator(i) != 1)
             {
                 Give_Achievement(i, ACHIEVE_ID_BOSS);
                 data_bosskills[i]++;
@@ -897,25 +897,25 @@ Script "DoomWare_Server_GameLogic" (void)
         switch(random(1, 7))
         {
             case 2:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Try a little harder next time"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Try a little harder next time", CHATSOUND_MSG);
                 break;
             case 3:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Pathetic"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Pathetic", CHATSOUND_MSG);
                 break;
             case 4:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Whoops, looks like I accidentally obliterated you"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Whoops, looks like I accidentally obliterated you", CHATSOUND_MSG);
                 break;
             case 5:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: I'll call next time I want to be tickled"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: I'll call next time I want to be tickled", CHATSOUND_MSG);
                 break;
             case 6:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Maybe try hurting me next time"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Maybe try hurting me next time", CHATSOUND_MSG);
                 break;
             case 7:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: Maybe if you use IDDQD, you'll actually do some damage"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: Maybe if you use IDDQD, you'll actually do some damage", CHATSOUND_MSG);
                 break;
             default:
-                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:"\cd: You're crazier than me if you thought you stood a chance"), CHATSOUND_MSG);
+                ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c-\cd: You're crazier than me if you thought you stood a chance", CHATSOUND_MSG);
                 break;
         }
         delay(SECOND*2);
@@ -930,9 +930,9 @@ Script "DoomWare_Server_GameLogic" (void)
         
         // If he isn't, disconnect him from the game
         if (!buuingame)
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:"Client ", s:BUU342NAME, s:" disconnected."), CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "Client \cqB\csu\cdu\cq3\cs4\cd2\c- disconnected.", CHATSOUND_NONE);
         else
-            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, StrParam(s:BUU342NAME, s:" joined the spectators."), CHATSOUND_NONE);
+            ACS_NamedExecuteAlways("DoomWare_FakeMessage", 0, "\cqB\csu\cdu\cq3\cs4\cd2\c- joined the spectators.", CHATSOUND_NONE);
         thing_remove(TID_BUU342);
         thing_remove(TID_BUU3422);
         delay(SECOND*2);
@@ -1155,7 +1155,7 @@ Script "DoomWare_Server_ReturnPlayers" (int move_if_lost, int fog)
     }
 }
 
-Script "DoomWare_Server_UpdateDB" (void)
+Script "DoomWare_Server_UpdateDB" (void) // Updates the Database at the end of the game
 {
     int i;
 
@@ -1163,27 +1163,27 @@ Script "DoomWare_Server_UpdateDB" (void)
     if (game_solo)
         terminate;
 
-    // Check for people who have played too much DoomWare
-    for (i=0; i<MAXPLAYERS; i++)
-        if (playerIsLoggedIn(i) && playerInGame(i) && data_role[i] == ROLE_NONE)
-            if (GetDBEntry("Points", getPlayerAccountName(i)) >= 200)
-                data_role[i] = ROLE_REGULAR;
-
     // Begin the Database Transaction
     BeginDBTransaction();
 
     for (i=0; i<MAXPLAYERS; i++)
-        if (playerIsLoggedIn(i) && playerInGame(i))
+    {
+        if ((PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")) && playerInGame(i))
         {
+            str plyname = getPlayerAccountName(i);
+            if (GetCVar("doomware_unsafedb"))
+                plyname = StrParam(n:i+1);
+
             // Log the number of deaths
-            SetDBEntry("Deaths", getPlayerAccountName(i), data_deaths[i]);
-            
+            SetDBEntry("Deaths", plyname, data_deaths[i]);
+
             // Log the achievements
-            SetDBEntry("Achievements", getPlayerAccountName(i), data_achieve[i]);
+            SetDBEntry("Achievements", plyname, data_achieve[i]);
 
             // Log the player's roles
-            SetDBEntry("Role", getPlayerAccountName(i), data_role[i]);
+            SetDBEntry("Role", plyname, data_role[i]);
         }
+    }
 
     // Update the Database
     EndDBTransaction();
@@ -1336,7 +1336,7 @@ function void Pack_Global_Array(str cvar) // Replacement for Get/SetUserCVar
     */
     switch (cvar)
     {
-        case "__clientsync_player_loggedin":      for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:PlayerIsLoggedIn(i), s:"\n"); break;
+        case "__clientsync_player_loggedin":      for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:(PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")), s:"\n"); break;
         case "__clientsync_player_datascore":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_points[i], s:"\n"); break;
         case "__clientsync_player_datawins":      for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_wins[i], s:"\n"); break;
         case "__clientsync_player_datadeaths":    for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_deaths[i], s:"\n"); break;
@@ -2563,14 +2563,14 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_501UPS,     ACHIEVE_NAME_501UPS,     ACHIEVE_DESC_501UPS, "ACH_1UPF", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_100DEATH,   ACHIEVE_NAME_100DEATH,   ACHIEVE_DESC_100DEATH, "ACH_DEDH", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_300POINTS,  ACHIEVE_NAME_300POINTS,  ACHIEVE_DESC_300POINTS, "ACH_300P", plynum, x, y, w, h);
-                        Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_WRONGDOOR,  ACHIEVE_NAME_WRONGDOOR,  ACHIEVE_DESC_WRONGDOOR, "ACH_COLR", plynum, x, y, w, h);
+                        Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_JUMP,       ACHIEVE_NAME_JUMP,       ACHIEVE_DESC_JUMP, "ACH_JUMP", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_LONGJUMP,   ACHIEVE_NAME_LONGJUMP,   ACHIEVE_DESC_LONGJUMP, "ACH_1UPS", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_3FRAGS,     ACHIEVE_NAME_3FRAGS,     ACHIEVE_DESC_3FRAGS, "ACH_3FRG", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_BULLETHELL, ACHIEVE_NAME_BULLETHELL, ACHIEVE_DESC_BULLETHELL, "ACH_BULL", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_KARTWIN,    ACHIEVE_NAME_KARTWIN,    ACHIEVE_DESC_KARTWIN, "ACH_KART", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_ATST,       ACHIEVE_NAME_ATST,       ACHIEVE_DESC_ATST, "ACH_ATST", plynum, x, y, w, h);
+                        Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_WAIFU,      ACHIEVE_NAME_WAIFU,     ACHIEVE_DESC_WAIFU, "ACH_WAIF", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_BOSS,       ACHIEVE_NAME_BOSS,       ACHIEVE_DESC_BOSS, "ACH_BOSS", plynum, x, y, w, h);
-                        Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_BADAIM,     ACHIEVE_NAME_BADAIM,     ACHIEVE_DESC_BADAIM, "ACH_AIMB", plynum, x, y, w, h);
                         Handle_Menu_Achievement(syncdata_achieve, ACHIEVE_ID_FULLSERVER, ACHIEVE_NAME_FULLSERVER, ACHIEVE_DESC_FULLSERVER, "ACH_FULL", plynum, x, y, w, h);
                     }
                     else
@@ -2705,40 +2705,46 @@ function void Handle_Menu_Achievement(int achieve_data, int number, str name, st
     }
 }
 
-function void Give_Achievement(int plynum, int achievement)
+function void Give_Achievement(int plynum, int achievement) // Gives the player an achievement
 {
-    if (PlayerIsLoggedIn(plynum) && game_status != STATUS_NOTSTARTED && !game_solo && (data_achieve[plynum] & (1<<achievement)) == 0)
+	int active = ActivatorTID();
+	str name = "";
+	
+	if (!PlayerInGame(plynum))
+		return;
+	
+    if ((PlayerIsLoggedIn(plynum) || GetCVar("doomware_unsafedb")) && game_status != STATUS_NOTSTARTED && !game_solo && (data_achieve[plynum] & (1<<achievement)) == 0)
     {
         data_achieve[plynum] = data_achieve[plynum] | (1<<achievement);
         switch(achievement)
         {
-            case ACHIEVE_ID_1WIN:       player_achievement[plynum] = ACHIEVE_NAME_1WIN; Break;
-            case ACHIEVE_ID_10WIN:      player_achievement[plynum] = ACHIEVE_NAME_10WIN; Break;
-            case ACHIEVE_ID_50WIN:      player_achievement[plynum] = ACHIEVE_NAME_50WIN; Break;
-            case ACHIEVE_ID_25POINTS:   player_achievement[plynum] = ACHIEVE_NAME_25POINTS; Break;
-            case ACHIEVE_ID_1V1WIN:     player_achievement[plynum] = ACHIEVE_NAME_1V1WIN; Break;
-            case ACHIEVE_ID_MVMWIN:     player_achievement[plynum] = ACHIEVE_NAME_MVMWIN; Break;
-            case ACHIEVE_ID_501UPS:     player_achievement[plynum] = ACHIEVE_NAME_501UPS; Break;
-            case ACHIEVE_ID_100DEATH:   player_achievement[plynum] = ACHIEVE_NAME_100DEATH; Break;
-            case ACHIEVE_ID_300POINTS:  player_achievement[plynum] = ACHIEVE_NAME_300POINTS; Break;
-            case ACHIEVE_ID_WRONGDOOR:  player_achievement[plynum] = ACHIEVE_NAME_WRONGDOOR; Break;
-            case ACHIEVE_ID_LONGJUMP:   player_achievement[plynum] = ACHIEVE_NAME_LONGJUMP; Break;
-            case ACHIEVE_ID_3FRAGS:     player_achievement[plynum] = ACHIEVE_NAME_3FRAGS; Break;
-            case ACHIEVE_ID_BULLETHELL: player_achievement[plynum] = ACHIEVE_NAME_BULLETHELL; Break;
-            case ACHIEVE_ID_KARTWIN:    player_achievement[plynum] = ACHIEVE_NAME_KARTWIN; Break;
-            case ACHIEVE_ID_ATST:       player_achievement[plynum] = ACHIEVE_NAME_ATST; Break;
-            case ACHIEVE_ID_BOSS:       player_achievement[plynum] = ACHIEVE_NAME_BOSS; Break;
-            case ACHIEVE_ID_BADAIM:     player_achievement[plynum] = ACHIEVE_NAME_BADAIM; Break;
-            case ACHIEVE_ID_FULLSERVER: player_achievement[plynum] = ACHIEVE_NAME_FULLSERVER; Break;
+            case ACHIEVE_ID_1WIN:       name = ACHIEVE_NAME_1WIN; Break;
+            case ACHIEVE_ID_10WIN:      name = ACHIEVE_NAME_10WIN; Break;
+            case ACHIEVE_ID_50WIN:      name = ACHIEVE_NAME_50WIN; Break;
+            case ACHIEVE_ID_25POINTS:   name = ACHIEVE_NAME_25POINTS; Break;
+            case ACHIEVE_ID_1V1WIN:     name = ACHIEVE_NAME_1V1WIN; Break;
+            case ACHIEVE_ID_MVMWIN:     name = ACHIEVE_NAME_MVMWIN; Break;
+            case ACHIEVE_ID_501UPS:     name = ACHIEVE_NAME_501UPS; Break;
+            case ACHIEVE_ID_100DEATH:   name = ACHIEVE_NAME_100DEATH; Break;
+            case ACHIEVE_ID_300POINTS:  name = ACHIEVE_NAME_300POINTS; Break;
+            case ACHIEVE_ID_JUMP:       name = ACHIEVE_NAME_JUMP; Break;
+            case ACHIEVE_ID_LONGJUMP:   name = ACHIEVE_NAME_LONGJUMP; Break;
+            case ACHIEVE_ID_3FRAGS:     name = ACHIEVE_NAME_3FRAGS; Break;
+            case ACHIEVE_ID_BULLETHELL: name = ACHIEVE_NAME_BULLETHELL; Break;
+            case ACHIEVE_ID_KARTWIN:    name = ACHIEVE_NAME_KARTWIN; Break;
+            case ACHIEVE_ID_ATST:       name = ACHIEVE_NAME_ATST; Break;
+            case ACHIEVE_ID_WAIFU:      name = ACHIEVE_NAME_WAIFU; Break;
+            case ACHIEVE_ID_BOSS:       name = ACHIEVE_NAME_BOSS; Break;
+            case ACHIEVE_ID_FULLSERVER: name = ACHIEVE_NAME_FULLSERVER; Break;
             default: break;
         }
-        ACS_NamedExecute("DoomWare_AchievementLog", 0, plynum, player_achievement[plynum]); // We can't do Log() serverside, so this is a workaround
+        ACS_NamedExecuteAlways("DoomWare_AchievementLog", 0, plynum, name); // We can't do Log() serverside, so this is a workaround
 
         // Notify the achievement got received
-        SetActivator(TID_PLAYER+plynum);
+        SetActivatorToPlayer(plynum);
         SpawnSpotForced("ConfettiEffect", TID_PLAYER+plynum, 0, 0);
         SetFont("DW_FONT1");
-        if (game_status != STATUS_NOTSTARTED && player_achievement[PlayerNumber()] != "")
+        if (game_status != STATUS_NOTSTARTED && name != "")
         {
             int w = GetScreenWidth();
             int h = GetScreenHeight();
@@ -2751,11 +2757,16 @@ function void Give_Achievement(int plynum, int achievement)
             SetHudSize(w, h, true);
             w = w << 16;
             h = h << 16;
-            HUDMessage(s:"Achievement Unlocked!\n", s:player_achievement[PlayerNumber()]; HUDMSG_FADEOUT, MSGID_ACHIEVEM, CR_CYAN, w/2 + 0.4, FixedMul(h, 0.8) + 0.2, 1.0, 1.0);
-            player_achievement[PlayerNumber()] = "";
+            HUDMessage(s:"Achievement Unlocked!\n", s:name; HUDMSG_FADEOUT, MSGID_ACHIEVEM, CR_CYAN, w/2 + 0.4, FixedMul(h, 0.8) + 0.2, 1.0, 1.0);
             if (GetUserCvar(PlayerNumber(), "doomware_hudsounds"))
                 LocalAmbientSound("DoomWare/Achievement", 127);
         }
+		
+		// Reset the activator to prevent problems
+		if (active < TID_PLAYER)
+			SetActivator(0, AAPTR_NULL);
+		else
+			SetActivatorToPlayer(active-TID_PLAYER);
         
         // Give the achiever role if this person unlocked all the achievements
         if (data_achieve[plynum] == 0x3FFFF && data_role[plynum] != ROLE_BETA && data_role[plynum] != ROLE_BUU342)
@@ -2763,22 +2774,34 @@ function void Give_Achievement(int plynum, int achievement)
     }
 }
 
-
 /*===================================================================================================
                                             Hats
 ===================================================================================================*/
 
-#define BETATESTERSIZE 4
+
+#define BETATESTERSIZE 16
 str BetaTesterList[BETATESTERSIZE];
-function bool IsBetaTester(int plynum)
+function bool IsBetaTester(int plynum) // Returns true/false if the player is a beta tester
 {
-    BetaTesterList[0] = "[I] Asriel";
-    BetaTesterList[1] = "Marcaek";
-    BetaTesterList[2] = "Doomer9000";
-    BetaTesterList[3] = "DeanYktRu";
+    BetaTesterList[0] = "asriel";
+    BetaTesterList[1] = "margsabl";
+    BetaTesterList[2] = "marcaek";
+    BetaTesterList[3] = "doomer9000";
+    BetaTesterList[4] = "deanyktru";
+    BetaTesterList[5] = "dsparil";
+    BetaTesterList[6] = "flambeau";
+    BetaTesterList[7] = "dastan";
+    BetaTesterList[8] = "combinebobnt";
+	BetaTesterList[9] = "kaapeli47";
+	BetaTesterList[10] = "metaldanny";
+	BetaTesterList[11] = "oremex";
+	BetaTesterList[12] = "danielcs";
+	BetaTesterList[13] = "haispawner";
+	BetaTesterList[14] = "daddykrabs";
+	BetaTesterList[15] = "obspogon";
 
     for (int i=0; i<BETATESTERSIZE; i++)
-        if (!StrCmp(BetaTesterList[i], GetPlayerAccountName(i)))
+        if (!StrIcmp(BetaTesterList[i], GetPlayerAccountName(i)))
             return true;
     return false;
 }
@@ -2794,33 +2817,40 @@ Script "DoomWare_Server_Hats" (void)
         if ((ThingCount(0, TID_HATROLE+i) > 0 && data_role[i] <= ROLE_NONE) || (GetActorProperty(TID_PLAYER+i, APROP_Health) <= 0) || (!PlayerInGame(i)))
             Thing_Remove(TID_HATROLE+i);
 
-        // Check if the player logged in recently
-        if (data_role[i] == ROLE_UNLOGGED && PlayerIsLoggedIn(i))
-        {
+		// Check if the player logged in recently
+        if (data_role[i] == ROLE_UNLOGGED && (PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")))
+		{
             Load_PlayerDB(i);
-            if (IsBetaTester(i))
-                data_role[i] = ROLE_BETA;
-        }
+			
+			// Give a beta tester a role if they don't have one
+			if (data_role[i] != ROLE_BETA && IsBetaTester(i))
+				data_role[i] = ROLE_BETA;
+		}
 
         // If they don't have a worthy role (or are dead), ignore them
         if (data_role[i] <= ROLE_NONE || (GetActorProperty(TID_PLAYER+i, APROP_Health) <= 0))
             continue;
 
-        switch (data_role[i])
-        {
-            case ROLE_BETA:
-                if (ThingCount(0, TID_HATROLE+i) == 0)
-                    SpawnSpotForced("BetaHat", 1, TID_HATROLE+i, 0);
-            case ROLE_REGULAR:
-                if (ThingCount(0, TID_HATROLE+i) == 0)
-                    SpawnSpotForced("RegularHat", 1, TID_HATROLE+i, 0);
-            case ROLE_ACHIEVER:
-                if (ThingCount(0, TID_HATROLE+i) == 0)
-                    SpawnSpotForced("AchieverHat", 1, TID_HATROLE+i, 0);
-
-                SetActorPosition(TID_HATROLE+i, GetActorX(TID_PLAYER+i), GetActorY(TID_PLAYER+i), GetActorZ(TID_PLAYER+i)+64.0, 0);
-                break;
-        }
+		// Spawn the hat if it doesn't exist yet
+		if (ThingCount(0, TID_HATROLE+i) == 0)
+		{
+			switch (data_role[i])
+			{
+				case ROLE_BETA:
+					SpawnSpotForced("BetaHat", 1, TID_HATROLE+i, 0);
+					break;
+				case ROLE_REGULAR:
+					SpawnSpotForced("RegularHat", 1, TID_HATROLE+i, 0);
+					break;
+				case ROLE_ACHIEVER:
+					SpawnSpotForced("AchieverHat", 1, TID_HATROLE+i, 0);
+					break;
+			}
+		}
+			
+		// Position the hat if it exists
+		if (ThingCount(0, TID_HATROLE+i) != 0)
+			SetActorPosition(TID_HATROLE+i, GetActorX(TID_PLAYER+i), GetActorY(TID_PLAYER+i), GetActorZ(TID_PLAYER+i)+64.0, 0);
     }
     
     // Handle Buu342's hat
@@ -3124,16 +3154,19 @@ function int Distance(int tid1, int tid2)
     return d;
 }
 
-function void Load_PlayerDB(int plynum)
+function void Load_PlayerDB(int plynum) // Loads a player's database data
 {
+    str plyname = getPlayerAccountName(plynum);
+    if (GetCVar("doomware_unsafedb"))
+        plyname = StrParam(n:plynum+1);
     BeginDBTransaction();
-    data_points[plynum] = GetDBEntry("Points", getPlayerAccountName(plynum));
-    data_wins[plynum] = GetDBEntry("Wins", getPlayerAccountName(plynum));
-    data_deaths[plynum] = GetDBEntry("Deaths", getPlayerAccountName(plynum));
-    data_1ups[plynum] = GetDBEntry("1Ups", getPlayerAccountName(plynum));
-    data_role[plynum] = GetDBEntry("Role", getPlayerAccountName(plynum));
-    data_achieve[plynum] = GetDBEntry("Achievements", getPlayerAccountName(plynum));
-    data_bosskills[plynum] = GetDBEntry("BossKills", getPlayerAccountName(plynum));
+    data_points[plynum] = GetDBEntry("Points", plyname);
+    data_wins[plynum] = GetDBEntry("Wins", plyname);
+    data_deaths[plynum] = GetDBEntry("Deaths", plyname);
+    data_1ups[plynum] = GetDBEntry("1Ups", plyname);
+    data_role[plynum] = GetDBEntry("Role", plyname);
+    data_achieve[plynum] = GetDBEntry("Achievements", plyname);
+    data_bosskills[plynum] = GetDBEntry("BossKills", plyname);
     EndDBTransaction();
 }
 

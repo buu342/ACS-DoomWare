@@ -25,20 +25,20 @@ misc/chat2			DW_CHAT
 
 // Player sounds
 
-$playersound	sonic	male	*jump		SONCJUMP
-$playersound	sonic	male	*Taunt		DSUSlow
-$playersound	sonic	female	*jump		SONCJUMP
-$playersound	sonic	female	*Taunt		DSUSlow
-$playersound	sonic	other	*jump		SONCJUMP
-$playersound	sonic	other	*Taunt		DSUSlow
+$playersound	sonic	male	*jump		DSSONCJU
+$playersound	sonic	male	*Taunt		DSUSLOW
+$playersound	sonic	female	*jump		DSSONCJU
+$playersound	sonic	female	*Taunt		DSUSLOW
+$playersound	sonic	other	*jump		DSSONCJU
+$playersound	sonic	other	*Taunt		DSUSLOW
 
-$playersound	Kart	male	*Taunt		Honk
-$playersound	Kart	female	*Taunt		Honk
-$playersound	Kart	other	*Taunt		Honk
+$playersound	Kart	male	*Taunt		DSHONK
+$playersound	Kart	female	*Taunt		DSHONK
+$playersound	Kart	other	*Taunt		DSHONK
 
-$playersound	Hoth	male	*Taunt		SHPTaunt
-$playersound	Hoth	female	*Taunt		SHPTaunt
-$playersound	Hoth	other	*Taunt		SHPTaunt
+$playersound	Hoth	male	*Taunt		DSSHPTAU
+$playersound	Hoth	female	*Taunt		DSSHPTAU
+$playersound	Hoth	other	*Taunt		DSSHPTAU
 
 $playersound	homer	male	*Land		DSHSOOF
 $playersound	homer	male	*Taunt		DSHSTANT
@@ -72,16 +72,16 @@ $playersound	massm	other	*Land		DSMMOOF
 $playersound	massm	other	*Usefail	DSMMHUMP
 $playersound	massm	other	*Taunt		DSMMTANT
 
-$playersound	Chicken	male	*Taunt		CHICACT
-$playersound	Chicken	male	*usefail	CHICACT
-$playersound	Chicken	female	*Taunt		CHICACT
-$playersound	Chicken	female	*usefail	CHICACT
-$playersound	Chicken	other	*Taunt		CHICACT
-$playersound	Chicken	other	*usefail	CHICACT
+$playersound	Chicken	male	*Taunt		DSCHKACT
+$playersound	Chicken	male	*usefail	DSCHKACT
+$playersound	Chicken	female	*Taunt		DSCHKACT
+$playersound	Chicken	female	*usefail	DSCHKACT
+$playersound	Chicken	other	*Taunt		DSCHKACT
+$playersound	Chicken	other	*usefail	DSCHKACT
 
-$playersound	Bob		male	*Taunt		RUNEOUCH
-$playersound	Bob		female	*Taunt		RUNEOUCH
-$playersound	Bob		other	*Taunt		RUNEOUCH
+$playersound	Bob		male	*Taunt		DSRUNEOW
+$playersound	Bob		female	*Taunt		DSRUNEO2
+$playersound	Bob		other	*Taunt		DSRUNEOW
 
 $playersound	buu342	male	*land		DSBUNOPM
 $playersound	buu342	male	*taunt		DSBUAWYE
@@ -182,7 +182,7 @@ $playersound	Replica	female	*pain75		DSREPPAI
 $playersound	Replica	female	*pain50		DSREPPAI
 $playersound	Replica	female	*pain25		DSREPPAI
 $playersound	Replica	female	*death		DSREPDIE
-$playersound	Replica	male	*xdeath		DSREPDIE
+$playersound	Replica	female	*xdeath		DSREPDIE
 $playersound	Replica	female	*gibbed		DSREPGIB
 $playersound	Replica	other	*taunt		DSREPTAU
 $playersound	Replica	other	*usefail	DSREPNO
@@ -192,11 +192,45 @@ $playersound	Replica	other	*pain75		DSREPPAI
 $playersound	Replica	other	*pain50		DSREPPAI
 $playersound	Replica	other	*pain25		DSREPPAI
 $playersound	Replica	other	*death		DSREPDIE
-$playersound	Replica	male	*xdeath		DSREPDIE
+$playersound	Replica	other	*xdeath		DSREPDIE
 $playersound	Replica	other	*gibbed		DSREPGIB
 
+$playersound	ShiftyPlayer	male	*taunt		DSSHIFTT
+$playersound	ShiftyPlayer	male	*usefail	DSEMPTY
+$playersound	ShiftyPlayer	male	*death		DSSHIFTD
+$playersound	ShiftyPlayer	male	*xdeath		DSSHIFTD
+$playersound	ShiftyPlayer	male	*gibbed		DSSHIFTD
+$playersound	ShiftyPlayer	female	*taunt		DSSHIFTT
+$playersound	ShiftyPlayer	female	*usefail	DSEMPTY
+$playersound	ShiftyPlayer	female	*death		DSSHIFTD
+$playersound	ShiftyPlayer	female	*xdeath		DSSHIFTD
+$playersound	ShiftyPlayer	female	*gibbed		DSSHIFTD
+$playersound	ShiftyPlayer	other	*taunt		DSSHIFTT
+$playersound	ShiftyPlayer	other	*usefail	DSEMPTY
+$playersound	ShiftyPlayer	other	*death		DSSHIFTD
+$playersound	ShiftyPlayer	other	*xdeath		DSSHIFTD
+$playersound	ShiftyPlayer	other	*gibbed		DSSHIFTD
 
-chicken/death	CHICDTH
+$playersound	BatmanPlayer	male	*taunt		DSBATTAU
+$playersound	BatmanPlayer	male	*usefail	DSBATUSE
+$playersound	BatmanPlayer	male	*death		DSBATDIE
+$playersound	BatmanPlayer	male	*xdeath		DSBATDIE
+$playersound	BatmanPlayer	male	*gibbed		DSBATDIE
+$playersound	BatmanPlayer	male	*land		DSBATOOF
+$playersound	BatmanPlayer	female	*taunt		DSBATTAU
+$playersound	BatmanPlayer	female	*usefail	DSBATUSE
+$playersound	BatmanPlayer	female	*death		DSBATDIE
+$playersound	BatmanPlayer	female	*xdeath		DSBATDIE
+$playersound	BatmanPlayer	female	*gibbed		DSBATDIE
+$playersound	BatmanPlayer	female	*land		DSBATOOF
+$playersound	BatmanPlayer	other	*taunt		DSBATTAU
+$playersound	BatmanPlayer	other	*usefail	DSBATUSE
+$playersound	BatmanPlayer	other	*death		DSBATDIE
+$playersound	BatmanPlayer	other	*xdeath		DSBATDIE
+$playersound	BatmanPlayer	other	*gibbed		DSBATDIE
+$playersound	BatmanPlayer	other	*land		DSBATOOF
+
+DoomWare/ChickenDeath	DSCHKDIE
 
 
 // DoomWare sounds
@@ -273,34 +307,34 @@ DoomWare/Christmas/Intro5		W3_INTR5
 DoomWare/Christmas/Win5			W3_WIN5
 DoomWare/Christmas/FAIL5		W3_FAIL5
 
-DoomWare/GameOver				WW_Over
+DoomWare/GameOver				WW_OVER
 DoomWare/TieBreaker				WW_TIEBK
 DoomWare/TieStart				WW_TSTRT
 
-DoomWare/Quit1					SONCJUMP
-DoomWare/Quit2					Honk
-DoomWare/Quit3					SHPTaunt
+DoomWare/Quit1					DSSONCJU
+DoomWare/Quit2					DSHONK
+DoomWare/Quit3					DSSHPTAU
 DoomWare/Quit4					DSHSDOH
-DoomWare/Quit5					DSHSOOF
+DoomWare/Quit5					DSBUTCHN
 DoomWare/Quit6					DSMMHUMP
-DoomWare/Quit7					CHICACT
-DoomWare/Quit8					RUNEOUCH
-DoomWare/Quit9					1UP
-DoomWare/Quit10					RING
-DoomWare/Quit11					COIN
-DoomWare/Quit12					DSDHZAPR
-DoomWare/Quit13					DSDHQUAK
+DoomWare/Quit7					DSCHKACT
+DoomWare/Quit8					DSRUNEOW
+DoomWare/Quit9					DS1UP
+DoomWare/Quit10					DSRING
+DoomWare/Quit11					DSGHOST
+DoomWare/Quit12					DSAVOIDH
+DoomWare/Quit13					DSCROWD
 DoomWare/Quit14					DSATSTW
-DoomWare/Quit15					DSORECOL
+DoomWare/Quit15					DSFLEMPA
 DoomWare/Quit16					DSTHFSEE
-DoomWare/Quit17					ACHIEVEM
+DoomWare/Quit17					DSACHIEV
 
 DoomWare/SpoopyGhost			DSGHOST
 
-DoomWare/Check					WW_Check
-DoomWare/Failure				WW_Failr
-DoomWare/1UP	  				1UP
-DoomWare/Achievement 			ACHIEVEM
+DoomWare/Check					WW_CHECK
+DoomWare/Failure				WW_FAILR
+DoomWare/1UP	  				DS1UP
+DoomWare/Achievement 			DSACHIEV
 
 
 // HUD Sounds
@@ -309,54 +343,54 @@ DoomWare/Clock3					WW_TICK3
 DoomWare/Clock2					WW_TICK2
 DoomWare/Clock1					WW_TICK1
 
-DoomWare/HUDMove				HUDMOVE
-DoomWare/MenuSwitch				SOTESWCH
-DoomWare/MenuTab				MENUTAB
+DoomWare/HUDMove				DW_HUDMV
+DoomWare/MenuSwitch				DSSOTESW
+DoomWare/MenuTab				DW_MENUT
 
 DoomWare/WackyMod				DSMKITEM
 
 
 // Minigame sounds
 
-DoomWare/JitterskullCackle1		SKULL1
-DoomWare/JitterskullCackle2		SKULL2
-DoomWare/JitterskullCackle3		SKULL3
-DoomWare/JitterskullCackle4		SKULL4
-DoomWare/JitterskullAttack		SKULL5
+DoomWare/JitterskullCackle1		DSSKULL1
+DoomWare/JitterskullCackle2		DSSKULL2
+DoomWare/JitterskullCackle3		DSSKULL3
+DoomWare/JitterskullCackle4		DSSKULL4
+DoomWare/JitterskullAttack		DSSKULLA
 
-DoomWare/Barrel  				WW_BRL
+DoomWare/Barrel  				DSBARRL
 
-DoomWare/Jihad  				DW_Jihad
-DoomWare/JihadBoom  			DW_JHDB
+DoomWare/Jihad  				DSJIHAD
+DoomWare/JihadBoom  			DSJHDB
 
-DoomWare/Spam					SPAM
-DoomWare/Yaya					YAYA
+DoomWare/Spam					DSSPAM
+DoomWare/Yaya					DSYAYA
 
-DoomWare/Ring					RING
-DoomWare/Coin					COIN
+DoomWare/Ring					DSRING
+DoomWare/Coin					DSCOIN
 
-DoomWare/MaceSwing				HAMMIS2
+DoomWare/MaceSwing				DSMACE
 
+DoomWare/FlandersAct 			DSNEDACT
+DoomWare/FlandersDeath1			DSNEDDI1
+DoomWare/FlandersDeath2			DSNEDDI2
+DoomWare/FlandersSpot1 			DSNEDSE1
+DoomWare/FlandersSpot2 			DSNEDSE2
+DoomWare/FlandersPain 			DSNEDPAI
 $random DoomWare/FlandersSpot { DoomWare/FlandersSpot1 DoomWare/FlandersSpot2 }
 $random DoomWare/FlandersDeath { DoomWare/FlandersDeath1 DoomWare/FlandersDeath2 }
-DoomWare/FlandersAct 			NED_ACT
-DoomWare/FlandersDeath1			NED_DTH1
-DoomWare/FlandersDeath2			NED_DTH2
-DoomWare/FlandersSpot1 			NED_SIT1
-DoomWare/FlandersSpot2 			NED_SIT2
-DoomWare/FlandersPain 			NED_PAIN
 
-DoomWare/Worm	 				Worm01
+DoomWare/Worm	 				DSWORM01
 
-DoomWare/KartEngine				KARTENGN
-DoomWare/KartStart				KARTSTRT
+DoomWare/KartEngine				DSKARTEN
+DoomWare/KartStart				DSKARTST
 
-DoomWare/SnowSpeederEngine		SSPDRM
-DoomWare/SnowSpeederShoot		SSPDRS
-DoomWare/SnowSpeederExp			SSPDRE
+DoomWare/SnowSpeederEngine		DSSSPDRM
+DoomWare/SnowSpeederShoot		DSSSPDRS
+DoomWare/SnowSpeederExp			DSSSPDRE
 
-DoomWare/Thunder				THNDR1
-DoomWare/Laugh					LAUGH
+DoomWare/Thunder				DSTHNDR
+DoomWare/Laugh					DSLAUGH
 
 Weapons/GrenLF					DSGLAUNC
 Weapons/GrenLX					DSGRNEXP
@@ -378,38 +412,38 @@ DoomWare/ATSTWalk				DSATSTW
 DoomWare/ATSTShoot				DSATSTS
 DoomWare/HothTurShoot			DSTURSHT
 
-DoomWare/TauntHoth				SHPTAUNT
-DoomWare/TauntKart				Honk
+DoomWare/TauntHoth				DSSHPTAU
+DoomWare/TauntKart				DSHONK
 
 DoomWare/BowDraw				DSBOWDRA
 DoomWare/BowFire				DSBOWFRE
 
-DoomWare/AvoidHere				AVODHere
-DoomWare/AvoidMove				AVODMove
-DoomWare/Cereal					CEREAL
+DoomWare/AvoidHere				DSAVOIDH
+DoomWare/AvoidMove				DSAVOIDM
+DoomWare/Cereal					DSCEREAL
 
-DoomWare/Spike					LILSPIKY
-DoomWare/LilithSee				LILTHSEE
-DoomWare/LilithAttack			LILTHATK
+DoomWare/Spike					DSLILSPK
+DoomWare/LilithSee				DSLILSEE
+DoomWare/LilithAttack			DSLILATK
 
 DoomWare/CleanCock1				DSPSCK1
 DoomWare/CleanCock2				DSPSCK2
 DoomWare/CleanCock3				DSPSCK3
 DoomWare/CleanCock4				DSPSCK4
-DoomWare/CleanRub1				RUB1
-DoomWare/CleanRub2				RUB2
-DoomWare/CleanSpray				SPRAY
+DoomWare/CleanRub1				DSRUB1
+DoomWare/CleanRub2				DSRUB2
+DoomWare/CleanSpray				DSSPRAY
 
-DoomWare/Gulp					GULP
-DoomWare/DrinkAh				DRINKAH
+DoomWare/Gulp					DSGULP
+DoomWare/DrinkAh				DSDRNKAH
 
-DoomWare/WTFBoom				WTFBOOM
+DoomWare/WTFBoom				DSWTFBOM
 
 DoomWare/ThiefSee				DSTHFSEE
 DoomWare/ThiefHurt				DSTHFPAN
 DoomWare/ThiefDie				DSTHFDIE
 
-DoomWare/ButtonChange			BUTCHNGE
+DoomWare/ButtonChange			DSBUTCHN
 
 DoomWare/FlameThrower			DSFLAMER
 
@@ -493,6 +527,53 @@ DoomWare/WindowBreak			DSWNDWBR
 DoomWare/ShellBounce1			DSSHELB1
 DoomWare/ShellBounce2			DSSHELB2
 $random DoomWare/ShellBounce { DoomWare/ShellBounce1 DoomWare/ShellBounce2 }
+
+DoomWare/Shift					DSSHIFT
+DoomWare/ShiftFail				DSSHIFTF
+DoomWare/ShiftLast				DSSHIFTL
+DoomWare/ShiftRestore			DSSHIFTR
+DoomWare/ShiftyFist1			DSSPNCH1
+DoomWare/ShiftyFist2			DSSPNCH2
+DoomWare/ShiftyFistHit1			DSSPNCH3
+DoomWare/ShiftyFistHit2			DSSPNCH4
+DoomWare/ShiftyFistHit3			DSSPNCH5
+$random DoomWare/ShiftyFistHit { DoomWare/ShiftyFistHit1 DoomWare/ShiftyFistHit2 DoomWare/ShiftyFistHit3 }
+
+DoomWare/BatmanLift				DSBATLFT
+DoomWare/Criminal1See			DSCRIM1S
+DoomWare/Criminal1Attack		DSCRIM1A
+DoomWare/Criminal2See1			DSCRIM2S
+DoomWare/Criminal2See2			DSCRIM2Z
+DoomWare/Criminal2Attack		DSCRIM2A
+DoomWare/Criminal2Hit			DSCRIM2H
+DoomWare/Criminal2Melee			DSCRIM2M
+$random DoomWare/Criminal2See { DoomWare/Criminal2See1 DoomWare/Criminal2See2 }
+
+DoomWare/Engulf					DSENGULF
+DoomWare/OnFireDie1				DSONFRD1
+DoomWare/OnFireDie2				DSONFRD2
+DoomWare/OnFireDie3				DSONFRD3
+DoomWare/OnFireScream1			DSONFRS1
+DoomWare/OnFireScream2			DSONFRS2
+DoomWare/OnFireScream3			DSONFRS3
+DoomWare/OnFireScream4			DSONFRS4
+DoomWare/Extinguish				DSEXTING
+$random DoomWare/OnFireDie { DoomWare/OnFireDie1 DoomWare/OnFireDie2 DoomWare/OnFireDie3 }
+$random DoomWare/OnFireScream { 
+	DoomWare/OnFireScream1 DoomWare/OnFireScream2 DoomWare/OnFireScream3 
+	DoomWare/OnFireScream1 DoomWare/OnFireScream2 DoomWare/OnFireScream3 
+	DoomWare/OnFireScream1 DoomWare/OnFireScream2 DoomWare/OnFireScream3 
+	DoomWare/OnFireScream1 DoomWare/OnFireScream2 DoomWare/OnFireScream3 
+	DoomWare/OnFireScream4 }
+	
+DoomWare/PongBounce				DSPONGBO
+DoomWare/PongWin				DSPONGWN
+
+DoomWare/Fighting				DSFIGHTN
+
+DoomWare/LandMine				DSLDMINE
+
+DoomWare/SpikesPopup			DSSPIKE
 
 
 // Buu342 Sounds

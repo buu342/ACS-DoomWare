@@ -28,3 +28,9 @@ end
 	2      	ChexDoorOpen
 	3      	ChexDoorClose
 ]
+
+:BatmanLift
+	platform	4
+	play		DoomWare/BatmanLift
+	stopsound	DoomWare/Blank
+end

@@ -1,0 +1,195 @@
+/*===========================================================================================================================================
+    Welcome to DoomWare's MAP02 ACS Code!
+	
+	This map is designed for people who want to make their own minigames for DoomWare, a sort of "Community Map Pack" if you will. It's a
+	completely separate map, using UDMF, to make it easier on everyone as you don't need to worry about silly map format limits (like 
+	limiting line and TID arguments to 255).
+
+	If you're a bit lost as to what to do, I recommend you look over MAP01's minigames, or better yet, follow the step-by-step minigame 
+	development tutorial available on the GitHub Wiki:
+    https://github.com/buu342/ACS-DoomWare/wiki
+
+    Have fun!
+
+    - Buu342
+===========================================================================================================================================*/
+
+#include "zcommon.acs"
+
+
+/*===================================================================================================
+                                           Definitions
+===================================================================================================*/
+
+
+// Game selection
+
+#define NUMBEROFGAMES        1 // Number Of minigames
+#define NUMBEROFTIEBREAKERS  0 // Number Of 1v1 Tie Breakers
+#define NUMBEROFTIEBREAKERSM 0 // Number Of Non-1v1 Tie Breakers
+
+
+// Debugging single minigames (-1 to not debug, provide a different number to force that minigame number to play)
+// Setting DEBUG_GAME to -2 will jump straight to tiebreakers on game start
+
+#define DEBUG_GAME  -1
+#define DEBUG_TIEB  -1
+#define DEBUG_TIEBM -1
+#define DEBUG_WACKY -1
+
+
+// Game settings
+
+#define BANNEDSOLOGAMES "" // List of games banned during solo play
+
+
+// Include DoomWare's core gamemode code
+
+#include "DOOMWARE"
+
+
+/*===================================================================================================
+                                DoomWare Server Logic Initialization
+===================================================================================================*/
+
+Script "DoomWare_Server_InitMap" (void) // Initializes the map
+{
+	int i;
+	
+	// Initialize parts of the map here
+	
+	
+	// -- Lobby initialization starts here --
+    
+    // Bouncy arena walls
+    if (GetCVar("doomware_bouncywalls"))
+    {
+        SetLineSpecial(255, 226, 255, 0, 255, 64);
+        SetLineSpecial(254, 226, 255, 0, 254, 128);
+        SetLineSpecial(253, 226, 255, 0, 253, 192);
+        SetLineSpecial(252, 226, 255, 0, 252, 0);
+    }
+    
+    // Red OpenGL lights
+    SpawnSpotForced("RedPoint", 257, TID_REMOVE, 0.0);
+    Thing_remove(257);
+    Thing_ChangeTID(TID_REMOVE, 257);
+        
+    // Apply arena seasonal themes
+    if (game_skin == MAPSKIN_HALLOWEEN)
+    {
+        SpawnSpotForced("OrangeTorch", 256, 0, 0);
+        Thing_remove(256);
+        SpawnSpotForced("OrangePoint", 258, TID_REMOVE, 0.0);
+        Thing_remove(258);
+        Thing_ChangeTID(TID_REMOVE, 258);
+        ChangeSky("STSKY21", "");
+        ChangeFloor(259, "WFLAVA1");
+        ChangeFloor(256, "FLATHLWN");
+        ChangeFloor(258, "TLITE6_8");
+        SetLineTexture(258, SIDE_BACK, TEXTURE_BOTTOM , "N_BRGR16");
+        ACS_NamedExecute("DoomWare_DoLightning", 0);
+    }
+    else if (game_skin == MAPSKIN_CHRISTMAS)
+    {
+        SpawnSpotForced("WhiteTorch", 256, 0, 0);
+        Thing_remove(256);
+        SpawnSpotForced("WhitePoint", 258, TID_REMOVE, 0.0);
+        Thing_remove(258);
+        Thing_ChangeTID(TID_REMOVE, 258);
+        ChangeSky("STSKY23", "");
+        ChangeFloor(259, "SNOW");
+        ChangeFloor(256, "FLATCHRS");
+        ChangeFloor(258, "TLITE6_9");
+        SetLineTexture(258, SIDE_BACK, TEXTURE_BOTTOM , "N_BRGR17");
+        Light_ChangeToValue(256, 255);
+		SpawnSpotForced("SnowDropper", 259, TID_REMOVE, 0);
+		SetActorPosition(TID_REMOVE, GetActorX(TID_REMOVE), GetActorY(TID_REMOVE), GetActorZ(TID_REMOVE)+100.0, false);
+		Thing_ChangeTID(TID_REMOVE, 0);
+    }
+    else
+    {
+        SpawnSpotForced("BluePoint", 258, TID_REMOVE, 0.0);
+        Thing_remove(258);
+        Thing_ChangeTID(TID_REMOVE, 258);
+    }
+}
+
+
+/*===================================================================================================
+                                DoomWare Client Logic Initialization
+===================================================================================================*/
+
+Script "DoomWare_Client_InitializeMap" ENTER CLIENTSIDE // Initializes some map things CLIENTSIDE
+{
+	
+}
+
+function void DoomWare_Client_HUDStatusBars(int CurrentRound, int hud_time, int hud_spindex, int status_w, int status_h, bool diedinround) // Draw the STATUSBAR for throwback minigames
+{ 
+
+}
+
+
+/*===================================================================================================
+                                       Minigames (Clientside)
+===================================================================================================*/
+
+Script "DoomWare_Client_Minigame1" (void) // Internal minigame name here
+{
+	minigame_instruction1[PlayerNumber()] = "Minigame instruction here";
+    
+	// Wait until the minigame is over
+    while (game_status == STATUS_MINIGAME)
+        delay(1);
+}
+
+
+
+/*===================================================================================================
+                                    1v1 TieBreakers (Clientside)
+===================================================================================================*/
+
+// Client 1V1 Tiebreaker Minigame scripts go here
+
+
+/*===================================================================================================
+                                  Non 1v1 TieBreakers (Clientside)
+===================================================================================================*/
+
+// Client 1VM Tiebreaker Minigame scripts go here
+
+
+/*===================================================================================================
+                                       Minigames (Serverside)
+===================================================================================================*/
+
+Script "DoomWare_Server_Minigame1" (void) // Internal minigame name here
+{
+    HUDMessage(s:"Internal minigame name here"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
+    SetMusic("D_LAVA");
+	
+	// Wait for the minigame to end
+    ACS_NamedExecuteWait("DoomWare_Server_GameWait", 0, SECOND*5);
+}
+
+
+/*===================================================================================================
+                                    1v1 TieBreakers (Serverside)
+===================================================================================================*/
+
+// Serverside 1V1 Tiebreaker Minigame scripts go here
+
+
+/*===================================================================================================
+                                  Non 1v1 TieBreakers (Serverside)
+===================================================================================================*/
+
+// Serverside 1VM Tiebreaker Minigame scripts go here
+
+
+/*===================================================================================================
+                                       Extra Minigame Scripts
+===================================================================================================*/
+
+// More useful scripts go here

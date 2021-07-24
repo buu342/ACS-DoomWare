@@ -40,6 +40,35 @@ pointlight WHITEPOINT
     offset 0 0 0
 }
 
+pointlight WHITEPOINTLARGE
+{
+    color 1.0 1.0 1.0
+    size 32
+    offset 0 0 0
+}
+
+pointlight YELLOWPOINTLAMP
+{
+    color 1.0 1.0 0.0
+    size 24
+    offset 0 16 0
+}
+
+pointlight YELLOWPOINTCHANDELIER
+{
+    color 1.0 1.0 0.0
+    size 48
+    offset 0 32 0
+}
+
+pointlight YELLOWPOINTLARGE
+{
+    color 1.0 1.0 0.0
+    size 64
+    offset 0 0 0
+}
+
+
 object OrangeTorch
 {
     frame TORG { light ORANGELIGHT }
@@ -62,29 +91,48 @@ object OrangePoint
 {
     frame TNT1 { light ORANGEPOINT }
     frame TNT1A { light ORANGEPOINT }
+    frame TNT2A { }
 }
 
 object BluePoint
 {
     frame TNT1 { light BLUEPOINT }
     frame TNT1A { light BLUEPOINT }
+    frame TNT2A { }
 }
 
 object RedPoint
 {
     frame TNT1 { light REDPOINT }
     frame TNT1A { light REDPOINT }
+    frame TNT2A { }
 }
 
 object WhitePoint
 {
     frame TNT1 { light WHITEPOINT }
     frame TNT1A { light WHITEPOINT }
+    frame TNT2A { }
 }
 
 object ChexLamp
 {
-    frame CQLTA { light WHITEPOINT }
+    frame CQLTA { light WHITEPOINTLARGE }
+}
+
+object BatmanChandelier
+{
+    frame BATDE { light YELLOWPOINTCHANDELIER }
+}
+
+object BatmanLamp
+{
+    frame BATDF { light YELLOWPOINTLAMP }
+}
+
+Object BatmanStreetLight
+{
+    frame BATDC { light YELLOWPOINTLARGE }
 }
 
 brightmap texture C7CONSL1 { map C7CONSLB }

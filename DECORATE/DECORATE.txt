@@ -37,12 +37,10 @@ ACTOR DoomPlayer : PlayerPawn
 	Player.ColorSet 5, "Light Brown",   0x38, 0x47,  0x3A
 	Player.ColorSet 6, "Light Red",     0xB0, 0xBF,  0xB2
 	Player.ColorSet 7, "Light Blue",    0xC0, 0xCF,  0xC2
-
 	+NOTELESTOMP
 	-TELESTOMP
 	+NOTELEFRAG
 	-ALWAYSTELEFRAG
-
 	States
 	{
 		Spawn:
@@ -177,7 +175,7 @@ ACTOR RailGun : DoomWeapon 5012
 			RLGG A 1 A_Raise
 			loop
 		Fire:
-			RLGG E 12 A_FireRailgun
+			RLGG B 12 A_RailAttack(100, 0, true, "", "", 0, 0, "CoopBulletPuff")
 			RLGG A 6
 			Goto Ready
 		Flash:
@@ -208,7 +206,7 @@ ACTOR dickfail
 	+SHOOTABLE
 	+NOICEDEATH
 	+LOOKALLAROUND
-	states
+	States
 	{
 		Spawn:
 			MYYO A 1 a_look
@@ -218,7 +216,7 @@ ACTOR dickfail
 			MYYO A 1 A_Chase
 			loop
 		Missile:
-			MYYO A 10 A_CustomMissile ("DickShot",48,0)
+			MYYO A 10 A_CustomMissile("DickShot", 48, 0)
 			goto See
 		Pain:
 			MYYO A 1 A_Pain
@@ -226,6 +224,37 @@ ACTOR dickfail
 		Death:
 			MYYO A 1
 			stop
+	}
+}
+
+// Ralphis head (Flight Wacky Mod)
+ACTOR dickfail_Flight : dickfail
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Ralphis head (Rage Wacky Mod)
+ACTOR dickfail_Rage : dickfail
+{
+	States
+	{
+		Missile:
+			MYYO A 5 A_CustomMissile("DickShot", 48, 0)
+			goto See
+	}
+}
+
+// Ralphis head (Spread Wacky Mod)
+ACTOR dickfail_Spread : dickfail
+{
+	States
+	{
+		Missile:
+			MYYO A 0 A_CustomMissile("DickShot", 48, 0, -10)
+			MYYO A 0 A_CustomMissile("DickShot", 48, 0, 10)
+			MYYO A 10 A_CustomMissile("DickShot", 48, 0)
+			goto See
 	}
 }
 
@@ -401,6 +430,7 @@ ACTOR NedFlanders : DoomImp
 			NEDF H 2
 			NEDF H 2 A_Pain
 			Goto See
+		XDeath:
 		Death:
 			NEDF I 8 A_GiveToTarget("WonRoundItem",1)
 			NEDF J 8 A_Scream
@@ -408,17 +438,40 @@ ACTOR NedFlanders : DoomImp
 			NEDF L 6 A_NoBlocking
 			NEDF M -1
 			Stop
-		XDeath:
-			NEDF N 5
-			NEDF O 5 A_XScream
-			NEDF P 5
-			NEDF Q 5 A_NoBlocking
-			NEDF RST 5
-			NEDF U -1
-			Stop
-		Raise:
-			NEDF ML 8
-			NEDF KJI 6
+	}
+}
+
+// Ned Flanders (Flight Wacky Mod)
+ACTOR NedFlanders_Flight : NedFlanders
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Ned Flanders (Rage Wacky Mod)
+ACTOR NedFlanders_Rage : NedFlanders
+{
+	States
+	{
+		Melee:
+		Missile:
+			NEDF EF 4 A_FaceTarget
+			NEDF G 3 A_CustomComboAttack("FlandersBall", 32, 3 * random(1, 8), "imp/melee")
+			Goto See
+	}
+}
+
+// Ned Flanders (Spread Wacky Mod)
+ACTOR NedFlanders_Spread : NedFlanders
+{
+	States
+	{
+		Melee:
+		Missile:
+			NEDF EF 8 A_FaceTarget
+			NEDF G 0 A_CustomMissile("DoomImpBall", 32, 0, -10)
+			NEDF G 0 A_CustomMissile("DoomImpBall", 32, 0, 10)
+			NEDF G 6 A_CustomComboAttack("FlandersBall", 32, 3 * random(1, 8), "imp/melee")
 			Goto See
 	}
 }
@@ -708,6 +761,22 @@ ACTOR Jihad
 	}
 }
 
+ACTOR Jihad_Spread : Jihad
+{
+	// Exactly the same
+}
+
+ACTOR Jihad_Rage : Jihad
+{
+	// Exactly the same
+}
+
+ACTOR Jihad_Flight : Jihad
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
 // Suicide pistol
 ACTOR Suicide : DoomWeapon
 {
@@ -854,12 +923,12 @@ ACTOR Buu342Player : DoomPlayer
 ACTOR ChickenPlayer2 : ChickenPlayer
 {
     +NOSKIN
-	player.jumpz 0
+	Player.JumpZ 0
 	Player.ForwardMove 0.75, 0.5
 	Player.SideMove 0.75, 0.5
 	Player.MorphWeapon "Beak2"
 	Player.SoundClass "Chicken"
-	DeathSound "chicken/death"
+	DeathSound "DoomWare/ChickenDeath"
 	States
 	{
 		Missile:
@@ -927,10 +996,10 @@ ACTOR SimpsonsPlayer : DoomPlayer
 // Kart player morph
 ACTOR KartPlayer : DoomPlayer
 {
-	player.forwardmove 0
-	player.sidemove 0
+	Player.ForwardMove 0
+	Player.SideMove 0
 	player.viewheight 24
-	player.jumpz 0
+	Player.JumpZ 0
 	Health 100
 	Radius 16
 	Height 30
@@ -1647,6 +1716,7 @@ ACTOR MechaRomero
 	PainChance 40
 	Monster
 	MinMissileChance 1
+	+INVULNERABLE
 	+BOSS
 	+MISSILEMORE
 	+MISSILEEVENMORE
@@ -1680,6 +1750,57 @@ ACTOR MechaRomero
 			MCJR E 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
 			MCJR E 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR E 4 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 0 Bright A_SpidReFire
+			Goto Missile +1
+	}
+}
+
+// Mecha Romero (Float Wacky Mod)
+ACTOR MechaRomero_Float : MechaRomero
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Mecha Romero (Float Wacky Mod)
+ACTOR MechaRomero_Rage : MechaRomero
+{
+	States
+	{
+		Missile:
+			MCJR C 10 Bright A_FaceTarget
+			MCJR D 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
+			MCJR D 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 2 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
+			MCJR E 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 2 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 0 Bright A_SpidReFire
+			Goto Missile +1
+	}
+}
+
+// Mecha Romero (Float Wacky Mod)
+ACTOR MechaRomero_Spread : MechaRomero
+{
+	States
+	{
+		Missile:
+			MCJR C 20 Bright A_FaceTarget
+			MCJR D 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
+			MCJR D 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 4 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 4 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 4 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
+			MCJR E 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 4 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 4 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 4 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR E 0 Bright A_SpidReFire
 			Goto Missile +1
 	}
@@ -1749,10 +1870,10 @@ ACTOR Explosion_Effect_Quiet : Explosion_Effect
 // Snow Speeder player morph
 ACTOR SnowSpeederPlayer : DoomPlayer
 {
-	player.forwardmove 0
-	player.sidemove 0
+	Player.ForwardMove 0
+	Player.SideMove 0
 	player.viewheight 12
-	player.jumpz 0
+	Player.JumpZ 0
 	Health 100
 	Radius 16
 	Height 30
@@ -1876,10 +1997,10 @@ ACTOR SnowSpeederWeaponFast : SnowSpeederWeapon
 // Outrider player morph
 ACTOR OutriderPlayer : DoomPlayer
 {
-	player.forwardmove 0
-	player.sidemove 0
+	Player.ForwardMove 0
+	Player.SideMove 0
 	player.viewheight 12
-	player.jumpz 0
+	Player.JumpZ 0
 	Health 100
 	Radius 16
 	Height 30
@@ -2095,6 +2216,41 @@ ACTOR ATST
 	}
 }
 
+// Hoth AT-ST (Flight Wacky Mod)
+ACTOR ATST_Flight : ATST
+{
+	+NOGRAVITY
+	+FLOAT
+}
+
+// Hoth AT-ST (Rage Wacky Mod)
+ACTOR ATST_Rage : ATST
+{
+	States
+	{
+		Missile:
+			ATST F 4 A_FaceTarget
+			ATST G 0 A_PlaySound("DoomWare/ATSTShoot",1)
+			ATST G 4 A_CustomMissile("ATSTBlast", 48)
+			Goto See
+	}
+}
+
+// Hoth AT-ST (Spread Wacky Mod)
+ACTOR ATST_Spread : ATST
+{
+	States
+	{
+		Missile:
+			ATST F 8 A_FaceTarget
+			ATST G 0 A_PlaySound("DoomWare/ATSTShoot",1)
+			ATST G 0 A_CustomMissile("ATSTBlast", 48, 0, 10)
+			ATST G 0 A_CustomMissile("ATSTBlast", 48, 0, -10)
+			ATST G 8 A_CustomMissile("ATSTBlast", 48)
+			Goto See
+	}
+}
+
 // AT-ST blaster shot
 ACTOR ATSTBlast
 {
@@ -2228,6 +2384,25 @@ ACTOR BlueThief
 			SANT GHIJKL 4 a_fadeout(0.2)
 			Stop
 	}
+}
+
+// Golden Axe Thief (Flight Wacky Mod)
+ACTOR BlueThief_Flight : BlueThief
+{
+	+NOGRAVITY
+	+FLOAT
+}
+
+// Golden Axe Thief (Spread Wacky Mod)
+ACTOR BlueThief_Spread : BlueThief
+{
+	// Exactly the same
+}
+
+// Golden Axe Thief (Rage Wacky Mod)
+ACTOR BlueThief_Rage : BlueThief
+{
+	// Exactly the same
 }
 
 // Peanut Butter Jelly Banana
@@ -2697,7 +2872,7 @@ ACTOR Hissy 8734
 }
 
 // Linguica for Free Hissy level
-ACTOR Linguica 30020
+ACTOR Linguica
 {
 	Health 150
 	Speed 20
@@ -2731,6 +2906,44 @@ ACTOR Linguica 30020
 			HHGR EE 5 A_FaceTarget
 			HHGR F 0 A_PlaySound ("Weapons/GrenLF")
 			HHGR F 5 A_ThrowGrenade("Grenade", 0, 28, 1)
+			Goto See
+	}
+}
+
+// Linguica (Flight Wacky Mod)
+ACTOR Linguica_Flight : Linguica
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Linguica (Spread Wacky Mod)
+ACTOR Linguica_Spread : Linguica
+{
+	States
+	{
+		Missile:
+			HHGR EE 5 A_FaceTarget
+			HHGR F 0 A_PlaySound ("Weapons/GrenLF")
+			HHGR F 0 A_SetAngle(angle+10)
+			HHGR F 0 A_ThrowGrenade("Grenade", 0, 28, 1)
+			HHGR F 0 A_SetAngle(angle-20)
+			HHGR F 0 A_ThrowGrenade("Grenade", 0, 28, 1)
+			HHGR F 0 A_SetAngle(angle+10)
+			HHGR F 5 A_ThrowGrenade("Grenade", 0, 28, 1)
+			Goto See
+	}
+}
+
+// Linguica (Rage Wacky Mod)
+ACTOR Linguica_Rage : Linguica
+{
+	States
+	{
+		Missile:
+			HHGR EE 2 A_FaceTarget
+			HHGR F 0 A_PlaySound ("Weapons/GrenLF")
+			HHGR F 2 A_ThrowGrenade("Grenade", 0, 28, 1)
 			Goto See
 	}
 }
@@ -3005,10 +3218,10 @@ ACTOR PokemonTrigger : Ammo 11133
 ACTOR AshPlayer : DoomPlayer
 {
 	Player.SoundClass ""
-	player.forwardmove 0.4, 0.4
-	player.sidemove 0.3, 0.3
+	Player.ForwardMove 0.4, 0.4
+	Player.SideMove 0.3, 0.3
 	player.viewheight 18
-	player.jumpz 0
+	Player.JumpZ 0
 	Health 100
 	Radius 16
 	Height 14
@@ -3453,6 +3666,31 @@ ACTOR TentacleWorm : Demon
 	}
 }
 
+// FreeDoom Tentacle Worm (Flight Wacky Mod)
+ACTOR TentacleWorm_Flight : TentacleWorm
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// FreeDoom Tentacle Worm (Rage Wacky Mod)
+ACTOR TentacleWorm_Rage : TentacleWorm
+{
+	States
+	{
+		Melee:
+			TENT EF 2 A_FaceTarget
+			TENT G 2 A_SargAttack
+			Goto See
+	}
+}
+
+// FreeDoom Tentacle Worm (Spread Wacky Mod)
+ACTOR TentacleWorm_Spread : TentacleWorm
+{
+	// No changes
+}
+
 // FreeDoom worm for Eclipse level
 ACTOR SlimyWorm : Demon
 {
@@ -3479,6 +3717,31 @@ ACTOR SlimyWorm : Demon
 			TNT1 A 1
 			stop
 	}
+}
+
+// FreeDoom worm (Flight Wacky Mod)
+ACTOR SlimyWorm_Flight : SlimyWorm
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// FreeDoom worm (Rage Wacky Mod)
+ACTOR SlimyWorm_Rage : SlimyWorm
+{
+	States
+	{
+		Melee:
+			SWRM EF 2 A_FaceTarget
+			SWRM G 2 A_SargAttack
+			Goto See
+	}
+}
+
+// FreeDoom worm (Spread Wacky Mod)
+ACTOR SlimyWorm_Spread : SlimyWorm
+{
+	// No changes
 }
 
 // Cool looking imp for Eclipse level
@@ -3509,6 +3772,31 @@ ACTOR Aguares : Demon
 	}
 }
 
+// Aguares (Flight Wacky Mod)
+ACTOR Aguares_Flight : Aguares
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Aguares (Rage Wacky Mod)
+ACTOR Aguares_Rage : Aguares
+{
+	States
+	{
+		Melee:
+			AGUR WX 2 A_FaceTarget
+			AGUR Y 2 A_SargAttack
+			Goto See
+	}
+}
+
+// Aguares (Spread Wacky Mod)
+ACTOR Aguares_Spread : Aguares
+{
+	// No changes
+}
+
 // Cuthulu looking monster for Eclipse level
 ACTOR ForbiddenOne : Demon
 {
@@ -3537,6 +3825,31 @@ ACTOR ForbiddenOne : Demon
 	}
 }
 
+// Forbidden One (Flight Wacky Mod)
+ACTOR ForbiddenOne_Flight : ForbiddenOne
+{
+	+NOGRAVITY
+	+FLOAT
+}
+
+// Forbidden One (Spread Wacky Mod)
+ACTOR ForbiddenOne_Rage : ForbiddenOne
+{
+	States
+	{
+		Melee:
+			CUTH EFGH 1 A_FaceTarget
+			CUTH I 1 A_SargAttack
+			Goto See
+	}
+}
+
+// Forbidden One (Spread Wacky Mod)
+ACTOR ForbiddenOne_Spread : ForbiddenOne
+{
+	// No changes
+}
+
 // Recolored Demon for Eclipse level
 ACTOR Demon3 : Demon
 {
@@ -3545,6 +3858,31 @@ ACTOR Demon3 : Demon
 	speed 20
 	+LOOKALLAROUND
 	Obituary "%o was sacrificed to the God Hand"
+}
+
+// Recolored Demon (Flight Wacky Mod)
+ACTOR Demon3_Flight : Demon3
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Recolored Demon (Rage Wacky Mod)
+ACTOR Demon3_Rage : Demon3
+{
+	States
+	{
+		Melee:
+			SARG EF 2 A_FaceTarget
+			SARG G 2 A_SargAttack
+			Goto See
+	}
+}
+
+// Recolored Demon (Spread Wacky Mod)
+ACTOR Demon3_Spread : Demon3
+{
+	// No changes
 }
 
 // Recolored Cacodemon for Eclipse level
@@ -3594,6 +3932,39 @@ ACTOR BaronOfHell2 : BaronOfHell
 			BOSS G 8 A_CustomMissile ("BaronBall", 70, 0, 20)
 			Goto See
 	}
+}
+
+// Large Baron of Hell (Flight Wacky Mod)
+ACTOR BaronOfHell2_Flight : BaronOfHell2
+{
+	+NOGRAVITY
+	+FLOAT
+}
+
+// Large Baron of Hell (Rage Wacky Mod)
+ACTOR BaronOfHell2_Rage : BaronOfHell2
+{
+	States
+	{
+		Missile:
+			BOSS EF 4 A_FaceTarget
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, -20)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, -15)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, -10)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, -5)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, 0)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, 5)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, 10)
+			BOSS G 0 A_CustomMissile ("BaronBall", 70, 0, 15)
+			BOSS G 4 A_CustomMissile ("BaronBall", 70, 0, 20)
+			Goto See
+	}
+}
+
+// Large Baron of Hell (Spread Wacky Mod)
+ACTOR BaronOfHell2_Spread : BaronOfHell2
+{
+	// No changes
 }
 
 // SkullTag Grenade launcher weapon
@@ -4025,22 +4396,22 @@ ACTOR PushStaff : Fist
 ACTOR JumpPlayer : DoomPlayer
 {
     -NOSKIN
-	player.forwardmove 0
-	player.sidemove 0
+	Player.ForwardMove 0
+	Player.SideMove 0
 }
 
 // Small fire effect for Ghoul's Forest level
 ACTOR SmallFire 11150
 {
-  Radius 16
-  Height 37
-  -SOLID
-  States
-  {
-  Spawn:
-    SMFR ABCD 4 Bright
-    Loop
-  }
+	Radius 16
+	Height 37
+	-SOLID
+	States
+	{
+		Spawn:
+			SMFR ABCD 4 Bright
+			Loop
+	}
 }
 
 // Chilli flames
@@ -4316,9 +4687,9 @@ Actor Dust
 // Desert Bus player morph
 ACTOR BusPlayer : DoomPlayer
 {
-	player.forwardmove 0
-	player.sidemove 0.5
-	player.jumpz 0
+	Player.ForwardMove 0
+	Player.SideMove 0.5
+	Player.JumpZ 0
 	Health 100
 	Radius 16
 	Height 30
@@ -4609,6 +4980,9 @@ ACTOR OrangePoint
 		Spawn:
 			TNT1 A 1
 			Loop
+		Off:
+			TNT2 A 1
+			Loop
 	}
 }
 
@@ -4626,6 +5000,9 @@ ACTOR BluePoint
 	{
 		Spawn:
 			TNT1 A 1
+			Loop
+		Off:
+			TNT2 A 1
 			Loop
 	}
 }
@@ -4645,6 +5022,9 @@ ACTOR RedPoint
 		Spawn:
 			TNT1 A 1
 			Loop
+		Off:
+			TNT2 A 1
+			Loop
 	}
 }
 
@@ -4662,6 +5042,9 @@ ACTOR WhitePoint
 	{
 		Spawn:
 			TNT1 A 1
+			Loop
+		Off:
+			TNT2 A 1
 			Loop
 	}
 }
@@ -5327,12 +5710,60 @@ actor Cyberdemon2 : Cyberdemon replaces Cyberdemon
 	+NOINFIGHTING
 }
 
+// Flight Cyberdemon
+actor Cyberdemon_Flight : Cyberdemon2
+{
+	+NOGRAVITY
+	+FLOAT
+}
+
+// Spread Cyberdemon
+actor Cyberdemon_Spread : Cyberdemon2
+{
+	States
+	{
+		Missile:
+			CYBR E 6 A_FaceTarget
+			CYBR F 0 A_PlaySound("weapons/rocklf")
+			CYBR F 0 A_CustomMissile("Rocket", 40, 0, -10)  
+			CYBR F 0 A_CustomMissile("Rocket", 40, 0, 0) 
+			CYBR F 12 A_CustomMissile("Rocket", 40, 0, 10) 
+			CYBR E 12 A_FaceTarget
+			CYBR F 0 A_PlaySound("weapons/rocklf")
+			CYBR F 0 A_CustomMissile("Rocket", 40, 0, -10)  
+			CYBR F 0 A_CustomMissile("Rocket", 40, 0, 0) 
+			CYBR F 12 A_CustomMissile("Rocket", 40, 0, 10) 
+			CYBR E 12 A_FaceTarget
+			CYBR F 0 A_PlaySound("weapons/rocklf")
+			CYBR F 0 A_CustomMissile("Rocket", 40, 0, -10)  
+			CYBR F 0 A_CustomMissile("Rocket", 40, 0, 0) 
+			CYBR F 12 A_CustomMissile("Rocket", 40, 0, 10)
+			Goto See
+	}
+}
+
+// Rage Cyberdemon
+actor Cyberdemon_Rage : Cyberdemon2
+{
+	States
+	{
+		Missile:
+			CYBR E 3 A_FaceTarget
+			CYBR F 6 A_CyberAttack
+			CYBR E 6 A_FaceTarget
+			CYBR F 6 A_CyberAttack
+			CYBR E 6 A_FaceTarget
+			CYBR F 6 A_CyberAttack
+			Goto See
+	}
+}
+
 // Captain Falcon player morph
 ACTOR CFalconPlayer : DoomPlayer
 {
 	Player.SoundClass "cfalcon"
 	Player.MorphWeapon "FalconPunchWeapon"
-	player.jumpz 0
+	Player.JumpZ 0
 	Player.ColorRange 112, 127
 	Health 100
 	Scale 0.5
@@ -5378,6 +5809,31 @@ ACTOR CFalconPlayer : DoomPlayer
 			TNT1 A 10 A_NoBlocking
 			TNT1 A -1
 			Stop
+	}
+}
+
+// Captain Falcon player morph (Rage Rune)
+ACTOR CFalconPlayerRage : CFalconPlayer
+{
+	States
+	{
+		Missile:
+			CFAL E 0 A_PlaySound("DoomWare/FalconPunch")
+			CFAL EFG 5 A_SpawnItem("FPunchChargeEmitter")
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL H 0 A_SpawnItemEx("FPunchFlamelet", random(-8, 8), random(-8, 8), 32+random(-4, 4), 10, 0, random(-3, 3), 180)
+			CFAL HIJ 1 BRIGHT
+			CFAL K 5
+			Goto Spawn
 	}
 }
 
@@ -5494,12 +5950,39 @@ ACTOR FalconPunchWeapon : DoomWeapon
 		Fire:
 			TNT1 A 0 SetPlayerProperty(0, 1, PROP_TOTALLYFROZEN)
 			TNT1 A 26
-			CFST AB 2
+			CFST A 0 Offset(0, 32)
+			CFST A 1 Offset(77, 91)
+			CFST A 1 Offset(39, 62)
+			CFST A 1 Offset(48, 68)
+			CFST A 1 Offset(18, 44)
 			CFST A 0 A_SpawnItemEx("Dust", 0, 0, 0, 5, 0, 0, 180)
 			CFST A 0 A_FireCustomMissile("FalconPunchHitbox")
 			CFST A 0 A_Recoil(-7)
 			CFST A 0 A_PlaySound("DoomWare/PunchBoom", CHAN_WEAPON)
-			CFST CDEFG 5
+			CFST A 1 Offset(9, 36)
+			CFST A 1 Offset(1, 27)
+			CFST A 1 Offset(-8, 19)
+			CFST A 1 Offset(-16, 10)
+			CFST A 1 Offset(-25, 2)
+			CFST A 1 Offset(-26, 2)
+			CFST A 1 Offset(-27, 1)
+			CFST A 1 Offset(-28, 1)
+			CFST A 1 Offset(-29, 0)
+			CFST A 1 Offset(-30, 0)
+			CFST A 1 Offset(-31, 0)
+			CFST A 2 Offset(-32, 0)
+			CFST A 1 Offset(-33, 0)
+			CFST A 1 Offset(-34, 0)
+			CFST A 1 Offset(-42, 7)
+			CFST A 1 Offset(-50, 13)
+			CFST A 1 Offset(-59, 20)
+			CFST A 1 Offset(-67, 26)
+			CFST A 1 Offset(-75, 33)
+			CFST A 1 Offset(-83, 42)
+			CFST A 1 Offset(-90, 51)
+			CFST A 1 Offset(-98, 61)
+			CFST A 1 Offset(-105, 70)
+			CFST A 1 Offset(-113, 79)
 			CFST A 0 SetPlayerProperty(0, 0, PROP_TOTALLYFROZEN)
 			CFST A 0 A_ReFire
 			Goto Ready
@@ -5636,6 +6119,25 @@ ACTOR Daisy
 	}
 }
 
+// Daisy :) (Flight Wacky Mod)
+ACTOR Daisy_Flight : Daisy
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Daisy :) (Rage Wacky Mod)
+ACTOR Daisy_Rage : Daisy
+{
+	// No changes
+}
+
+// Daisy :) (Spread Wacky Mod)
+ACTOR Daisy_Spread : Daisy
+{
+	// No changes
+}
+
 // Petting Hands Weapon
 ACTOR PetWeapon : Fist
 {
@@ -5653,10 +6155,18 @@ ACTOR PetWeapon : Fist
 			TNT1 A 1 A_Raise
 			Loop
 		Fire:
-			PETH ABCDE 1
-			PETH F 2 A_FireBullets(0, 0, 1, 20, "MeleePuff", FBF_NOFLASH | FBF_NORANDOM, 64) // A_CustomPunch(20, true, CPF_NOTURN) // CPF_NOTURN Flag unsupported in Zandronum :/
-			PETH GH 2
-			PETH I 2 A_ReFire
+			PETH A 1 Offset(135, 64)
+			PETH A 1 Offset(99, 42)
+			PETH B 1 Offset(53, 33)
+			PETH C 1 Offset(20, 31)
+			PETH D 1 Offset(0, 32)
+			PETH D 0 Offset(0, 48)
+			PETH D 0 Offset(0, 64)
+			PETH D 2 A_FireBullets(0, 0, 1, 20, "MeleePuff", FBF_NOFLASH | FBF_NORANDOM, 64) // A_CustomPunch(20, true, CPF_NOTURN) // CPF_NOTURN Flag unsupported in Zandronum :/
+			PETH D 1 Offset(3, 58)
+			PETH D 1 Offset(6, 52)
+			PETH C 1 Offset(20, 58)
+			PETH C 1 Offset(40, 64) A_Refire
 			Goto Ready
 	}
 }
@@ -6003,9 +6513,9 @@ ACTOR C7Gun : Chaingun
 			Loop
 		Fire:
 			C7GN B 0 A_PlaySound("DoomWare/C7Gun", CHAN_WEAPON)
-			C7GN B 4 A_CustomPunch(1)
+			C7GN B 4 A_FireBullets(0, 0, 1, 1, "BulletPuff", FBF_NOFLASH | FBF_NORANDOM, 64)
 			C7GN C 0 A_PlaySound("DoomWare/C7Gun", CHAN_WEAPON)
-			C7GN C 3 A_CustomPunch(1)
+			C7GN C 3 A_FireBullets(0, 0, 1, 1, "BulletPuff", FBF_NOFLASH | FBF_NORANDOM, 64)
 			C7GN C 0 A_ReFire
 			Goto Ready
 	}
@@ -6105,10 +6615,45 @@ ACTOR DoomImpVoid : DoomImp
 	}
 }
 
+// Upside down Imp (Flight Wacky Mod)
+ACTOR DoomImpVoid_Flight : DoomImpVoid
+{
+	-CEILINGHUGGER
+	+FLOAT
+}
+
+// Upside down Imp (Rage Wacky Mod)
+ACTOR DoomImpVoid_Rage : DoomImpVoid
+{
+	States
+	{
+		Melee:
+		Missile:
+			TROU EF 4 A_FaceTarget
+			TROU G 3 A_TroopAttack
+			Goto See
+	}
+}
+
+// Upside down Imp (Spread Wacky Mod)
+ACTOR DoomImpVoid_Spread : DoomImpVoid
+{
+	States
+	{
+		Melee:
+		Missile:
+			TROU EF 8 A_FaceTarget
+			TROO G 0 A_CustomMissile("DoomImpBall", 32, 0, -10)
+			TROO G 0 A_CustomMissile("DoomImpBall", 32, 0, 10)
+			TROU G 6 A_TroopAttack
+			Goto See
+	}
+}
+
 // Shorter explosive barrel for Bit Trip level
 ACTOR ExplosiveBarrelShorter : ExplosiveBarrel 11165
 {
-	Height 32
+	Height 16
 }
 
 // Spider-Man player morph
@@ -6367,6 +6912,25 @@ ACTOR Flemoid : ZombieMan
 	}
 }
 
+// Flemoid (Flight Wacky Mod)
+ACTOR Flemoid_Flight : Flemoid
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Flemoid (Rage Wacky Mod)
+ACTOR Flemoid_Rage : Flemoid
+{
+	// No changes
+}
+
+// Flemoid (Spread Wacky Mod)
+ACTOR Flemoid_Spread : Flemoid
+{
+	// No changes
+}
+
 // Chex Quest Floor Lamp
 ACTOR ChexLamp : TechLamp2 11166
 {
@@ -6481,7 +7045,7 @@ ACTOR ReplicaPlayer : DoomPlayer
 	Player.ForwardMove 0.2
 	Player.SideMove 0.2
 	Player.SoundClass "Replica"
-	Player.jumpz 2
+	Player.JumpZ 2
 	Player.MorphWeapon "FearSPAS12"
 	Player.ColorRange 112, 127
 	gravity 0.05
@@ -6507,50 +7071,12 @@ ACTOR ReplicaPlayer : DoomPlayer
 			REPL H 15 A_PlayerScream
 			REPL I 15 
 			REPL J 15 A_NoBlocking
-			REPL LM 15
+			REPL KLM 15
 			REPL N -1
 			Stop
 		XDeath:
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
-			REPL O 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
+			REPL OOOOOOOOOOOOOOOOOOOO 0 A_SpawnItemEx("FearBlood", random(-5, 5), random(-6, 6), random(16, 48))
+			REPL OOOOOOOOOOOOOOOOOOOO 0 A_SpawnItemEx("FearBloodCloud", random(-5, 5), random(-6, 6), random(16, 48))
 			REPL O 15 A_XScream
 			REPL P 15 
 			REPL Q 15 A_NoBlocking
@@ -6585,17 +7111,9 @@ ACTOR FearSPAS12 : Weapon
 		Fire:
 			SPAS A 0 A_GunFlash
 			SPAS A 0 A_PlaySound("DoomWare/SPAS12Fire")
-			SPAS D 0 BRIGHT A_SpawnItemEx("FearBulletSmoke", 20, 6, 32, 0, 4)
-			SPAS D 0 BRIGHT A_SpawnItemEx("FearBulletSmoke", 20, 6, 32, 0, 4)
+			SPAS DD 0 BRIGHT A_SpawnItemEx("FearBulletSmoke", 20, 6, 32, 0, 4)
 			SPAS D 0 BRIGHT A_FireCustomMissile("FearBulletGib", 0, 0)
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
-			SPAS D 2 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
+			SPAS DDDDDDDD 0 BRIGHT A_FireCustomMissile("FearBullet", random(4,-4), 0, 0, random(4,-4))
 			SPAS A 2 Offset(16, 40)
 			SPAS A 2 Offset(32, 56)
 			SPAS A 2 Offset(24, 49)
@@ -6620,15 +7138,18 @@ ACTOR FearSPAS12 : Weapon
 }
 
 // F.E.A.R. slowmo bullet
-ACTOR FearBullet : PlasmaBall
+ACTOR FearBullet
 {
+	Radius 13
+	Height 8
+	Projectile
 	+BLOODSPLATTER
 	Damage 8
-	Alpha 1
 	Speed 15
 	Seesound ""
 	Deathsound ""
 	Scale 0.5
+	RenderStyle Add
 	Obituary "%o was turned into mist by %k."
 	States
 	{
@@ -6638,18 +7159,8 @@ ACTOR FearBullet : PlasmaBall
 			PUFF B 0 ACS_NamedExecuteAlways("DoomWare_Entity_CheckCleanup", 0)
 			Loop
 		Death:
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSpark", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSpark", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletSpark", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletDebris", random(-10, 5), random(-8, 8))
-			PUFF B 0 A_CustomMissile("FearBulletDebris", random(-10, 5), random(-8, 8))
+			PUFF BBBBBBBBBB 0 A_CustomMissile("FearBulletSmoke", random(-10, 5), random(-8, 8))
+			PUFF BB 0 A_CustomMissile("FearBulletDebris", random(-10, 5), random(-8, 8))
 			PUFF BCD 8
 			Stop
 		}
@@ -6890,109 +7401,11 @@ ACTOR FearExtinguisher : ExplosiveBarrel 11170
 			FEXT A 5
 			Loop
 		Death:
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
+			FEXT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
 			FEXT A 0 A_PlaySound("DoomWare/ExtinguisherExplode")
 			FEXT A 0 A_Explode
 			TNT1 A 3 
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
-			FEXT A 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
+			FEXT AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_CustomMissile("FearExtinguisherSmoke", random(-10, 5), random(-8, 8))
 			Stop
 	}
 }
@@ -7110,6 +7523,1157 @@ ACTOR CeilingLamp 11173
 	{
 		Spawn:
 			CLMP A 1 Bright
+			Loop
+	}
+}
+
+// Mr. Shifty player morph
+ACTOR ShiftyPlayer : DoomPlayer
+{
+	+PICKUP
+	+NOSKIN
+	Player.SoundClass "ShiftyPlayer"
+	Player.MorphWeapon "ShiftyFist"
+	Player.ColorRange 112, 127
+	scale 0.4
+	States
+	{
+		Spawn:
+			SHFT A -1
+			Loop
+		See:
+			SHFT ABCD 4 
+			Loop
+		Missile:
+		Melee:
+			SHFT EEFFF 3 BRIGHT
+			Goto Spawn
+		Pain:
+			Goto Spawn
+		Death:
+		XDeath:
+			SHFT G 4 A_PlayerScream
+			SHFT H 4 
+			SHFT I 4 A_NoBlocking
+			SHFT J 4
+			SHFT K -1
+			Stop
+	}
+}
+
+// Mr Shifty teleport ammo
+actor ShiftyAmmo : Ammo
+{
+	Inventory.Amount 5
+	Inventory.MaxAmount 5
+	Ammo.BackpackAmount 5
+	Ammo.BackpackMaxAmount 5
+}
+
+// Mr Shifty fist weapon
+ACTOR ShiftyFist : Fist
+{
+	//+WEAPON.NOAUTOFIRE // Sadly doesn't work with A_ReFire...
+	Weapon.AmmoType ShiftyAmmo
+	Weapon.AmmoGive 5
+	Weapon.AmmoUse 0
+	Obituary "%o was sent flying by %k"
+	States
+	{
+		Fire:
+			SFST A 0 A_Recoil(-5)
+			SFST A 2 Offset(200, 116) A_PlaySound("DoomWare/ShiftyFist1")
+			SFST A 2 Offset(150, 95)
+			SFST A 1 Offset(100, 74)
+			SFST A 1 Offset(50, 53)
+			SFST A 1 Offset(1, 20) A_FireBullets(0, 0, 1, 1337, "ShiftyPuff", FBF_NOFLASH | FBF_NORANDOM, 64)
+			SFST A 1 Offset(2, 20)
+			SFST A 1 Offset(3, 20)
+			SFST A 1 Offset(4, 20)
+			SFST A 3 A_ReFire("Fire2")
+			SFST A 1 Offset(10, 53)
+			SFST A 1 Offset(20, 74)
+			SFST A 1 Offset(30, 95)
+			SFST A 1 Offset(40, 116)
+			SFST A 0 Offset(0, 32)
+			Goto Ready
+		Fire2:
+			SFST A 0 A_Recoil(-5)
+			SFST B 2 Offset(-200, 116) A_PlaySound("DoomWare/ShiftyFist2")
+			SFST B 2 Offset(-150, 95)
+			SFST B 1 Offset(-100, 74)
+			SFST B 1 Offset(-50, 53)
+			SFST B 1 Offset(-1, 20) A_FireBullets(0, 0, 1, 1337, "ShiftyPuff", FBF_NOFLASH | FBF_NORANDOM, 64)
+			SFST B 1 Offset(-2, 20)
+			SFST B 1 Offset(-3, 20)
+			SFST B 1 Offset(-4, 20)
+			SFST B 3 A_ReFire("Fire")
+			SFST B 1 Offset(-10, 53)
+			SFST B 1 Offset(-20, 74)
+			SFST B 1 Offset(-30, 95)
+			SFST B 1 Offset(-40, 116)
+			SFST B 0 Offset(0, 32)
+			Goto Ready
+	}
+}
+
+// Mr Shifty fist bullet puff
+ACTOR ShiftyPuff : MeleePuff
+{
+	+PUFFONACTORS
+	AttackSound "DoomWare/ShiftyFistHit"
+	States
+	{
+		Spawn:
+			TNT1 A 0
+			TNT1 A 0 A_Quake(1, 35, 0, 64, "")
+			TNT1 A 5
+			Stop
+	}
+}
+
+// Mr Shifty teleport effect
+Actor ShiftyEffect : PlasmaBall
+{
+	Projectile
+	radius 5
+	height 5
+	mass 0
+	speed 0
+	damage 0
+	-SOLID
+	+NOGRAVITY
+	+DONTFALL
+	+CLIENTSIDEONLY
+	States
+	{
+		Spawn:
+		Death:
+			TNT1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_SpawnItemEx("ShiftySmoke", random(-8, 8), random(-8, 8), random(5, 20))
+			TNT1 A 1
+			Stop
+	}
+}
+
+// Mr Shifty teleport effect 2
+Actor ShiftyEffect2
+{
+	radius 64
+	height 64
+	mass 0
+	alpha 1
+	scale 0.5
+	RenderStyle Translucent
+	-SOLID
+	+NOGRAVITY
+	+DONTFALL
+	+CLIENTSIDEONLY
+	States
+	{
+		Spawn:
+		Death:
+			SSMK A 1
+			SSMK A 0 A_SetScale(0.5, 0.5)
+			SSMK A 1 A_FadeOut(0.1)
+			SSMK A 0 A_SetScale(0.4, 0.5)
+			SSMK A 1 A_FadeOut(0.1)
+			SSMK A 0 A_SetScale(0.3, 0.5)
+			SSMK A 1 A_FadeOut(0.1)
+			SSMK A 0 A_SetScale(0.2, 0.5)
+			SSMK A 1 A_FadeOut(0.1)
+			SSMK A 0 A_SetScale(0.1, 0.5)
+			SSMK A 1 A_FadeOut(0.1)
+			Stop
+	}
+}
+
+// Mr Shifty smoke
+ACTOR ShiftySmoke : FearBulletSmoke
+{
+	RenderStyle Translucent
+	States
+	{
+		Spawn:
+			EFSB A 0
+			EFSB A 1 A_ChangeVelocity(random(-2, 2), random(-2, 2), random(-2, 2), CVF_REPLACE)
+			EFSB A 0 A_SetScale(0.5)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.45)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.4)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.35)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.3)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.25)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.2)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.15)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.1)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			EFSB A 0 A_SetScale(0.05)
+			EFSB A random(1, 3) A_FadeOut(0.05)
+			Stop
+		Death:
+			Stop
+	}
+}
+
+// Batman player morph
+ACTOR BatmanPlayer : DoomPlayer
+{
+	+PICKUP
+	+NOSKIN
+	Player.SoundClass "BatmanPlayer"
+	Player.MorphWeapon "Batarang"
+	Player.ColorRange 112, 127
+	Scale 0.8
+	States
+	{
+		Spawn:
+			BATM A -1
+			Loop
+		See:
+			BATM ABCD 4 
+			Loop
+		Missile:
+		Melee:
+		Pain:
+			Goto Spawn
+		Death:
+		XDeath:
+			BATM E 5
+			BATM F 5 A_PlayerScream
+			BATM G 5 A_NoBlocking
+			BATM HIJ 5
+			BATM K -1
+			Stop
+	}
+}
+
+// Batman Batarang
+ACTOR Batarang : DoomWeapon
+{
+	Weapon.SelectionOrder 1900
+	Weapon.AmmoUse 1
+	Weapon.AmmoGive 1
+	Weapon.AmmoType "Clip"
+	States
+	{
+		Ready:
+			BATR A 1 A_WeaponReady
+			Loop
+		Deselect:
+			BATR A 1 A_Lower
+			Loop
+		Select:
+			BATR A 1 A_Raise
+			Loop
+		Fire:
+			Goto Ready
+		Spawn:
+			BATR A -1
+			Stop
+	}
+}
+
+// Batman Criminal (Melee)
+ACTOR CriminalMelee : Demon
+{
+	+INVULNERABLE
+	+LOOKALLAROUND
+	painchance 0
+	SeeSound "DoomWare/Criminal1See"
+	AttackSound ""
+	MeleeSound ""
+	PainSound ""
+	DeathSound ""
+	ActiveSound ""
+	Scale 0.8
+	Obituary "%o was shanked."
+	MeleeDamage 150
+    MeleeRange 64
+	States
+	{
+		Spawn:
+			CRM1 AB 10 A_Look
+			Loop
+		See:
+			CRM1 AABBCCDD 2 Fast A_Chase
+			Loop
+		Melee:
+			CRM1 E 0 A_PlaySound("DoomWare/Criminal1Attack")
+			CRM1 EF 8 Fast A_FaceTarget
+			CRM1 G 8 Fast A_MeleeAttack
+			Goto See
+	}
+}
+
+// Batman Criminal (Melee) (Flight Wacky Mod)
+ACTOR CriminalMelee_Flight : CriminalMelee
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Batman Criminal (Melee) (Rage Wacky Mod)
+ACTOR CriminalMelee_Rage : CriminalMelee
+{
+	States
+	{
+		Melee:
+			CRM1 E 0 A_PlaySound("DoomWare/Criminal1Attack")
+			CRM1 EF 4 Fast A_FaceTarget
+			CRM1 G 4 Fast A_MeleeAttack
+			Goto See
+	}
+}
+
+// Batman Criminal (Melee) (Spread Wacky Mod)
+ACTOR CriminalMelee_Spread : CriminalMelee
+{
+	// No changes
+}
+
+// Batman Criminal (Ranged)
+ACTOR CriminalRanged : DoomImp
+{
+	+INVULNERABLE
+	+LOOKALLAROUND
+	painchance 0
+	SeeSound "DoomWare/Criminal2See"
+	AttackSound ""
+	MeleeSound ""
+	PainSound ""
+	DeathSound ""
+	ActiveSound ""
+	MeleeDamage 150
+	Scale 0.8
+	Obituary "%o did not see that shuriken."
+	States
+	{
+		Spawn:
+			CRM2 AB 10 A_Look
+			Loop
+		See:
+			CRM2 AABBCCDD 3 A_Chase
+			Loop
+		Melee:
+		Missile:
+			CRM2 EF 8 A_FaceTarget
+			CRM2 G 6 A_CustomComboAttack("CriminalShuriken", 32, 150, "DoomWare/Criminal2Melee")
+			Goto See
+	}
+}
+
+// Batman Criminal (Ranged) (Flight Wacky Mod)
+ACTOR CriminalRanged_Flight : CriminalRanged
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Batman Criminal (Ranged) (Rage Wacky Mod)
+ACTOR CriminalRanged_Rage : CriminalRanged
+{
+	States
+	{
+		Melee:
+		Missile:
+			CRM2 EF 4 A_FaceTarget
+			CRM2 G 3 A_CustomComboAttack("CriminalShuriken", 32, 150, "DoomWare/Criminal2Melee")
+			Goto See
+	}
+}
+
+// Batman Criminal (Ranged) (Spread Wacky Mod)
+ACTOR CriminalRanged_Spread : CriminalRanged
+{
+	States
+	{
+		Melee:
+		Missile:
+			CRM2 EF 8 A_FaceTarget
+			TROO G 0 A_CustomMissile("CriminalShuriken", 32, 0, -10)
+			TROO G 0 A_CustomMissile("CriminalShuriken", 32, 0, 10)
+			CRM2 G 6 A_CustomComboAttack("CriminalShuriken", 32, 150, "DoomWare/Criminal2Melee")
+			Goto See
+	}
+}
+
+// Batman ranged criminal shuriken
+ACTOR CriminalShuriken
+{
+	Radius 6
+	Height 8
+	Speed 10
+	FastSpeed 20
+	Damage 150
+	Projectile
+	SeeSound "DoomWare/Criminal2Attack"
+	DeathSound "DoomWare/Criminal2Hit"
+	Obituary "%o did not see that shuriken."
+	States
+	{
+		Spawn:
+			CRM2 HI 4 Bright
+			Loop
+		Death:
+			CRM2 JKL 6 Bright
+			Stop
+	}
+}
+
+// Batman Statue
+ACTOR BatmanStatue : BigTree 11176
+{
+	Radius 32
+	Height 108
+	States
+	{
+		Spawn:
+			BATD D -1
+			Stop
+	}
+}
+
+// Batman Computer
+ACTOR BatmanComputer : BigTree 11177
+{
+	Radius 8
+	Height 32
+	States
+	{
+		Spawn:
+			BATD A -1
+			Stop
+	}
+}
+
+// Batman Table
+ACTOR BatmanTable : BigTree 11178
+{
+	Radius 32
+	Height 42
+	States
+	{
+		Spawn:
+			BATD B -1
+			Stop
+	}
+}
+
+// Batman Street Light
+ACTOR BatmanStreetLight : BigTree 11179
+{
+	Radius 32
+	Height 172
+	States
+	{
+		Spawn:
+			BATD C -1 BRIGHT
+			Stop
+	}
+}
+
+// Batman Chandelier
+ACTOR BatmanChandelier : HangingCorpse 11180
+{
+	Radius 32
+	Height 64
+	States
+	{
+		Spawn:
+			BATD E -1 BRIGHT
+			Stop
+	}
+}
+
+// Batman Lamp
+ACTOR BatmanLamp : HangingCorpse 11181
+{
+	Radius 8
+	Height 32
+	-SOLID
+	States
+	{
+		Spawn:
+			BATD F -1 BRIGHT
+			Stop
+	}
+}
+
+// Batman Plant
+ACTOR BatmanPlant : BigTree 11182
+{
+	Radius 10
+	Height 24
+	States
+	{
+		Spawn:
+			BATD G -1
+			Stop
+	}
+}
+
+// On fire player morph
+ACTOR FirePlayer : DoomPlayer
+{
+	Player.ForwardMove 0
+	Player.SideMove 0
+	+PICKUP
+	+NOSKIN
+	Scale 0.5
+	States
+	{
+		Spawn:
+			FLMN A 1 
+			FLMN A 0 A_PlaySound("DoomWare/Engulf", CHAN_ITEM)
+			FLMN A 0 A_PlaySound("DoomWare/OnFireScream", CHAN_VOICE)
+		See:
+			FLMN A 0 A_PlaySound("vile/firecrkl", CHAN_BODY)
+			FLMN ABCDEF 3 A_Recoil(-3)
+			FLMN A 0 A_SetAngle(angle+random(-40, 40))
+			Loop
+		Missile:
+		Melee:
+		Pain:
+			Goto Spawn
+		Death:
+		XDeath:
+			FLMN G 3
+			FLMN H 3 A_PlaySound("DoomWare/OnFireDie", CHAN_VOICE)
+			FLMN I 3 A_NoBlocking
+			FLMN JKLMNOPQRS 3
+			FLMN T -1
+			Stop
+	}
+}
+
+// Fire extinguish effect spawner
+ACTOR ExtinguishEffect
+{
+	States
+	{
+		Spawn:
+			TNT1 A 1
+			TNT1 AAAAAAA 0 A_SpawnItemEx("ExtinguishSteam", random(-8, 8), random(-8, 8), 5)
+			TNT1 A 1
+			Stop
+	}
+}
+
+// Fire extinguish steam
+ACTOR ExtinguishSteam : FearBulletSmoke
+{
+	+NOGRAVITY
+	-SOLID
+	+NOCLIP
+	States
+	{
+		Spawn:
+			EFSE A 0
+			EFSE A 1 A_ChangeVelocity(random(-2, 2), random(-2, 2), random(1, 3), CVF_REPLACE)
+			EFSE A 0 A_SetScale(0.2)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.25)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.3)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.35)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.4)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.45)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.5)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.85)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.5)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.55)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			EFSE A 0 A_SetScale(0.6)
+			EFSE A random(1, 10) A_FadeOut(0.05)
+			Stop
+		Death:
+			Stop
+	}
+}
+
+// Scientist 
+ACTOR Scientist : BigTree 11183
+{
+	Radius 20
+	Height 56
+	States
+	{
+		Spawn:
+			SCIE A -1
+			Stop
+	}
+}
+
+// Imp Body Part (Legs) 
+ACTOR ImpBodyLegs
+{
+	States
+	{
+		Spawn:
+		Parts1:
+			IMLG A 1
+			Loop
+		Parts2:
+			IMLG B 1
+			Loop
+		Parts3:
+			IMLG C 1
+			Loop
+		Parts4:
+			IMLG D 1
+			Loop
+		Parts5:
+			IMLG E 1
+			Loop
+	}
+}
+
+// Imp Body Part (Chest) 
+ACTOR ImpBodyChest
+{
+	States
+	{
+		Spawn:
+		Parts1:
+			IMBD A 1
+			Loop
+		Parts2:
+			IMBD B 1
+			Loop
+		Parts3:
+			IMBD C 1
+			Loop
+		Parts4:
+			IMBD D 1
+			Loop
+		Parts5:
+			IMBD E 1
+			Loop
+	}
+}
+
+// Imp Body Part (Head) 
+ACTOR ImpBodyHead
+{
+	States
+	{
+		Spawn:
+		Parts1:
+			IMHD A 1
+			Loop
+		Parts2:
+			IMHD B 1
+			Loop
+		Parts3:
+			IMHD C 1
+			Loop
+		Parts4:
+			IMHD D 1
+			Loop
+		Parts5:
+			IMHD E 1
+			Loop
+	}
+}
+
+// Imp (Flight Wacky Mod)
+actor DoomImp_Flight : DoomImp
+{
+	+NOGRAVITY
+	+FLOAT
+}
+
+// Imp (Rage Wacky Mod)
+actor DoomImp_Rage : DoomImp
+{
+	States
+	{
+		Missile:
+			TROO EF 4 A_FaceTarget
+			TROO G 3 A_TroopAttack
+			Goto See
+	}
+}
+
+// Imp (Spread Wacky Mod)
+actor DoomImp_Spread : DoomImp
+{
+	States
+	{
+		Missile:
+			TROO EF 8 A_FaceTarget
+			TROO G 0 A_CustomMissile("DoomImpBall", 32, 0, -10)
+			TROO G 0 A_CustomMissile("DoomImpBall", 32, 0, 10)
+			TROO G 6 A_CustomComboAttack("DoomImpBall", 32, 3 * random(1, 8), "imp/melee")
+			Goto See
+	}
+}
+
+// Arch-Vile (Flight Wacky Mod)
+actor Archvile_Flight : Archvile
+{
+	+FLOAT
+	+NOGRAVITY
+}
+
+// Arch-Vile (Rage Wacky Mod)
+actor Archvile_Rage : Archvile
+{
+	States
+	{
+		Missile:
+			VILE G 0 Bright A_VileStart
+			VILE G 5 Bright A_FaceTarget
+			VILE H 4 Bright A_VileTarget
+			VILE IJKLMN 4 Bright A_FaceTarget
+			VILE O 4 Bright A_VileAttack
+			VILE P 10 Bright
+			Goto See
+	}
+}
+
+// Arch-Vile (Spread Wacky Mod)
+actor Archvile_Spread : Archvile
+{
+	// No changes
+}
+
+// Fish (Guppy)
+ACTOR Guppy 11184
+{
+	Radius 8
+	Height 16
+	Speed 8
+	Monster
+	scale 0.25
+	+FLOAT
+	+NOGRAVITY
+	+FRIGHTENED
+	-SOLID
+	States
+	{
+		Spawn:
+		See:
+			GUPY ABCB 3 A_Wander
+			GUPY A 0 A_JumpIf(waterlevel != 3, "ThrustDown")
+			Loop
+		ThrustDown:
+			GUPY A 0 ThrustThingZ(0, 8, 1, 1)
+			Goto See
+	}
+}
+
+// Fish (Carnivore)
+ACTOR Carnivore : Guppy 11185
+{
+	Radius 16
+	Height 32
+	Speed 8
+	scale 0.25
+	States
+	{
+		Spawn:
+		See:
+			CARV ABCB 3 A_Wander
+			CARV A 0 A_JumpIf(waterlevel != 3, "ThrustDown")
+			Loop
+	}
+}
+
+// Fish (Angie)
+ACTOR Angie : Carnivore 11186
+{
+	States
+	{
+		Spawn:
+		See:
+			ANGI ABCB 3 A_Wander
+			ANGI A 0 A_JumpIf(waterlevel != 3, "ThrustDown")
+			Loop
+	}
+}
+
+// Fish (Nostradamus)
+ACTOR Nostradamus : Carnivore 11187
+{
+	States
+	{
+		Spawn:
+		See:
+			NOST ABCB 3 A_Wander
+			NOST A 0 A_JumpIf(waterlevel != 3, "ThrustDown")
+			Loop
+	}
+}
+
+// Fish (Zorf)
+ACTOR Zorf : Carnivore 11188
+{
+	States
+	{
+		Spawn:
+		See:
+			ZORF ABCB 3 A_Wander
+			ZORF A 0 A_JumpIf(waterlevel != 3, "ThrustDown")
+			Loop
+	}
+}
+
+// Fish (Rufus)
+ACTOR Rufus : Carnivore 11189
+{
+	-FLOAT
+	-NOGRAVITY
+	+FLOORCLIP
+	States
+	{
+		Spawn:
+		See:
+			RUFS ABCB 3 A_Wander
+			RUFS A 0 A_JumpIf(waterlevel != 3, "ThrustDown")
+			Loop
+	}
+}
+
+Actor PongBall
+{
+	Radius 8
+	Height 16
+	Speed 10
+	Projectile
+	+BOUNCEONWALLS
+	+BOUNCEONACTORS
+	+ALLOWBOUNCEONACTORS
+	Scale 8
+	BounceType "Hexen"
+	BounceFactor 1.0
+	WallBounceFactor 1.0
+	BounceSound "DoomWare/PongBounce"
+	States
+	{
+		Spawn:
+			PONG A 4 Bright A_ScaleVelocity(1.03)
+			Loop
+		Death:
+			TNT1 A 1 Bright
+			Stop
+	}
+}
+
+// Z-Fighter player morph
+ACTOR ZFighterPlayer : DoomPlayer
+{
+	Player.ForwardMove 0
+	Player.SideMove 0
+	+PICKUP
+	+NOSKIN
+	States
+	{
+		Spawn:
+			FSTR A 1
+		See:
+			FSTR A 0 A_Jump(256, "Punch", "Hurt", "Punch", "Hurt", "Punch", "Hurt", "Punch", "Hurt", "Walk1", "Walk2", "Walk3", "Walk4")
+			FSTR A 1 
+			Loop
+		Punch:
+			FSTR E 3
+			Goto See
+		Hurt:
+			FSTR F 3
+			Goto See
+		Walk1:
+			FSTR A 3
+			Goto See
+		Walk2:
+			FSTR B 3
+			Goto See
+		Walk3:
+			FSTR C 3
+			Goto See
+		Walk4:
+			FSTR D 3
+			Goto See
+		Victory:
+			FSTR G 3
+			Loop
+		Missile:
+		Melee:
+		Pain:
+			Goto Spawn
+		Death:
+		XDeath:
+			FSTR H 4
+			FSTR I 4 A_Scream
+			FSTR J 4 A_NoBlocking
+			FSTR KLM 4
+			FSTR N -1
+			Stop
+	}
+}
+
+// Brawler player morph
+ACTOR BrawlerPlayer : DoomPlayer
+{
+	+PICKUP
+	+NOSKIN
+	Player.JumpZ 14
+	Player.ForwardMove 0
+	Player.MorphWeapon "BrawlerFist"
+	Player.ColorRange 112, 127
+	BloodType "BrawlerImpact"
+	States
+	{
+		Spawn:
+			BRAR A 0 A_JumpIfInventory("BrawlerLeft", 1, "SpawnLeft")
+			BRAR A 4
+			Loop
+		SpawnLeft:
+			BRAL A 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto Spawn
+			BRAL A 4
+			Loop
+		See:
+			BRAR A 0 A_JumpIfInventory("BrawlerLeft", 1, "SeeLeft")
+			BRAR A 4
+			BRAR B 0 A_JumpIfInventory("BrawlerLeft", 1, "SeeLeft")
+			BRAR B 4 
+			BRAR C 0 A_JumpIfInventory("BrawlerLeft", 1, "SeeLeft")
+			BRAR C 4 
+			BRAR D 0 A_JumpIfInventory("BrawlerLeft", 1, "SeeLeft")
+			BRAR D 4 
+			Loop
+		SeeLeft:
+			BRAL A 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto See
+			BRAL A 4
+			BRAL B 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto See
+			BRAL B 4 
+			BRAL C 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto See
+			BRAL C 4 
+			BRAL D 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto See
+			BRAL D 4 
+			Loop
+		Missile:
+		Melee:
+			BRAR E 0 A_JumpIfInventory("BrawlerLeft", 1, "MeleeLeft")
+			BRAR E 4
+			BRAR E 0 A_JumpIfInventory("BrawlerLeft", 1, "MeleeLeft")
+			BRAR E 4
+			Goto Spawn
+		MeleeLeft:
+			BRAL E 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto Melee
+			BRAL E 4
+			BRAL E 0 A_JumpIfInventory("BrawlerLeft", 1, 1)
+			Goto Melee
+			BRAL E 4
+			Goto SeeLeft
+		Pain:
+			Goto Spawn
+		Death:
+		XDeath:
+			FSTR H 4 A_PlayerScream
+			FSTR I 4 
+			FSTR J 4 A_NoBlocking
+			FSTR KLM 4
+			FSTR N -1
+			Stop
+	}
+}
+
+// Brawler fist weapon
+ACTOR BrawlerFist : Fist
+{
+	+WEAPON.NOAUTOFIRE
+	Obituary "%o was decked by %k"
+	States
+	{
+		Fire:
+			
+			SFST A 0 A_Recoil(-5)
+			SFST A 1 Offset(200, 116) A_PlaySound("DoomWare/ShiftyFist1")
+			SFST A 1 Offset(150, 95)
+			SFST A 1 Offset(50, 53)
+			SFST A 0 A_JumpIfInventory("BrawlerLeft", 1, "PunchLeft")
+			SFST A 1 Offset(1, 20) A_FireCustomMissile("BrawlerHitbox", 90, false, -32)
+			Goto CoolDown
+		PunchLeft:
+			SFST A 1 Offset(1, 20) A_FireCustomMissile("BrawlerHitbox", -90, false, 32)
+			// Intentional fallthrough
+		CoolDown:
+			SFST A 1 Offset(2, 20)
+			SFST A 1 Offset(4, 20)
+			SFST A 2 
+			SFST A 1 Offset(10, 53)
+			SFST A 1 Offset(30, 95)
+			SFST A 0 Offset(0, 32)
+			Goto Ready
+	}
+}
+
+// Item for handling Brawler looking left
+ACTOR BrawlerLeft : Ammo 10469
+{
+	Inventory.PickupMessage ""
+	Inventory.Amount 1
+	Inventory.MaxAmount 1
+	Ammo.BackpackAmount 0
+	Ammo.BackpackMaxAmount 1
+	states
+	{
+		Spawn:
+			RING ABCD 4
+			Loop
+		Death:
+			RING A 0
+			stop
+	}
+}
+
+// Brawler Punch hitbox
+ACTOR BrawlerHitbox
+{
+	Radius 16
+	Height 8
+	Speed 4
+	Damage 169
+	Projectile
+	obituary "%o was decked by %k"
+	+RIPPER
+	States
+	{
+		Spawn:
+			TNT1 A 4
+			Stop
+	}
+}
+
+// Brawler hit effect
+ACTOR BrawlerImpact
+{
+	Mass 5
+	+NOBLOCKMAP
+	+NOTELEPORT
+	+ALLOWPARTICLES
+	+NOGRAVITY
+	-SOLID
+	States
+	{
+		Spawn:
+			TNT1 A 0
+			TNT1 A 1 A_Quake(1, 35, 0, 1024, "")
+			TNT1 A 0 A_PlaySound("DoomWare/ShiftyFistHit", CHAN_BODY, 1.0, 0, ATTN_NONE)
+			TNT1 A 0 A_Jump(256, "Hit1", "Hit2", "Hit3", "Hit4")
+		Hit1:
+			BHTA ABCD 2 Bright
+			Stop
+		Hit2:
+			BHTB ABCD 2 Bright
+			Stop
+		Hit3:
+			BHTC ABCD 2 Bright
+			Stop
+		Hit4:
+			BHTD ABCDE 2 Bright
+			Stop
+	}
+}
+
+// Landmine
+ACTOR Landmine
+{
+	Monster
+	Speed 0
+	Radius 10
+	Height 5
+	scale 0.25
+	+LOOKALLAROUND
+	Obituary "%o did not see that landmine."
+	States
+	{
+		Spawn:
+			MINE A 2 A_LookEx(LOF_NOSOUNDCHECK | LOF_DONTCHASEGOAL, 0, 64)
+			Loop
+		See:
+			BBOM A 0 A_SetScale(0.5, 0.5)
+			BBOM A 0 A_Explode(169, 128)
+			BBOM A 0 A_PlaySound("DoomWare/LandMine")
+			BBOM AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 0 A_CustomMissile("LandmineSmoke", random(-10, 5), random(-8, 8))
+			BBOM ABCDEFGHIJKLMNOPQRSTUVWX 1 Bright
+			TNT1 A 1
+			Wait
+	}
+}
+
+// Landmine sand smoke
+ACTOR LandmineSmoke : FearBulletSmoke
+{
+	-NOGRAVITY
+	Mass 1
+	Gravity 0.3
+	RenderStyle Translucent
+	States
+	{
+		Spawn:
+			EFSM A 0
+			EFSM A 1 A_ChangeVelocity(random(-4, 4), random(-4, 4), random(4, 10), CVF_REPLACE)
+			EFSM A 0 A_SetScale(0.5)
+			EFSM A random(1, 10	) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.55)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.6)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.65)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.7)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.75)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.8)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.85)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.9)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(0.95)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			EFSM A 0 A_SetScale(1.0)
+			EFSM A random(1, 10) A_FadeOut(0.05)
+			Stop
+		Death:
+			Stop
+	}
+}
+
+ACTOR PopupSpikes
+{
+	-SOLID
+	Height 32
+	Radius 16
+	States
+	{
+		Spawn:
+			TNT1 A 56
+			STAB A 0 A_PlaySound("DoomWare/SpikesPopup")
+			STAB AAAAAAAAAAAAAA 4 A_Explode(169, 16, 0, 0, 16)
+			STAB A 0 A_PlaySound("DoomWare/SpikesPopup")
 			Loop
 	}
 }
