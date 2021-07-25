@@ -4,6 +4,8 @@
 
 DoomWare is a fast paced, competitive multiplayer WAD for Zandronum. Similar to Nintendo's [WarioWare](https://www.mariowiki.com/WarioWare_(series)) series, the player is thrust into an arena where they are faced with a random selection of minigames that test all sorts of skills. As the game progresses, the minigames get faster and harder. But the games themselves are not your only obstacles, as you're competing against other players for the high score.
 
+[DoomWare won the 2020 Multiplayer Cacoward!](https://www.doomworld.com/cacowards/2020/multi/)
+
 ## Features
 * Over 100 minigames
 * Fully playable in singleplayer and multiplayer
