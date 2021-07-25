@@ -2400,6 +2400,10 @@ Script "DoomWare_Client_Minigame96" (void) // Survive (Mr. Shifty Deathmatch)
     minigame_instruction1[PlayerNumber()] = "Survive";
     minigame_instruction2[PlayerNumber()] = "1 Point Per Frag";
     minigame_instruction3[PlayerNumber()] = "Press your \ccUse key\cg to Shift";
+	Add_Observer(1157);
+	Add_Observer(1158);
+	Add_Observer(1159);
+	Add_Observer(1176);
 	
 	// Morph the player into a Replica Soldier
     str class = "ShiftyPlayer";
@@ -2422,22 +2426,28 @@ Script "DoomWare_Client_Minigame96" (void) // Survive (Mr. Shifty Deathmatch)
 			str sound = "DoomWare/Shift";
 			SpawnForced("MapSpot", x+FixedMul(Cos(aim), dist), y+FixedMul(Sin(aim), dist), z, TID_REMOVE+PlayerNumber());
 			
-			// If the player successfully teleported
-			if (Thing_move(TID_PLAYER+PlayerNumber(), TID_REMOVE+PlayerNumber(), true))
+			// If the map spot was placed in a valid sector
+			if (ThingCountSector(T_NONE, TID_REMOVE+PlayerNumber(), 1156) != 0)
 			{
-				// Spawn a shifty effect where they were before
-				SpawnForced("ShiftyEffect", x, y, z+16.0, 0, 0);
-				SpawnSpotForced("ShiftyEffect2", TID_PLAYER+PlayerNumber(), 0, 0);
-				
-				// Take away some ammo and reset the ammo timer
-				TakeInventory("ShiftyAmmo", 1);
-				if (CheckInventory("ShiftyAmmo") == 0)
+				// If the player successfully teleported
+				if (Thing_move(TID_PLAYER+PlayerNumber(), TID_REMOVE+PlayerNumber(), true))
 				{
-					sound = "DoomWare/ShiftLast";
-					nextammo = SECOND*3;
+					// Spawn a shifty effect where they were before
+					SpawnForced("ShiftyEffect", x, y, z+16.0, 0, 0);
+					SpawnSpotForced("ShiftyEffect2", TID_PLAYER+PlayerNumber(), 0, 0);
+					
+					// Take away some ammo and reset the ammo timer
+					TakeInventory("ShiftyAmmo", 1);
+					if (CheckInventory("ShiftyAmmo") == 0)
+					{
+						sound = "DoomWare/ShiftLast";
+						nextammo = SECOND*3;
+					}
+					else
+						nextammo = 20;
 				}
 				else
-					nextammo = 20;
+					sound = "DoomWare/ShiftFail";
 			}
 			else
 				sound = "DoomWare/ShiftFail";
@@ -2568,6 +2578,7 @@ Script "DoomWare_Client_Minigame99" (void) // Put Yourself Out
 		}
 		delay(3); // Don't do this every frame, be nice to the server
 	}
+	delay(1);
 	FadeTo(255, 155, 255, 0.0, 0.0);
 }
 
@@ -3689,7 +3700,7 @@ Script "DoomWare_Server_Minigame17" (void) // Finish a Lap (Karts)
     // Return players back to the main lobby
     ACS_NamedExecute("DoomWare_Server_ReturnPlayers", 0, true);
 }
-
+ 
 Script "DoomWare_Server_Minigame18" (void) // Equip/Don't Equip Weapon
 {
     HUDMessage(s:"Equip/Don't Equip Weapon"; HUDMSG_LOG, MSGID_CONSOLE, CR_BLACK, 2.0, 2.0, 0);
@@ -6927,7 +6938,7 @@ Script "DoomWare_Server_Minigame100" (void) // Match the Demon
 		SpawnSpotForced("ImpBodyLegs", 1120+i, TID_REMOVE+i*3, 192);
 		SpawnSpotForced("ImpBodyChest", 1120+i, TID_REMOVE+i*3+1, 192);
 		SpawnSpotForced("ImpBodyHead", 1120+i, TID_REMOVE+i*3+2, 192);
-		ACS_NamedExecute("DoomWare_Server_TeleportSingle", 0, i, 1100+i);
+		ACS_NamedExecuteAlways("DoomWare_Server_TeleportSingle", 0, i, 1100+i);
 	}
 	
     // Start the timer

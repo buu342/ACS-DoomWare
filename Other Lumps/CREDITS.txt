@@ -255,6 +255,7 @@ Music - The Healer Stalks - Doom 2
 Landmine sprite - Ion Fury - Voidpoint Software
 Explosion sprite - Metal Slug 3 - SNK
 Barbed wire texture - TNT: Evilution - TeamTNT
+Cleaned up barbed wire texture - Scuba Steve (Thanks a lot!)
 Explosion sound - RAGE - ID Software
 Music - Exit The Beach - Conker's Bad Fur Day (N64)
 
@@ -438,7 +439,8 @@ Music - To The Beach - From CoTeCiO's Town Infection Wad (This guy makes awesome
 
 **Shoot the Apple Off the Imp's Head**
 Idea - Ichor
-Bow and Arrow sprites - Ghoul's Forest 3 - Cutman Mike
+Original Bow and Arrow sprites - Ghoul's Forest 3 - Cutman Mike
+Widescreen Bow sprites - Scuba Steve (Thanks a lot man!)
 Apple Sprite - Minecraft - Mojang
 Music - Bad Dog No Biscuits - The Seatbelts
 
@@ -509,6 +511,7 @@ Idea - Samuel Pearson
 Music - Moo Moo Farm - Mario Kart 64
 Daisy Sprites - Action Doom
 Hand Sprites - Not sure... It was either Marty Kirra, wildweasel, Cory Whittle, or Scuba Steve.
+Widescreen hand sprites - Scuba Steve (Thanks a lot man!)
 
 **Choose a Source Port**
 Port Icons - By the port makers (Zandronum, ZDaemon, Odamex)
@@ -556,6 +559,7 @@ Music - Sea Shanty 2 - Oldschool Runescape
 Snake Imp - Cyb, Vader, ItsNatureToDie
 Wings Imp - Hexen - Raven Software
 Chicken Legs Imp and Scientist Sprite - CoTeCio (Unable to contact for permission)
+Tentacle leg sprite - Scuba Steve (Thanks a lot man!)
 Map Idea - MAP04, MAP05, and MAP06 from Town Infection - CoTeCiO
 Music - Biological Lab (MAP06 from Town Infection) - CoTeCiO
 

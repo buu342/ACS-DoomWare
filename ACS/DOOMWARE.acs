@@ -280,40 +280,9 @@ achievemnts will not be tracked.\
 // Game changelog
 
 #define CHANGES "\
-Version Beta 1.99\n\
-What's new in the Beta?\n\n\
-+ Added a failsafe for when no tie breaker games exist\n\
-+ Added 'doomware_wackymodsmonsters' CVar\n\
-+ Added Female OSRS Sound\n\
-+ Added F.E.A.R. game to solo banlist\n\
-+ Added last barrage of Beta hats\n\
-+ Added MAP02 for future updates\n\
-+ Reached 100 minigames!\n\
-+ Reached 5 1v1 and 1vM Wackymods!\n\
-* Changed timer 'Eror' to 'End'\n\
-* Decorated 'Abandon Ship' and 'Reach Surface'\n\
-* Enabled Wackymods in solo play\n\
-* Finalized achievements\n\
-* Fixed 1HP not being set on morphs\n\
-* Fixed boss fight awards not working in unsafe db mode\n\
-* Fixed Daisy sometimes not spawning\n\
-* Fixed Dynamic Lights not disabling properly\n\
-* Fixed multiplayer chat logs... Again...\n\
-* Fixed login text rescaling randomly\n\
-* Fixed Railgun not penetrating\n\
-* Fixed veteran hat not working properly\n\
-* Fixed wins being incremented every tick\n\
-* Improved the intermission screens\n\
-* Increased time in basketball game\n\
-* Made internal minigame names consistent\n\
-* Optimized sound sizes to keep this WAD under 64MB\n\
-* Reduced the Jumping Scroller minigame by half\n\
-* Reworked 'Storm the Beach'\n\
-* Tweaked some minigame times\n\
-* Widened the spawn points on some minigames\n\
-- Removed custom SBAR after respawning\n\
-- Removed Melee Lock from the C.A.W.\n\
-- Removed Spread wackymod in some games\n\
+Version 1.00\n\
+What's new in this version?\n\n\
++Official release!\n\
 "
 
 
@@ -3532,7 +3501,7 @@ function bool IsBetaTester(int plynum) // Returns true/false if the player is a 
     BetaTesterList[16] = "bridgeburner";
 
     for (int i=0; i<BETATESTERSIZE; i++)
-        if (!StrIcmp(BetaTesterList[i], GetPlayerAccountName(i)))
+        if (!StrIcmp(BetaTesterList[i], GetPlayerAccountName(plynum)))
             return true;
     return false;
 }
@@ -3589,9 +3558,8 @@ Script "DoomWare_Server_Hats" (void) // A "thread" that handles all the player h
             Load_PlayerDB(i);
 
 			// Give Buu342 his role if he doesn't have one
-			if (StrCmp(GetPlayerAccountName(i), "buu342") == 0)
+			if (!StrICmp(GetPlayerAccountName(i), "buu342"))
 				data_role[i] = ROLE_BUU342;
-				
 
 			// Give a beta tester a role if they don't have one
 			if (data_role[i] != ROLE_BETA && IsBetaTester(i))

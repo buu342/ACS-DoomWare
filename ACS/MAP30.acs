@@ -2801,7 +2801,7 @@ function bool IsBetaTester(int plynum) // Returns true/false if the player is a 
     BetaTesterList[16] = "bridgeburner";
 
     for (int i=0; i<BETATESTERSIZE; i++)
-        if (!StrIcmp(BetaTesterList[i], GetPlayerAccountName(i)))
+        if (!StrIcmp(BetaTesterList[i], GetPlayerAccountName(plynum)))
             return true;
     return false;
 }
