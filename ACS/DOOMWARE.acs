@@ -372,23 +372,23 @@ int data_achieve[MAXPLAYERS];   // (Internal) Bit field each player's achievemen
 int data_bosskills[MAXPLAYERS]; // (Internal) List of each player's boss kills
 
 // Shufflebags to make random "feel" more random
-global int 01:sbag_wackymods[];
-global int 02:sbag_wackymodschance[];
-global int 03:sbag_minigames[];
-global int 04:sbag_1v1[];
-global int 05:sbag_1vm[];
+global int 01:sbag_wackymods[];        // (Internal) The entire wackymods shufflebag 
+global int 02:sbag_wackymodschance[];  // (Internal) The entire wackymodschance shufflebag 
+global int 03:sbag_minigames[];        // (Internal) The entire minigames shufflebag 
+global int 04:sbag_1v1[];              // (Internal) The entire 1V1 minigames shufflebag 
+global int 05:sbag_1vm[];              // (Internal) The entire 1VM minigames shufflebag 
 
 // Trackers
-global int 06:sbag_track_wackymods;
-global int 07:sbag_track_wackymodschance;
-global int 08:sbag_track_minigames;
-global int 09:sbag_track_1v1;
-global int 10:sbag_track_1vm;
+global int 06:sbag_track_wackymods;       // (Internal) Tracks where we are currently in the wackymods shufflebag
+global int 07:sbag_track_wackymodschance; // (Internal) Tracks where we are currently in the wackymodschance shufflebag 
+global int 08:sbag_track_minigames;       // (Internal) Tracks where we are currently in the minigames shufflebag 
+global int 09:sbag_track_1v1;             // (Internal) Tracks where we are currently in the 1V1 minigames shufflebag 
+global int 10:sbag_track_1vm;             // (Internal) Tracks where we are currently in the 1VM minigames shufflebag 
 
 // Limits
-global int 11:sbag_limit_minigames;
-global int 12:sbag_limit_1v1;
-global int 13:sbag_limit_1vm;
+global int 11:sbag_limit_minigames; // (Internal) Checks the last upper limit of the minigames shufflebag
+global int 12:sbag_limit_1v1;       // (Internal) Checks the last upper limit of the 1V1 minigames shufflebag
+global int 13:sbag_limit_1vm;       // (Internal) Checks the last upper limit of the 1VM minigames shufflebag
 
 
 /*===================================================================================================
@@ -864,19 +864,19 @@ function void DoomWare_InitShuffleBags(void) // Initialize all the shufflebags
 	DoomWare_CheckSBag_1VM();
 }
 
-function void DoomWare_CheckSBag_WackyMod(void) // Checks if the wackymods shufflebag's limit is reached, and shuffle it if so
+function void DoomWare_CheckSBag_WackyMod(void) // Checks if the wackymods shufflebag's limit is reached, and shuffles it if so
 {
 	if (sbag_track_wackymods == 0 || sbag_track_wackymods-1 > NUMBEROFWACKYMODS)
 		DoomWare_Shuffle_WackyMod();
 }
 
-function void DoomWare_CheckSBag_WackyChance(void) // Checks if the wackymodschance shufflebag's limit is reached, and shuffle it if so
+function void DoomWare_CheckSBag_WackyChance(void) // Checks if the wackymodschance shufflebag's limit is reached, and shuffles it if so
 {
 	if (sbag_track_wackymodschance == 0 || sbag_track_wackymodschance-1 > GetCVar("doomware_wackymodschance"))
 		DoomWare_Shuffle_WackyChance();
 }
 
-function void DoomWare_CheckSBag_Minigames(void) // Checks if the minigame shufflebag's limit is reached, and shuffle it if so
+function void DoomWare_CheckSBag_Minigames(void) // Checks if the minigame shufflebag's limit is reached, and shuffles it if so
 {
 	if (sbag_track_minigames == 0 || sbag_track_minigames-1 > NUMBEROFGAMES)
 	{
@@ -885,7 +885,7 @@ function void DoomWare_CheckSBag_Minigames(void) // Checks if the minigame shuff
 	}
 }
 
-function void DoomWare_CheckSBag_1V1(void) // Checks if the 1V1 minigame shufflebag's limit is reached, and shuffle it if so
+function void DoomWare_CheckSBag_1V1(void) // Checks if the 1V1 minigame shufflebag's limit is reached, and shuffles it if so
 {
 	if (sbag_track_1v1 == 0 || sbag_track_1v1-1 > NUMBEROFTIEBREAKERS)
 	{
@@ -894,7 +894,7 @@ function void DoomWare_CheckSBag_1V1(void) // Checks if the 1V1 minigame shuffle
 	}
 }
 
-function void DoomWare_CheckSBag_1VM(void) // Checks if the 1VM minigame shufflebag's limit is reached, and shuffle it if so
+function void DoomWare_CheckSBag_1VM(void) // Checks if the 1VM minigame shufflebag's limit is reached, and shuffles it if so
 {
 	if (sbag_track_1vm == 0 || sbag_track_1vm-1 > NUMBEROFTIEBREAKERSM)
 	{
@@ -903,7 +903,7 @@ function void DoomWare_CheckSBag_1VM(void) // Checks if the 1VM minigame shuffle
 	}
 }
 
-function void DoomWare_Shuffle_WackyMod(void) // Shuffle the wackymods shufflebag
+function void DoomWare_Shuffle_WackyMod(void) // Shuffles the wackymods shufflebag
 {
 	int i;
 	
@@ -926,7 +926,7 @@ function void DoomWare_Shuffle_WackyMod(void) // Shuffle the wackymods shuffleba
 	sbag_track_wackymods = 1;
 }
 
-function void DoomWare_Shuffle_Wackychance(void) // Shuffle the wackymodschance shufflebag
+function void DoomWare_Shuffle_Wackychance(void) // Shuffles the wackymodschance shufflebag
 {
 	int i;
 	
@@ -950,7 +950,7 @@ function void DoomWare_Shuffle_Wackychance(void) // Shuffle the wackymodschance 
 	sbag_track_wackymodschance = 1;
 }
 
-function void DoomWare_Shuffle_Minigames(void) // Shuffle the minigames shufflebag
+function void DoomWare_Shuffle_Minigames(void) // Shuffles the minigames shufflebag
 {
 	int i;
 	
@@ -973,7 +973,7 @@ function void DoomWare_Shuffle_Minigames(void) // Shuffle the minigames shuffleb
 	sbag_track_minigames = 1;
 }
 
-function void DoomWare_Shuffle_1V1(void) // Shuffle the 1V1 shufflebag
+function void DoomWare_Shuffle_1V1(void) // Shuffles the 1V1 shufflebag
 {
 	int i;
 	
@@ -996,7 +996,7 @@ function void DoomWare_Shuffle_1V1(void) // Shuffle the 1V1 shufflebag
 	sbag_track_1v1 = 1;
 }
 
-function void DoomWare_Shuffle_1VM(void) // Shuffle the 1VM shufflebag
+function void DoomWare_Shuffle_1VM(void) // Shuffles the 1VM shufflebag
 {
 	int i;
 	
