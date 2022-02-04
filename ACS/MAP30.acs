@@ -263,6 +263,7 @@ bool game_solo;                     // Is someone playing alone?
 int  game_alive;                    // How many people are alive
 int  game_phase2health;             // The last phase 2 fight health check
 int  game_skin;                     // Map skin
+bool game_lastplayerdied;			// Is the last player dead? (Workaround for Zandronum 3.1 bug)
 
 bool round_winifmid;                // Allow a player to win if he is in the midround array (like in games where you don't do anything to win)
 bool round_winifsuicide;            // Pass the player if he killed himself
@@ -303,6 +304,7 @@ script "DoomWare_Server_Boot" OPEN
     game_status = STATUS_NOTSTARTED;
     game_solo = false;
     game_phase2health = 0;
+	game_lastplayerdied = false;
 
     // Create a "thread" that continually updates the hats and handles the database
     ACS_NamedExecute("DoomWare_Server_Hats", 0);
@@ -763,7 +765,7 @@ Script "DoomWare_Server_GameLogic" (void)
                 game_status = STATUS_PHASE3;
                 
             // Respawn people
-            if (GetCVar("doomware_bossfightrespawn"))
+            if (GetCVar("doomware_bossfightrespawn") && !game_lastplayerdied)
             {
                 // Make sure at least one person is alive
                 game_alive = 0;
@@ -883,7 +885,7 @@ Script "DoomWare_Server_GameLogic" (void)
             game_alive++;
     
     // If everone is dead, then end the game
-    if (game_alive == 0 && game_status != STATUS_GAMEOVER)
+    if ((game_alive == 0 || game_lastplayerdied)  && game_status != STATUS_GAMEOVER)
     {
         buuingame = false;
         game_status = STATUS_GAMEOVER;
@@ -1427,13 +1429,28 @@ Script "DoomWare_Client_Death" DEATH
     ACS_NamedExecuteAlways("DoomWare_Client_DeathExtra", 0, PlayerNumber()); 
     delay(1);
     
-    // Force the player to spectate
-    SetDeadSpectator(PlayerNumber(), 1);
+    // Force the player to spectate. If failed (return 0), then they're the last player
+    if (SetDeadSpectator(PlayerNumber(), 1) == 0)
+	{
+		game_lastplayerdied = true;
+		game_alive = 0;
+	}
 }
 
 Script "DoomWare_Client_Respawn" RESPAWN
 {
     ACS_NamedExecuteAlways("DoomWare_Client_Join", 0);
+	
+	// If the player is the last one, then set a bunch of properties to behave as a fake spectator (workaround for Zandronum 3.1 bug)
+	delay(1);
+	if (game_lastplayerdied)
+	{
+		SetPlayerProperty(PlayerNumber(), 1, PROP_FLY);
+		SetPlayerProperty(PlayerNumber(), 1, PROP_NOTARGET);
+		SetPlayerProperty(PlayerNumber(), 2, PROP_INVULNERABILITY);
+		SetActorProperty(0, APROP_Alpha, 0.0);
+		SetActorProperty(0, APROP_RenderStyle, STYLE_None);
+	}
 }
 
 Script "DoomWare_Client_DeathExtra" (int plynum)
@@ -1849,13 +1866,13 @@ Script "DoomWare_Server_Minigame8" (void) // Go To The Light
     ACS_NamedExecute("DoomWare_Server_TeleportPlayers", 0, 206, true, true);
 
     // Pick a random sector to mark as safe
-    int ceil = random(0, 11);
-    Light_ChangeToValue(116+ceil, 256);
+    int cl = random(0, 11);
+    Light_ChangeToValue(116+cl, 256);
     delay(SECOND);
 
     // Lower the ceiling
     for (i=0; i<13; i++)
-        if (i != ceil)
+        if (i != cl)
             Ceiling_LowerAndCrush(116+i, 20, 100, 1);
     delay(SECOND*3+17);
 
@@ -1864,9 +1881,9 @@ Script "DoomWare_Server_Minigame8" (void) // Go To The Light
 
     // Raise the ceiling back up
     for (i=0; i<13; i++)
-        if (ceil != i)
+        if (cl != i)
             Ceiling_RaiseByValue(116+i, 16, 256);
-    Light_ChangeToValue(116+ceil, 16);
+    Light_ChangeToValue(116+cl, 16);
 }
 
 Script "DoomWare_Server_Minigame9" (void) // Survive (Banana)

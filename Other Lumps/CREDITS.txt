@@ -134,7 +134,7 @@ Music - Primary Colored Suicide Bombing Love Song - Ishii Yasushi
 
 **Survive (Super Shotguns)**
 Point Sound - 1UP Mushroom - Super Mario Bros
-Music - D_STELTH - Skulltag
+Music - F A T A L   C O N F L I C T - Yakuza 0
 
 **Blow/Don't Blow Your Brains Out**
 Sprites - Room - TwinBeast (Unable to contact for permission)
@@ -249,6 +249,7 @@ Music - Underwater Level - Super Mario Bros
 **Repeat the Pattern**
 Idea - Ichor
 Weapon Sprites and Code - Skulltag
+Music Note Sounds - Note Block - Minecraft
 Music - The Healer Stalks - Doom 2
 
 **Storm The Beach**
@@ -290,17 +291,17 @@ Music - Rainbow Road - Mario Kart Super Circuit
 Music - Beep Block Skyway - Super Mario 3D World
 
 **Survive (Banana)**	
-Dancing Banana Sprite - I can't find a source on the original thing. Someone made it. If you're old enough you should recognize it and won't need me to source this.
+Dancing Banana Sprite - Trym Stene 
 Explosion Sprite - Metal Slug 3 - SNK
-Sound - Original quote from Fosters' Home For Imaginary Friends, sound edited by Alvin-Earthworm for his C is for Cereal Animation (again, if you're old enough).
-AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a N64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
+Sound - Original quote from Fosters' Home For Imaginary Friends.
+AVOID sounds and sprite - Mystical Ninja 2 Starring Goemon - Konami 
 Music - Rush Hour - WarioWare Smooth Moves
 
 **Survive (Spikes)**
 Idea - Ichor
 Spikes - Hexen - Raven Software
 Music - Mona's microgame medley - WarioWare Smooth Moves
-AVOID Sounds - Mystical Ninja 2 Starring Goemon - Konami (Getting these sounds from a N64 rom was the most painful experience of my life. On the up side, I now know how the sounds in N64 games work :D)
+AVOID sounds and sprite - Mystical Ninja 2 Starring Goemon - Konami
 
 **Math Problem**
 Carpet Rug Texture - I can't find the original source on this one, I had it lying around in my disk.
@@ -323,7 +324,7 @@ Music and Spries - Super Turbo Turkey Puncher 3 - Doom 3
 Map - based off E4M9 - Ultimate Doom
 
 **Drink**
-Can Model - Team Fortress 2 - Curious of what was on the can? I included the texture in this wad
+Can Model - Team Fortress 2 - Valve
 Music - Running The Giant Wheel - Mystical Ninja 2 Starring Goemon
 
 **Survive (Chilli)**
@@ -378,7 +379,7 @@ Textures - Golden Axe - Sega
 Music - Thief's Theme - Golden Axe
 
 **Reach the End (Skyhook)**
-Cockpit sprites and textures- Star Wars: Shadows Of The Empire - LucasArts
+Cockpit sprites and textures - Star Wars: Shadows Of The Empire - LucasArts
 Music - Skyhook Battle - Star Wars: Shadows Of The Empire
 
 **Spam the Indicated Button**
@@ -391,7 +392,7 @@ Idea - Ichor
 Umbrella sprite - Megaman Star Force 2
 Music - Bye Bye American Pie - Doom 2: Hell On Earth
 
-**Reach The End (Factory Line)
+**Reach The End (Factory Line)**
 Most textures - Skulltag
 Switch texture - Star Wars: Shadows Of The Empire - LucasArts
 Spike tube sprite - Sonic The Hedgehog (1991) - SEGA
@@ -404,7 +405,7 @@ Music - Think - Jeopardy
 Music - Last Dinosaur - The Pillows
 
 **Eat Food**
-Sprites, Music, Textures - Sushi-Go-Round - Pokémon Studio
+Sprites, Music, Textures - Sushi-Go-Round - Pokémon Stadium
 
 **Catch a Pokemon**
 Honestly if you don't know where any of this is from then, you're too young to be playing Doom.
@@ -416,12 +417,12 @@ Music - Think - Jeopardy
 
 **Mine an Ore**
 Models and sprites were made by me from scratch. Obviously inspired from Oldschool Runescape.
-sounds - Runescape (Oldschool) - Jagex
+Sounds - Runescape (Oldschool) - Jagex
 Music - Still Night - Runescape (Oldschool)
 
 **Reach the End (Eclipse)**
 Level Theme - Berserk - Kentaru Miura
-Tentacle Monster sprites - Dr. Doctor 
+Tentacle Monster sprites - Dr. Doctor
 Aguares Monster Sprites - Dreadopp
 Worm sprites and sounds - FreeDoom
 Music - The Demon Footsteps - Berserk and the Band of the Hawk
@@ -435,7 +436,7 @@ Music - Disco Prince - We Love Katamari
 
 **Reach the End (Jumping Scroller)**
 Idea - Ichor
-Music - To The Beach - From CoTeCiO's Town Infection Wad (This guy makes awesome music go listen to it)
+Music - To The Beach - From CoTeCiO's Town Infection WAD (This guy makes awesome music go listen to it)
 
 **Shoot the Apple Off the Imp's Head**
 Idea - Ichor
@@ -473,11 +474,11 @@ Music - Let the Powers Reign - Dragon Ball Z Budokai Tenkaichi 2
 
 **Stay on the Road**
 Bus Sprite - The Simpsons: Road Rage - Radical Entertainment
-Bus HUD - Desert Bus - Penn & Teller's Smoke and Mirrors
+Bus HUD and Sound - Desert Bus - Penn & Teller's Smoke and Mirrors
 
 **Survive (Time Freeze)**
 Grenade Launcher sounds and sprites - Skulltag
-Music - Burly Brawl - The Matrix Reloaded: The Album
+Music - Burly Brawl - The Matrix Reloaded
 
 **Reach the End (Chasm)**
 Idea by - Kapanyo - Based on the Doom 2's MAP24
@@ -490,9 +491,9 @@ Music - Night of Fate - Kingdom Hearts
 Music - Steady Now - WarioWare: Smooth Moves
 
 **Abandon Ship**
-Music - Grievous and the Droids - Star Wars Episode 3 Soundtrack
 Some textures from Shadows of the Empire, some from SkullTag, some from Dark Forces
 Alarm Sound - Sonic the Hedgehog - SEGA
+Music - Grievous and the Droids - Star Wars Episode 3 Soundtrack
 
 **Survive (Captain Falcon)**
 Music - Kirby's Dreamland Theme - Super Smash Brothers
@@ -519,6 +520,7 @@ Music - The Moon & The Prince - Katamari Damacy
 
 **Survive (Meteors)**
 Meteor Image - I'm not sure I'm afraid. It's a really old image I had lying around my PC...
+AVOID sounds and sprite - Mystical Ninja 2 Starring Goemon - Konami 
 Meteor Sound Effect - Impossible Quiz - Splapp-me-do
 Music - Ghost Hideout - RAGE
 
@@ -590,12 +592,12 @@ Credits Part 4 (Other TieBreakers)
 ==================================
 
 **Grenade Launcher Duel**
-Music - Garage Battle - F.E.A.R.
+Music - Interplanetary Spark - Yakuza 0
 Weapon Sprites and Code - Skulltag
 
 **Survive (Decreasing Ring)**
+Pushing Stick Sprites - Heretic. Widescreen sprites by Doorhenge
 Music - Athletic - Super Mario Bros 3
-Weapon Sprites - Heretic - Raven Software
 
 **Shoot the Target (One Shot)**
 Music - E3M2 (Donna To The Rescue) - Doom
@@ -607,7 +609,7 @@ Impact Effect Sprites - Speed Brawl - Double Stallion Games
 Sound Effects - Mr. Shifty - Team Shifty
 Music - Threepenny League Throwdown - Vibe Avenue
 
-**Reach the End (Race)**
+**Reach the End (Traps)**
 Spike tube sprite - Sonic The Hedgehog (1991) - SEGA
 Spike Sound - Mystical Ninja 2: Starring Goemon - Konami
 Music - Right There, Right On! - Sonic Rush

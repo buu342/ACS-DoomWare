@@ -1756,13 +1756,13 @@ ACTOR MechaRomero
 }
 
 // Mecha Romero (Float Wacky Mod)
-ACTOR MechaRomero_Float : MechaRomero
+ACTOR MechaRomero_Flight : MechaRomero
 {
 	+FLOAT
 	+NOGRAVITY
 }
 
-// Mecha Romero (Float Wacky Mod)
+// Mecha Romero (Rage Wacky Mod)
 ACTOR MechaRomero_Rage : MechaRomero
 {
 	States
@@ -1780,7 +1780,7 @@ ACTOR MechaRomero_Rage : MechaRomero
 	}
 }
 
-// Mecha Romero (Float Wacky Mod)
+// Mecha Romero (Spread Wacky Mod)
 ACTOR MechaRomero_Spread : MechaRomero
 {
 	States
@@ -1789,16 +1789,16 @@ ACTOR MechaRomero_Spread : MechaRomero
 			MCJR C 20 Bright A_FaceTarget
 			MCJR D 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
 			MCJR D 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
-			MCJR D 4 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR D 0 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
-			MCJR D 4 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR D 0 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR D 4 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR E 0 bright A_PlaySound("chainguy/attack", CHAN_WEAPON)
 			MCJR E 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
-			MCJR E 4 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR E 0 Bright A_CustomBulletAttack(22.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR D 0 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
-			MCJR D 4 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
+			MCJR D 0 Bright A_CustomBulletAttack(32.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR D 0 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR D 4 Bright A_CustomBulletAttack(12.5, 0, 1, random(15,20), "BulletPuff", 0, CBAF_NORANDOM)
 			MCJR E 0 Bright A_SpidReFire
@@ -2807,7 +2807,6 @@ ACTOR ExplosiveBarrelLegs
 			MISL A 0 ACS_NamedExecuteAlways ("DoomWare_Entity_MarkCleanup", 0)
 			Goto Spawn
 		Death:
-			BAR1 A 0 A_GiveToTarget("FailRoundItem",1)
 			BAR1 A 0 A_ChangeFlag("SOLID",false)
 			BEXP A 5 Bright
 			BEXP B 5 Bright A_Scream
@@ -6426,6 +6425,24 @@ ACTOR Turkey : DoomImp
 	}
 }
 
+// Turkey from Super Turbo Turkey Puncher 3 (Flight modifier)
+ACTOR Turkey_Flight : Turkey
+{
+	
+}
+
+// Turkey from Super Turbo Turkey Puncher 3 (Rage modifier)
+ACTOR Turkey_Rage : Turkey
+{
+	
+}
+
+// Turkey from Super Turbo Turkey Puncher 3 (Spread modifier)
+ACTOR Turkey_Spread : Turkey
+{
+	
+}
+
 // Fast Fist Weapon from Super Turbo Turkey Puncher 3 
 ACTOR FastFist : Fist
 {
@@ -8434,7 +8451,6 @@ ACTOR BrawlerPlayer : DoomPlayer
 	Player.ForwardMove 0
 	Player.MorphWeapon "BrawlerFist"
 	Player.ColorRange 112, 127
-	BloodType "BrawlerImpact"
 	States
 	{
 		Spawn:
@@ -8489,6 +8505,7 @@ ACTOR BrawlerPlayer : DoomPlayer
 			Goto Spawn
 		Death:
 		XDeath:
+			FSTR H 0 A_SpawnItemEx("BrawlerImpact", 0, 0, 32)
 			FSTR H 4 A_PlayerScream
 			FSTR I 4 
 			FSTR J 4 A_NoBlocking

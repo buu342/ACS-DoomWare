@@ -575,6 +575,12 @@ DoomWare/LandMine				DSLDMINE
 
 DoomWare/SpikesPopup			DSSPIKE
 
+DoomWare/Note1					DSNOTE1
+DoomWare/Note2					DSNOTE2
+DoomWare/Note3					DSNOTE3
+DoomWare/Note4					DSNOTE4
+DoomWare/Note5					DSNOTE5
+DoomWare/Note6					DSNOTE6
 
 // Buu342 Sounds
 

@@ -280,9 +280,29 @@ achievemnts will not be tracked.\
 // Game changelog
 
 #define CHANGES "\
-Version 1.00\n\
+Version 1.05\n\
 What's new in this version?\n\n\
-+Official release!\n\
++ Zandronum 3.1 update\n\
++ Added points to Deathmatch and linked the DoomWare score to them\n\
++ Added points to Internal Zandronum scoreboard\n\
++ Added 'doomware_fakerandom' CVar\n\
+* Changed music in SSG and Grenades Duel minigames\n\
+* Changed teleport system for Boxing minigame\n\
+* Finally fixed the camera in E1M1 Karts\n\
+* Fixed Arch-Viles not receiving Wacky Mods correctly\n\
+* Fixed boss battle spectator bug caused by Zandronum 3.1\n\
+* Fixed freeze and particles in brawler tiebreaker\n\
+* Fixed Buu342 Morph in 'Put Yourself Out' minigame\n\
+* Fixed teleport bug in Source Port minigame\n\
+* Fixed Wackymods Mecha Romeros\n\
+* Gave the CacoDemons some musical notes\n\
+* Improved networking and HUD performance by using internal Zandronum functions\n\
+* Prevented cheating the jumps in Void minigame\n\
+* Tweaked time in Town Infection minigame\n\
+* Tweaked windows and map for Batman Doom\n\
+* Turkey is now affected by wackymods\n\
+- Removed some built-in Zandronum gamemode text\n\
+- Removed loss from fake barrels\n\
 "
 
 
@@ -308,7 +328,6 @@ str  player_viewsprite[MAXPLAYERS];     // List of player's view sprite (like in
 int  player_answer1[MAXPLAYERS];        // Variables for minigame stuff (like keeping track of laps in Kart races)
 int  player_answer2[MAXPLAYERS][4];     // Variables for minigame stuff (like keeping track of cacodemon answers)
 
-int  game_score[MAXPLAYERS];           // (Internal) The score of each PlayerNumber()
 int  game_scoreteams[MAXTEAMS];        // (Internal) The score of each team
 int  game_extrascoreteams[MAXTEAMS+1]; // (Internal) The extra score of each team (team members that disconnected)
 int  game_highscores[MAXPLAYERS];      // (Internal) The global highscore table sorted by winner first
@@ -352,6 +371,25 @@ int data_role[MAXPLAYERS];      // (Internal) List of each player's role
 int data_achieve[MAXPLAYERS];   // (Internal) Bit field each player's achievements
 int data_bosskills[MAXPLAYERS]; // (Internal) List of each player's boss kills
 
+// Shufflebags to make random "feel" more random
+global int 01:sbag_wackymods[];
+global int 02:sbag_wackymodschance[];
+global int 03:sbag_minigames[];
+global int 04:sbag_1v1[];
+global int 05:sbag_1vm[];
+
+// Trackers
+global int 06:sbag_track_wackymods;
+global int 07:sbag_track_wackymodschance;
+global int 08:sbag_track_minigames;
+global int 09:sbag_track_1v1;
+global int 10:sbag_track_1vm;
+
+// Limits
+global int 11:sbag_limit_minigames;
+global int 12:sbag_limit_1v1;
+global int 13:sbag_limit_1vm;
+
 
 /*===================================================================================================
                                 DoomWare Server Logic Initialization
@@ -363,6 +401,10 @@ script "DoomWare_Server_Boot" OPEN // Called when the map starts. Waits for play
     game_status = STATUS_NOTSTARTED;
     game_solo = false;
     game_wackymod = WACKYMOD_NONE;
+	
+	// Initialize shufflebags
+	if (GetCVar("doomware_fakerandom"))
+		DoomWare_InitShuffleBags();
     
     // Figure out the map skin
     if (!StrICmp(GetCVarString("doomware_mode"), "halloween") || (GetCVar("doomware_automode") && GetTimeProperty(SystemTime(), TM_MONTH) == 9))
@@ -523,7 +565,6 @@ Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to di
     temp_hint[76] = "One of my favorite shapes is the Great disnub dirhombidodecahedron.";
     temp_hint[77] = "Featuring Dante from the Devil May Cry series.";
     temp_hint[78] = "Players wearing Party Hats are wonderful beta testers :>";
-    temp_hint[79] = "Players with a pink heart over their heads have played too much Doomware.";
     temp_hint[79] = "Players with a blue heart over their heads Unlocked all achievements. Wow!";
     temp_hint[80] = "You can scale the HUD using the DoomWare Menu, or the console command doomware_hudscale.";
     temp_hint[81] = "This WAD contains Berserk references.";
@@ -562,7 +603,7 @@ Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to di
 }
 
 bool temp_bannedrounds[NUMBEROFGAMES];
-int temp_allrounds[NUMBEROFGAMES];
+int temp_shufflearray[1000];
 Script "DoomWare_Server_InitRounds" (void) // Initializes the list of minigames to play
 {
     int i, j, k;
@@ -617,7 +658,7 @@ Script "DoomWare_Server_InitRounds" (void) // Initializes the list of minigames 
     // Create a temporary array with all the rounds that aren't banned
     for (i=0; i<NUMBEROFGAMES; i++)
         if (!temp_bannedrounds[i])
-            temp_allrounds[totalrounds++] = i+1;
+            temp_shufflearray[totalrounds++] = i+1;
     
     // If we have enough rounds to not have repeats
     if (!GetCVar("doomware_duplicates") && NUMBEROFGAMES-bancount >= MAXROUNDS)
@@ -626,20 +667,29 @@ Script "DoomWare_Server_InitRounds" (void) // Initializes the list of minigames 
         for (i=0; i<totalrounds; i++)
         {
             j = random(i, totalrounds-1);
-            k = temp_allrounds[i];
-            temp_allrounds[i] = temp_allrounds[j];
-            temp_allrounds[j] = k;
+            k = temp_shufflearray[i];
+            temp_shufflearray[i] = temp_shufflearray[j];
+            temp_shufflearray[j] = k;
         }
 
-        // Now copy the first MAXROUNDS elements onto our rounds array
-        for (i=0; i<MAXROUNDS; i++)
-            round_current[i] = temp_allrounds[i];
+		// If we didn't ban any rounds and we want fake random, use the shufflebag, otherwise use the temp array
+		if (bancount == 0 && GetCVar("doomware_fakerandom"))
+		{
+			for (i=0; i<MAXROUNDS; i++)
+				round_current[i] = DoomWare_SBagNext_Minigames();
+		}
+		else
+		{
+			// Now copy the first MAXROUNDS elements onto our rounds array
+			for (i=0; i<MAXROUNDS; i++)
+				round_current[i] = temp_shufflearray[i];			
+		}
     }
     else 
     {
         // Otherwise just pick a bunch of games at random
         for (i=0; i<MAXROUNDS; i++)
-            round_current[i] = temp_allrounds[random(0, totalrounds-1)];
+            round_current[i] = temp_shufflearray[random(0, totalrounds-1)];
     }
 }
 
@@ -650,7 +700,7 @@ Script "DoomWare_Server_InitHighscores" (void) // Initializes the highscore tabl
     {
         game_highscores[i] = -1;
         game_highnames[i] = -1;
-        game_score[i] = 0;
+		SetPlayerScore(i, SCORE_POINTS, 0);
     }
 }
 
@@ -658,7 +708,7 @@ Script "DoomWare_Server_InitGlobals" (void) // Initializes all the global variab
 {
     for (int i=0; i< MAXPLAYERS; i++)
     {
-        game_score[i] = 0;
+		SetPlayerScore(i, SCORE_POINTS, 0);
         data_points[i] = 0;
         data_wins[i] = 0;
         data_deaths[i] = 0;
@@ -692,7 +742,6 @@ Script "DoomWare_Server_InitGlobals" (void) // Initializes all the global variab
     SetCVarString("__clientsync_highname", "");
     SetCVarString("__clientsync_speeduphint", "");
 
-    SetCVarString("__clientsync_player_score", "");
     SetCVarString("__clientsync_player_loggedin", "");
     SetCVarString("__clientsync_player_datascore", "");
     SetCVarString("__clientsync_player_datawins", "");
@@ -719,16 +768,36 @@ Script "DoomWare_Server_InitGlobals" (void) // Initializes all the global variab
 
 Script "DoomWare_Server_InitWackymods" (void) // Initializes the wacky modifiers
 {
-    int wackymod = random(0, GetCVar("doomware_wackymodschance"));
-    if (wackymod == 0 || DEBUG_WACKY != -1)
+    int wackymod;
+	
+	// Generate a random number for the wackymod chance
+	if (GetCVar("doomware_fakerandom"))
+		wackymod = DoomWare_SBagNext_WackyChance();
+	else
+		wackymod = random(0, GetCVar("doomware_wackymodschance"));
+	
+	// If we got lucky
+    if (wackymod == 1 || DEBUG_WACKY != -1)
     {
         // Pick a wackymod at random
         if (DEBUG_WACKY == -1)
         {
-            if (GetCVar("doomware_bossfight") && !game_teams)
-                game_wackymod = 1+random(0, NUMBEROFWACKYMODS-1);
-            else
-                game_wackymod = 2+random(0, NUMBEROFWACKYMODS-2);
+			if (GetCVar("doomware_fakerandom"))
+			{
+				game_wackymod = DoomWare_SBagNext_WackyMod();
+				DoomWare_Shuffle_WackyChance();
+				
+				// Prevent the boss if it's disabled or we have a team game
+				if (game_wackymod == WACKYMOD_BOSS && (!GetCVar("doomware_bossfight") || game_teams))
+					game_wackymod = DoomWare_SBagNext_WackyMod();
+			}
+			else
+			{
+				if (GetCVar("doomware_bossfight") && !game_teams)
+					game_wackymod = 1+random(0, NUMBEROFWACKYMODS-1);
+				else
+					game_wackymod = 2+random(0, NUMBEROFWACKYMODS-2);
+			}
         }
         else
             game_wackymod = DEBUG_WACKY;
@@ -782,6 +851,236 @@ Script 255 (int lineid, int angle) // Arena wall bumping
 
 
 /*===================================================================================================
+										DoomWare ShuffleBags
+===================================================================================================*/
+
+
+function void DoomWare_InitShuffleBags(void) // Initialize all the shufflebags
+{
+	DoomWare_CheckSBag_WackyMod();
+	DoomWare_CheckSBag_WackyChance();
+	DoomWare_CheckSBag_Minigames();
+	DoomWare_CheckSBag_1V1();
+	DoomWare_CheckSBag_1VM();
+}
+
+function void DoomWare_CheckSBag_WackyMod(void) // Checks if the wackymods shufflebag's limit is reached, and shuffle it if so
+{
+	if (sbag_track_wackymods == 0 || sbag_track_wackymods-1 > NUMBEROFWACKYMODS)
+		DoomWare_Shuffle_WackyMod();
+}
+
+function void DoomWare_CheckSBag_WackyChance(void) // Checks if the wackymodschance shufflebag's limit is reached, and shuffle it if so
+{
+	if (sbag_track_wackymodschance == 0 || sbag_track_wackymodschance-1 > GetCVar("doomware_wackymodschance"))
+		DoomWare_Shuffle_WackyChance();
+}
+
+function void DoomWare_CheckSBag_Minigames(void) // Checks if the minigame shufflebag's limit is reached, and shuffle it if so
+{
+	if (sbag_track_minigames == 0 || sbag_track_minigames-1 > NUMBEROFGAMES)
+	{
+		sbag_limit_minigames = NUMBEROFGAMES;
+		DoomWare_Shuffle_Minigames();
+	}
+}
+
+function void DoomWare_CheckSBag_1V1(void) // Checks if the 1V1 minigame shufflebag's limit is reached, and shuffle it if so
+{
+	if (sbag_track_1v1 == 0 || sbag_track_1v1-1 > NUMBEROFTIEBREAKERS)
+	{
+		sbag_limit_1v1 = NUMBEROFTIEBREAKERS;
+		DoomWare_Shuffle_1V1();
+	}
+}
+
+function void DoomWare_CheckSBag_1VM(void) // Checks if the 1VM minigame shufflebag's limit is reached, and shuffle it if so
+{
+	if (sbag_track_1vm == 0 || sbag_track_1vm-1 > NUMBEROFTIEBREAKERSM)
+	{
+		sbag_limit_1vm = NUMBEROFTIEBREAKERSM;
+		DoomWare_Shuffle_1VM();
+	}
+}
+
+function void DoomWare_Shuffle_WackyMod(void) // Shuffle the wackymods shufflebag
+{
+	int i;
+	
+	// Create a temporary array with all the values
+    for (i=0; i<NUMBEROFWACKYMODS; i++)
+		temp_shufflearray[i] = i+1;
+    
+	// Shuffle the temp array
+	for (i=0; i<NUMBEROFWACKYMODS; i++)
+	{
+		int j = random(i, NUMBEROFWACKYMODS-1);
+		int k = temp_shufflearray[i];
+		temp_shufflearray[i] = temp_shufflearray[j];
+		temp_shufflearray[j] = k;
+	}
+	
+	// Copy the values from the temp array to our shufflebag
+	for (i=0; i<NUMBEROFWACKYMODS; i++)
+		sbag_wackymods[i] = temp_shufflearray[i];
+	sbag_track_wackymods = 1;
+}
+
+function void DoomWare_Shuffle_Wackychance(void) // Shuffle the wackymodschance shufflebag
+{
+	int i;
+	
+	// Create a temporary array with all the values
+	temp_shufflearray[0] = 1;
+    for (i=1; i<GetCVar("doomware_wackymodschance"); i++)
+		temp_shufflearray[i] = 0;
+    
+	// Shuffle the temp array
+	for (i=0; i<GetCVar("doomware_wackymodschance"); i++)
+	{
+		int j = random(i, GetCVar("doomware_wackymodschance")-1);
+		int k = temp_shufflearray[i];
+		temp_shufflearray[i] = temp_shufflearray[j];
+		temp_shufflearray[j] = k;
+	}
+	
+	// Copy the values from the temp array to our shufflebag
+	for (i=0; i<GetCVar("doomware_wackymodschance"); i++)
+		sbag_wackymodschance[i] = temp_shufflearray[i];
+	sbag_track_wackymodschance = 1;
+}
+
+function void DoomWare_Shuffle_Minigames(void) // Shuffle the minigames shufflebag
+{
+	int i;
+	
+	// Create a temporary array with all the values
+    for (i=0; i<NUMBEROFGAMES; i++)
+		temp_shufflearray[i] = i+1;
+    
+	// Shuffle the temp array
+	for (i=0; i<NUMBEROFGAMES; i++)
+	{
+		int j = random(i, NUMBEROFGAMES-1);
+		int k = temp_shufflearray[i];
+		temp_shufflearray[i] = temp_shufflearray[j];
+		temp_shufflearray[j] = k;
+	}
+	
+	// Copy the values from the temp array to our shufflebag
+	for (i=0; i<NUMBEROFGAMES; i++)
+		sbag_minigames[i] = temp_shufflearray[i];
+	sbag_track_minigames = 1;
+}
+
+function void DoomWare_Shuffle_1V1(void) // Shuffle the 1V1 shufflebag
+{
+	int i;
+	
+	// Create a temporary array with all the values
+    for (i=0; i<NUMBEROFTIEBREAKERS; i++)
+		temp_shufflearray[i] = i+1;
+    
+	// Shuffle the temp array
+	for (i=0; i<NUMBEROFTIEBREAKERS; i++)
+	{
+		int j = random(i, NUMBEROFTIEBREAKERS-1);
+		int k = temp_shufflearray[i];
+		temp_shufflearray[i] = temp_shufflearray[j];
+		temp_shufflearray[j] = k;
+	}
+	
+	// Copy the values from the temp array to our shufflebag
+	for (i=0; i<NUMBEROFTIEBREAKERS; i++)
+		sbag_1v1[i] = temp_shufflearray[i];
+	sbag_track_1v1 = 1;
+}
+
+function void DoomWare_Shuffle_1VM(void) // Shuffle the 1VM shufflebag
+{
+	int i;
+	
+	// Create a temporary array with all the values
+    for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
+		temp_shufflearray[i] = i+1;
+    
+	// Shuffle the temp array
+	for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
+	{
+		int j = random(i, NUMBEROFTIEBREAKERSM-1);
+		int k = temp_shufflearray[i];
+		temp_shufflearray[i] = temp_shufflearray[j];
+		temp_shufflearray[j] = k;
+	}
+	
+	// Copy the values from the temp array to our shufflebag
+	for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
+		sbag_1vm[i] = temp_shufflearray[i];
+	sbag_track_1vm = 1;
+}
+
+function int DoomWare_SBagNext_WackyMod(void) // Get the next value in the Wackymods shufflebag
+{
+	int val = sbag_wackymods[sbag_track_wackymods-1];
+	
+	// Shuffle again if we've gone over
+	sbag_track_wackymods++;
+	DoomWare_CheckSBag_WackyMod();
+	
+	// Return the result
+	return val;
+}
+
+function int DoomWare_SBagNext_WackyChance(void) // Get the next value in the Wackymodschance shufflebag
+{
+	int val = sbag_wackymodschance[sbag_track_wackymodschance-1];
+	
+	// Shuffle again if we've gone over
+	sbag_track_wackymodschance++;
+	DoomWare_CheckSBag_WackyChance();
+	
+	// Return the result
+	return val;
+}
+
+function int DoomWare_SBagNext_Minigames(void) // Get the next value in the minigames shufflebag
+{
+	int val = sbag_minigames[sbag_track_minigames-1];
+	
+	// Shuffle again if we've gone over
+	sbag_track_minigames++;
+	DoomWare_CheckSBag_Minigames();
+	
+	// Return the result
+	return val;
+}
+
+function int DoomWare_SBagNext_1V1(void) // Get the next value in the 1v1 minigames shufflebag
+{
+	int val = sbag_1v1[sbag_track_1v1-1];
+	
+	// Shuffle again if we've gone over
+	sbag_track_1v1++;
+	DoomWare_CheckSBag_1V1();
+	
+	// Return the result
+	return val;
+}
+
+function int DoomWare_SBagNext_1VM(void) // Get the next value in the 1vM minigames shufflebag
+{
+	int val = sbag_1vm[sbag_track_1vm-1];
+	
+	// Shuffle again if we've gone over
+	sbag_track_1vm++;
+	DoomWare_CheckSBag_1VM();
+	
+	// Return the result
+	return val;
+}
+
+
+/*===================================================================================================
                                 DoomWare Client Logic Initialization
 ===================================================================================================*/
 
@@ -809,7 +1108,7 @@ Script "DoomWare_Client_Initialize" (void) // Initializes variables related to t
 {
     // Wipe the player's Inventory and score
     clearinventory();
-    game_score[PlayerNumber()] = 0;
+    SetPlayerScore(PlayerNumber(), SCORE_POINTS, 0);
 
     // Assign each player a TID, starting at 1337
     Thing_ChangeTID(0, TID_PLAYER+PlayerNumber());
@@ -989,6 +1288,8 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
 			{
 				if (DEBUG_TIEB > 0)
 					round_tiebreaker = DEBUG_TIEB;
+				else if (GetCVar("doomware_fakerandom"))
+					round_tiebreaker = DoomWare_SBagNext_1V1();
 				else
 					round_tiebreaker = random(1, NUMBEROFTIEBREAKERS);
 			}
@@ -996,7 +1297,9 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
 			{
 				if (DEBUG_TIEBM > 0)
 					round_tiebreaker = DEBUG_TIEBM;
-				else
+				else if (GetCVar("doomware_fakerandom"))
+					round_tiebreaker = DoomWare_SBagNext_1VM();
+				else 
 					round_tiebreaker = random(1, NUMBEROFTIEBREAKERSM);
 				round_is1vmtiebreaker = true;
 			}
@@ -1041,7 +1344,7 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
         // Auto fail anyone who isn't in first place
         for (i=0; i<MAXPLAYERS; i++)
         {
-            if (game_score[i] != game_highscores[0])
+            if (GetPlayerScore(i, SCORE_POINTS) != game_highscores[0])
             {
                 player_lostround[i] = true;
                 player_midround[i] = false;
@@ -1119,7 +1422,7 @@ Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog) // T
     for (i=0; i<MAXPLAYERS; i++)
     {
         // Don't bother if the player doesn't exist or they're not tied for first place (during a tiebreaker round)
-        if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && !game_teams && game_score[i] != game_highscores[0]))
+        if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && !game_teams && GetPlayerScore(i, SCORE_POINTS) != game_highscores[0]))
             continue;
 
         // Get the player's position
@@ -1156,7 +1459,7 @@ Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog) // T
         for (i=0; i<MAXPLAYERS; i++)
         {
             // Don't bother if the player doesn't exist or they're not tied for first place
-            if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && game_score[i] != game_highscores[0]))
+            if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && GetPlayerScore(i, SCORE_POINTS) != game_highscores[0]))
                 continue;
 
             SetActorPitch(TID_PLAYER+i, 0.0);
@@ -1172,7 +1475,7 @@ Script "DoomWare_Server_TeleportPlayers" (int tid, int telesector, int fog) // T
     for (i=0; i<MAXPLAYERS; i++)
     {
         // Don't bother if the player doesn't exist or they're not tied for first place
-        if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && game_score[i] != game_highscores[0]))
+        if (!PlayerInGame(i) || (game_status == STATUS_TIEBREAKM && GetPlayerScore(i, SCORE_POINTS) != game_highscores[0]))
             continue;
 
         while (Distance(TID_PLAYER+i, 1) < 512 && game_status == STATUS_MINIGAME)
@@ -1252,7 +1555,7 @@ Script "DoomWare_Server_UpdateDB" (void) // Updates the Database at the end of t
     // Check for people who have played too much DoomWare
     for (i=0; i<MAXPLAYERS; i++)
         if ((GetCVar("doomware_unsafedb") || playerIsLoggedIn(i)) && playerInGame(i) && data_role[i] == ROLE_NONE)
-            if ((GetCVar("doomware_unsafedb") && (GetDBEntry("Points", StrParam(n:i+1)) + game_score[i]) >= 300) || GetDBEntry("Points", getPlayerAccountName(i)) + game_score[i] >= 300)
+            if ((GetCVar("doomware_unsafedb") && (GetDBEntry("Points", StrParam(n:i+1)) + GetPlayerScore(i, SCORE_POINTS)) >= 300) || GetDBEntry("Points", getPlayerAccountName(i)) + GetPlayerScore(i, SCORE_POINTS) >= 300)
                 data_role[i] = ROLE_REGULAR;
 
     // Begin the Database Transaction
@@ -1270,7 +1573,7 @@ Script "DoomWare_Server_UpdateDB" (void) // Updates the Database at the end of t
             SetDBEntry("Wins", plyname, data_wins[i]);
 
             // Log the total points
-            incrementDBEntry("Points", plyname, game_score[i]);
+            incrementDBEntry("Points", plyname, GetPlayerScore(i, SCORE_POINTS));
 
             // Log the number of deaths
             SetDBEntry("Deaths", plyname, data_deaths[i]);
@@ -1368,10 +1671,9 @@ Script "DoomWare_Client_Disconnect" (int gone) DISCONNECT // Called when the pla
 	// If the player was in a team, save his score
 	// We can't get their team in DISCONNECT scripts, so we'll have to figure it out later
 	if (game_teams)
-		game_extrascoreteams[MAXTEAMS] += game_score[gone];
+		game_extrascoreteams[MAXTEAMS] += GetPlayerScore(gone, SCORE_POINTS);
 
     // Reset that player's score and data
-    game_score[gone] = 0;
     data_points[gone] = 0;
     data_wins[gone] = 0;
     data_deaths[gone] = 0;
@@ -1465,9 +1767,9 @@ Script "DoomWare_Client_GameLogic" (void) // Main client gamemode logic "thread"
                     case 4: LocalAmbientSound(StrParam(s:"DoomWare/", s:extra, s:"Win", d:game_speed+1), 127); break;
                     }
                 }
-                game_score[PlayerNumber()]++;
+                SetPlayerScore(PlayerNumber(), SCORE_POINTS, GetPlayerScore(PlayerNumber(), SCORE_POINTS)+1);
                 player_musicwinlose[PlayerNumber()] = true;
-                if (data_points[PlayerNumber()]+game_score[PlayerNumber()] >= 300)
+                if (data_points[PlayerNumber()]+GetPlayerScore(PlayerNumber(), SCORE_POINTS) >= 300)
                     Give_Achievement(PlayerNumber(), ACHIEVE_ID_300POINTS);
             }
         }
@@ -1492,7 +1794,7 @@ Script "DoomWare_Client_GameLogic" (void) // Main client gamemode logic "thread"
             player_musicgameover[PlayerNumber()] = true;
 
             // Give the achievement if the player's score is 25 or more
-            if (game_score[PlayerNumber()] >= 25)
+            if (GetPlayerScore(PlayerNumber(), SCORE_POINTS) >= 25)
                 Give_Achievement(PlayerNumber(), ACHIEVE_ID_25POINTS);
         }
 
@@ -1500,7 +1802,7 @@ Script "DoomWare_Client_GameLogic" (void) // Main client gamemode logic "thread"
         if (game_over == OVER_WINNER || game_over == OVER_WINNERRED || game_over == OVER_WINNERBLUE || game_over == OVER_NOTIEGAMES)
         {
             // Award the winner with stats
-            if ((game_teams && ((game_over == OVER_WINNERRED && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_RED) || (game_over == OVER_WINNERBLUE && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_BLUE))) || (!game_teams && game_score[PlayerNumber()] == game_highscores[0]))
+            if ((game_teams && ((game_over == OVER_WINNERRED && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_RED) || (game_over == OVER_WINNERBLUE && GetPlayerInfo(PlayerNumber(), PLAYERINFO_TEAM) == TEAM_BLUE))) || (!game_teams && GetPlayerScore(PlayerNumber(), SCORE_POINTS) == game_highscores[0]))
             {               
                 data_wins[PlayerNumber()]++;
                 switch (data_wins[PlayerNumber()])
@@ -1636,12 +1938,12 @@ Script "DoomWare_Client_GameLogic" (void) // Main client gamemode logic "thread"
         {
             if (game_wackymod == WACKYMOD_T1UPS)
             {
-                game_score[PlayerNumber()]+=3;
+                SetPlayerScore(PlayerNumber(), SCORE_POINTS, GetPlayerScore(PlayerNumber(), SCORE_POINTS)+3);
                 data_1ups[PlayerNumber()]+=3;
             }
             else
             {
-                game_score[PlayerNumber()]++;
+                SetPlayerScore(PlayerNumber(), SCORE_POINTS, GetPlayerScore(PlayerNumber(), SCORE_POINTS)+1);
                 data_1ups[PlayerNumber()]++;
             }
             TakeInventory("1up", 1000);
@@ -1736,7 +2038,6 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
         str syncdata_roundcurrent = GetCvar("__clientsync_roundcurrent");
         str syncdata_teams = GetCvar("__clientsync_teams");
 
-        int syncdata_score = Unpack_CVar_Array("__clientsync_player_score");
         str syncdata_checklost = Unpack_CVar_Array("__clientsync_player_checklost");
         str syncdata_lostround = Unpack_CVar_Array("__clientsync_player_lostround");
         str syncdata_loggedin = Unpack_CVar_Array("__clientsync_player_loggedin");
@@ -1875,8 +2176,8 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
                     HUDMessage(s:"\n\n\chBLUE Team\cg Victory!"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 0.3, 1);
                     break;
                 case OVER_WINNERSOLO:
-                    if (syncdata_score != 1)
-                        HUDMessage(s:"\n\nYou scored ", d:syncdata_score, s:" points"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
+                    if (GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS) != 1)
+                        HUDMessage(s:"\n\nYou scored ", d:GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS), s:" points"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
                     else
                         HUDMessage(s:"\n\nYou scored 1 point"; HUDMSG_PLAIN, MSGID_CENTER2, CR_RED, w/2, FixedMul(h, 0.25), 1);
                     break;
@@ -1993,10 +2294,10 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
 
                     // Spread
                     SetFont("DW_FONT3");
-                    if (syncdata_highscore1 <= syncdata_score)
-                        HUDMessage(s:"+", d:(syncdata_score-syncdata_highscore2); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+                    if (syncdata_highscore1 <= GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS))
+                        HUDMessage(s:"+", d:(GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS)-syncdata_highscore2); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
                     else
-                        HUDMessage(s:"-", d:(syncdata_highscore1-syncdata_score); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
+                        HUDMessage(s:"-", d:(syncdata_highscore1-GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS)); HUDMSG_PLAIN, MSGID_SPREAD, CR_ORANGE, w/2, hud_toppos+77.0, 1);
                 }
                 
                 // Remind people that they can view the highscore table
@@ -2022,7 +2323,7 @@ Script "DoomWare_Client_DrawHUD" (void) CLIENTSIDE // HUD drawing "thread"
         if (syncdata_gamestatus > STATUS_STARTING)
         {
             SetFont("DW_FONT1");
-            HUDMessage(d:syncdata_score; HUDMSG_PLAIN, MSGID_SCORE, CR_YELLOW, x_start+64.0, hud_toppos+46.0, 1);
+            HUDMessage(d:GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS); HUDMSG_PLAIN, MSGID_SCORE, CR_YELLOW, x_start+64.0, hud_toppos+46.0, 1);
             if (GetUserCVar(plynum, "doomware_hudshowbinds"))
             {
                 SetFont("DW_FONT3");
@@ -2702,7 +3003,6 @@ Script "DoomWare_Server_SyncGlobals" (void) // Global variable networking "threa
     }
 
     // Pack player data
-    Pack_Global_Array("__clientsync_player_score");
     Pack_Global_Array("__clientsync_player_loggedin");
     Pack_Global_Array("__clientsync_player_datascore");
     Pack_Global_Array("__clientsync_player_datawins");
@@ -2776,7 +3076,6 @@ function void Pack_Global_Array(str cvar) // Replacement for Get/SetUserCVar
     */
     switch (cvar)
     {
-        case "__clientsync_player_score":         for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:game_score[i], s:"\n"); break;
         case "__clientsync_player_loggedin":      for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:(PlayerIsLoggedIn(i) || GetCVar("doomware_unsafedb")), s:"\n"); break;
         case "__clientsync_player_datascore":     for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_points[i], s:"\n"); break;
         case "__clientsync_player_datawins":      for (i=0; i< MAXPLAYERS; i++) final = StrParam(s:final, d:data_wins[i], s:"\n"); break;
@@ -2891,7 +3190,7 @@ script "DoomWare_Server_CalcHighscore" (void) // A "thread" which continually up
 		// Fill the highscore list with the players that are ingame
 		for (i=0; i<MAXPLAYERS; i++)
 		{
-			game_highscores[i] = game_score[i];
+			game_highscores[i] = GetPlayerScore(i, SCORE_POINTS);
 			game_highnames[i] = i;
 
 			if (PlayerInGame(i) == false)
@@ -2901,7 +3200,7 @@ script "DoomWare_Server_CalcHighscore" (void) // A "thread" which continually up
 			}
 		}
 
-		// Order the list based on who has the highest score
+		// Order the list based on who has the highest score (TODO: Implement Quicksort)
 		for (i=0; i<MAXPLAYERS; i++)
 		{
 			for (j=1; j<MAXPLAYERS-i; j++)
@@ -3286,7 +3585,6 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE // Draws the DoomWare menu f
                     // Display player stats based on whether they're logged in or not
                     if (syncdata_loggedin >= 1)
                     {
-                        int syncdata_score = Unpack_CVar_Array("__clientsync_player_score");
                         int syncdata_totalpoints = Unpack_CVar_Array("__clientsync_player_datascore");
                         int syncdata_wins = Unpack_CVar_Array("__clientsync_player_datawins");
                         int syncdata_deaths = Unpack_CVar_Array("__clientsync_player_datadeaths");
@@ -3315,7 +3613,7 @@ Script "DoomWare_Client_DrawMenu" (void) CLIENTSIDE // Draws the DoomWare menu f
                         }
                         HUDMessage(s:"\ckYour Stats\c-\n\n",
                             s:"Game Wins\n", d:syncdata_wins,
-                            s:"\n\nPoints Received\n", d:(syncdata_score + syncdata_totalpoints),
+                            s:"\n\nPoints Received\n", d:(GetPlayerScore(ConsolePlayerNumber(), SCORE_POINTS) + syncdata_totalpoints),
                             s:"\n\n1-Ups Collected\n", d:syncdata_1ups,
                             s:"\n\nTotal Deaths\n", d:syncdata_deaths,
                             s:"\n\nBosses Defeated\n", d:syncdata_bosskills,
@@ -3846,7 +4144,7 @@ function void SpawnSpotForcedEx(str classname, int spottid, int tid, int angle) 
 				SetActorProperty(tid, APROP_Health, 1);
 				break;
 			case WACKYMOD_SPEED:
-				SetActorProperty(tid, APROP_Speed, FixedMul(GetActorProperty(tid, APROP_Speed), 2.0));
+				SetActorProperty(tid, APROP_Speed, GetActorProperty(tid, APROP_Speed)*2);
 				break;
 		}
 	}
@@ -3885,7 +4183,7 @@ function void SpawnSpotFacingForcedEx(str classname, int spottid, int tid) // Sp
 				SetActorProperty(tid, APROP_Health, 1);
 				break;
 			case WACKYMOD_SPEED:
-				SetActorProperty(tid, APROP_Speed, FixedMul(GetActorProperty(tid, APROP_Speed), 2.0));
+				SetActorProperty(tid, APROP_Speed, GetActorProperty(tid, APROP_Speed)*2);
 				break;
 		}
 	}	

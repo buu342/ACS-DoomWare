@@ -1,7 +1,19 @@
+Deathmatch {
+	addflag DONTPRINTPLAYERSLEFT
+	addflag PLAYERSEARNPOINTS
+	removeflag PLAYERSEARNFRAGS
+}
+
 Teamplay {
     addflag DEADSPECTATORS
+	addflag DONTPRINTPLAYERSLEFT 
+	addflag PLAYERSEARNPOINTS
+	removeflag PLAYERSEARNFRAGS
 }
 
 TeamGame {
     addflag DEADSPECTATORS
+	addflag DONTPRINTPLAYERSLEFT 
+	addflag PLAYERSEARNPOINTS
+	removeflag PLAYERSEARNFRAGS
 }
