@@ -880,12 +880,13 @@ Script "DoomWare_Server_GameLogic" (void)
 
     // Check if everyone is dead
     game_alive = 0;
-    for (i=0; i<MAXPLAYERS; i++)
-        if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
-            game_alive++;
+	if (!game_lastplayerdied)
+		for (i=0; i<MAXPLAYERS; i++)
+			if (PlayerInGame(i) && PlayerIsSpectator(i) == 0)
+				game_alive++;
     
     // If everone is dead, then end the game
-    if ((game_alive == 0 || game_lastplayerdied)  && game_status != STATUS_GAMEOVER)
+    if (game_alive == 0 && game_status != STATUS_GAMEOVER)
     {
         buuingame = false;
         game_status = STATUS_GAMEOVER;
@@ -2845,7 +2846,7 @@ Script "DoomWare_Server_Hats" (void)
 		}
 
         // If they don't have a worthy role (or are dead), ignore them
-        if (data_role[i] <= ROLE_NONE || (GetActorProperty(TID_PLAYER+i, APROP_Health) <= 0))
+        if (data_role[i] <= ROLE_NONE || (GetActorProperty(TID_PLAYER+i, APROP_Health) <= 0) || game_lastplayerdied)
             continue;
 
 		// Spawn the hat if it doesn't exist yet

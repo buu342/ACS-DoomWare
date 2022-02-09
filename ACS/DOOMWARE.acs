@@ -280,29 +280,13 @@ achievemnts will not be tracked.\
 // Game changelog
 
 #define CHANGES "\
-Version 1.05\n\
+Version 1.05a\n\
 What's new in this version?\n\n\
-+ Zandronum 3.1 update\n\
-+ Added points to Deathmatch and linked the DoomWare score to them\n\
-+ Added points to Internal Zandronum scoreboard\n\
-+ Added 'doomware_fakerandom' CVar\n\
-* Changed music in SSG and Grenades Duel minigames\n\
-* Changed teleport system for Boxing minigame\n\
-* Finally fixed the camera in E1M1 Karts\n\
-* Fixed Arch-Viles not receiving Wacky Mods correctly\n\
-* Fixed boss battle spectator bug caused by Zandronum 3.1\n\
-* Fixed freeze and particles in brawler tiebreaker\n\
-* Fixed Buu342 Morph in 'Put Yourself Out' minigame\n\
-* Fixed teleport bug in Source Port minigame\n\
-* Fixed Wackymods Mecha Romeros\n\
-* Gave the CacoDemons some musical notes\n\
-* Improved networking and HUD performance by using internal Zandronum functions\n\
-* Prevented cheating the jumps in Void minigame\n\
-* Tweaked time in Town Infection minigame\n\
-* Tweaked windows and map for Batman Doom\n\
-* Turkey is now affected by wackymods\n\
-- Removed some built-in Zandronum gamemode text\n\
-- Removed loss from fake barrels\n\
++ Added monster blocker to elevator in Batman Doom\n\
++ Added a railing to an evil turn on Rainbow Road\n\
+* Changed the shufflebags to dynamic weighted random generation for everything except next wackymod\n\
+* Fixed hats following last spectator during boss round\n\
+* Fixed game not displaying alive count properly during boss round\n\
 "
 
 
@@ -371,24 +355,18 @@ int data_role[MAXPLAYERS];      // (Internal) List of each player's role
 int data_achieve[MAXPLAYERS];   // (Internal) Bit field each player's achievements
 int data_bosskills[MAXPLAYERS]; // (Internal) List of each player's boss kills
 
-// Shufflebags to make random "feel" more random
-global int 01:sbag_wackymods[];        // (Internal) The entire wackymods shufflebag 
-global int 02:sbag_wackymodschance[];  // (Internal) The entire wackymodschance shufflebag 
-global int 03:sbag_minigames[];        // (Internal) The entire minigames shufflebag 
-global int 04:sbag_1v1[];              // (Internal) The entire 1V1 minigames shufflebag 
-global int 05:sbag_1vm[];              // (Internal) The entire 1VM minigames shufflebag 
+global int 1: wrng_minigames[]; // (Internal) Minigame weights for Weighted Random Number Generation
+global int 2: wrng_1v1[];       // (Internal) 1v1 minigame weights for Weighted Random Number Generation
+global int 3: wrng_1vM[];       // (Internal) 1vM minigame weights for Weighted Random Number Generation
+global int 4: wrng_wackymods[]; // (Internal) Wackymod weights for Weighted Random Number Generation
+global int 5: sbag_nextwacky[]; // (Internal) Shufflebag with the next wackyround
 
-// Trackers
-global int 06:sbag_track_wackymods;       // (Internal) Tracks where we are currently in the wackymods shufflebag
-global int 07:sbag_track_wackymodschance; // (Internal) Tracks where we are currently in the wackymodschance shufflebag 
-global int 08:sbag_track_minigames;       // (Internal) Tracks where we are currently in the minigames shufflebag 
-global int 09:sbag_track_1v1;             // (Internal) Tracks where we are currently in the 1V1 minigames shufflebag 
-global int 10:sbag_track_1vm;             // (Internal) Tracks where we are currently in the 1VM minigames shufflebag 
+global int 6: lastlimit_minigames;   // (Internal) Stores the last minigame round limit (in case we change map)
+global int 7: lastlimit_1v1;         // (Internal) Stores the last 1v1 minigame round limit (in case we change map)
+global int 8: lastlimit_1vM;         // (Internal) Stores the last 1vM minigame round limit (in case we change map)
+global int 9: lastlimit_wackychance; // (Internal) Stores the last wackymod chance (in case the CVar changes)
 
-// Limits
-global int 11:sbag_limit_minigames; // (Internal) Checks the last upper limit of the minigames shufflebag
-global int 12:sbag_limit_1v1;       // (Internal) Checks the last upper limit of the 1V1 minigames shufflebag
-global int 13:sbag_limit_1vm;       // (Internal) Checks the last upper limit of the 1VM minigames shufflebag
+global int 10: sbagtrack_nextwacky; // (Internal) Tracks where we are currently in the nextwacky shufflebag
 
 
 /*===================================================================================================
@@ -404,7 +382,7 @@ script "DoomWare_Server_Boot" OPEN // Called when the map starts. Waits for play
 	
 	// Initialize shufflebags
 	if (GetCVar("doomware_fakerandom"))
-		DoomWare_InitShuffleBags();
+		DoomWare_InitRNG();
     
     // Figure out the map skin
     if (!StrICmp(GetCVarString("doomware_mode"), "halloween") || (GetCVar("doomware_automode") && GetTimeProperty(SystemTime(), TM_MONTH) == 9))
@@ -603,7 +581,8 @@ Script "DoomWare_Server_InitHints" (void) // Initializes the list of hints to di
 }
 
 bool temp_bannedrounds[NUMBEROFGAMES];
-int temp_shufflearray[1000];
+int temp_shufflearray[NUMBEROFGAMES];
+int temp_shufflearray_weight[NUMBEROFGAMES];
 Script "DoomWare_Server_InitRounds" (void) // Initializes the list of minigames to play
 {
     int i, j, k;
@@ -657,29 +636,32 @@ Script "DoomWare_Server_InitRounds" (void) // Initializes the list of minigames 
         
     // Create a temporary array with all the rounds that aren't banned
     for (i=0; i<NUMBEROFGAMES; i++)
+	{
         if (!temp_bannedrounds[i])
-            temp_shufflearray[totalrounds++] = i+1;
+		{
+            temp_shufflearray[totalrounds] = i+1;
+            temp_shufflearray_weight[totalrounds] = wrng_minigames[i];
+			totalrounds++;
+		}
+	}
     
     // If we have enough rounds to not have repeats
-    if (!GetCVar("doomware_duplicates") && NUMBEROFGAMES-bancount >= MAXROUNDS)
+    if (!GetCVar("doomware_duplicates") && totalrounds >= MAXROUNDS)
     {
-        // Shuffle the temp array
-        for (i=0; i<totalrounds; i++)
-        {
-            j = random(i, totalrounds-1);
-            k = temp_shufflearray[i];
-            temp_shufflearray[i] = temp_shufflearray[j];
-            temp_shufflearray[j] = k;
-        }
-
-		// If we didn't ban any rounds and we want fake random, use the shufflebag, otherwise use the temp array
-		if (bancount == 0 && GetCVar("doomware_fakerandom"))
-		{
-			for (i=0; i<MAXROUNDS; i++)
-				round_current[i] = DoomWare_SBagNext_Minigames();
-		}
+		// If we want fake random then use the weighted random, otherwise shuffle the temp array like normal
+		if (GetCVar("doomware_fakerandom"))
+			DoomWare_WRng_Minigames(totalrounds);
 		else
 		{
+			// Shuffle the temp array
+			for (i=0; i<totalrounds; i++)
+			{
+				j = random(i, totalrounds-1);
+				k = temp_shufflearray[i];
+				temp_shufflearray[i] = temp_shufflearray[j];
+				temp_shufflearray[j] = k;
+			}
+			
 			// Now copy the first MAXROUNDS elements onto our rounds array
 			for (i=0; i<MAXROUNDS; i++)
 				round_current[i] = temp_shufflearray[i];			
@@ -772,24 +754,24 @@ Script "DoomWare_Server_InitWackymods" (void) // Initializes the wacky modifiers
 	
 	// Generate a random number for the wackymod chance
 	if (GetCVar("doomware_fakerandom"))
-		wackymod = DoomWare_SBagNext_WackyChance();
+		wackymod = DoomWare_SBagNext_NextWacky();
 	else
 		wackymod = random(0, GetCVar("doomware_wackymodschance"));
 	
 	// If we got lucky
-    if (wackymod == 1 || DEBUG_WACKY != -1)
+    if (wackymod == 0 || DEBUG_WACKY != -1)
     {
         // Pick a wackymod at random
         if (DEBUG_WACKY == -1)
         {
 			if (GetCVar("doomware_fakerandom"))
 			{
-				game_wackymod = DoomWare_SBagNext_WackyMod();
-				DoomWare_Shuffle_WackyChance();
+				game_wackymod = DoomWare_WRng_WackyMod();
+				DoomWare_SBagShuffle_NextWacky();
 				
 				// Prevent the boss if it's disabled or we have a team game
-				if (game_wackymod == WACKYMOD_BOSS && (!GetCVar("doomware_bossfight") || game_teams))
-					game_wackymod = DoomWare_SBagNext_WackyMod();
+				while (game_wackymod == WACKYMOD_BOSS && (!GetCVar("doomware_bossfight") || game_teams))
+					game_wackymod = DoomWare_WRng_WackyMod();
 			}
 			else
 			{
@@ -851,89 +833,200 @@ Script 255 (int lineid, int angle) // Arena wall bumping
 
 
 /*===================================================================================================
-										DoomWare ShuffleBags
+											 DoomWare RNG
 ===================================================================================================*/
 
 
-function void DoomWare_InitShuffleBags(void) // Initialize all the shufflebags
-{
-	DoomWare_CheckSBag_WackyMod();
-	DoomWare_CheckSBag_WackyChance();
-	DoomWare_CheckSBag_Minigames();
-	DoomWare_CheckSBag_1V1();
-	DoomWare_CheckSBag_1VM();
-}
-
-function void DoomWare_CheckSBag_WackyMod(void) // Checks if the wackymods shufflebag's limit is reached, and shuffles it if so
-{
-	if (sbag_track_wackymods == 0 || sbag_track_wackymods-1 > NUMBEROFWACKYMODS)
-		DoomWare_Shuffle_WackyMod();
-}
-
-function void DoomWare_CheckSBag_WackyChance(void) // Checks if the wackymodschance shufflebag's limit is reached, and shuffles it if so
-{
-	if (sbag_track_wackymodschance == 0 || sbag_track_wackymodschance-1 > GetCVar("doomware_wackymodschance"))
-		DoomWare_Shuffle_WackyChance();
-}
-
-function void DoomWare_CheckSBag_Minigames(void) // Checks if the minigame shufflebag's limit is reached, and shuffles it if so
-{
-	if (sbag_track_minigames == 0 || sbag_track_minigames-1 > NUMBEROFGAMES)
-	{
-		sbag_limit_minigames = NUMBEROFGAMES;
-		DoomWare_Shuffle_Minigames();
-	}
-}
-
-function void DoomWare_CheckSBag_1V1(void) // Checks if the 1V1 minigame shufflebag's limit is reached, and shuffles it if so
-{
-	if (sbag_track_1v1 == 0 || sbag_track_1v1-1 > NUMBEROFTIEBREAKERS)
-	{
-		sbag_limit_1v1 = NUMBEROFTIEBREAKERS;
-		DoomWare_Shuffle_1V1();
-	}
-}
-
-function void DoomWare_CheckSBag_1VM(void) // Checks if the 1VM minigame shufflebag's limit is reached, and shuffles it if so
-{
-	if (sbag_track_1vm == 0 || sbag_track_1vm-1 > NUMBEROFTIEBREAKERSM)
-	{
-		sbag_limit_1vm = NUMBEROFTIEBREAKERSM;
-		DoomWare_Shuffle_1VM();
-	}
-}
-
-function void DoomWare_Shuffle_WackyMod(void) // Shuffles the wackymods shufflebag
+function void DoomWare_InitRNG(void) // Initialize all the RNG stuff
 {
 	int i;
 	
-	// Create a temporary array with all the values
-    for (i=0; i<NUMBEROFWACKYMODS; i++)
-		temp_shufflearray[i] = i+1;
+	// Initialize all the weights if they haven't been already or we changed map
+	if (lastlimit_minigames == 0 || lastlimit_minigames != NUMBEROFGAMES)
+	{
+		lastlimit_minigames = NUMBEROFGAMES;
+		for (i=0; i<NUMBEROFGAMES; i++)
+			wrng_minigames[i] = 1;
+	}
+	if (lastlimit_1v1 == 0 || lastlimit_1v1 != NUMBEROFTIEBREAKERS)
+	{
+		lastlimit_1v1 = NUMBEROFTIEBREAKERS;
+		for (i=0; i<NUMBEROFTIEBREAKERS; i++)
+			wrng_1v1[i] = 1;
+	}
+	if (lastlimit_1vM == 0 || lastlimit_1vM != NUMBEROFTIEBREAKERSM)
+	{
+		lastlimit_1vM = NUMBEROFTIEBREAKERSM;
+		for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
+			wrng_1vM[i] = 1;
+	}
+	if (wrng_wackymods[0] == 0)
+		for (i=0; i<NUMBEROFWACKYMODS; i++)
+			wrng_wackymods[i] = 1;
+			
+	// Initialize the wackychance ShuffleBag
+	if (sbagtrack_nextwacky == 0 || sbagtrack_nextwacky-1 > GetCVar("doomware_wackymodschance"))
+		DoomWare_SBagShuffle_NextWacky();
+}
+
+function void DoomWare_WRng_Minigames(int totalrounds) // Fills the round_current array with MAXROUNDS games, using weighted RNG 
+{
+	int i;
+    int curround = 0;
+    int total_weight = 0;
+    int largest_weight = 0;
     
-	// Shuffle the temp array
-	for (i=0; i<NUMBEROFWACKYMODS; i++)
-	{
-		int j = random(i, NUMBEROFWACKYMODS-1);
-		int k = temp_shufflearray[i];
-		temp_shufflearray[i] = temp_shufflearray[j];
-		temp_shufflearray[j] = k;
-	}
-	
-	// Copy the values from the temp array to our shufflebag
-	for (i=0; i<NUMBEROFWACKYMODS; i++)
-		sbag_wackymods[i] = temp_shufflearray[i];
-	sbag_track_wackymods = 1;
+    // Get the total weight and the largest weight
+    for (i=0; i<totalrounds; i++)
+    {
+        total_weight += temp_shufflearray_weight[i];
+        if (temp_shufflearray_weight[i] > largest_weight)
+            largest_weight = temp_shufflearray_weight[i];
+    }
+    
+    // Perform the weighted shuffle
+    while (curround < MAXROUNDS)
+    {
+		int copysize = totalrounds-curround;
+        int selection = random(0, total_weight);
+        int k = 0;
+        
+        // Subtract weights until it's less than zero
+        while (1)
+        {
+            selection -= Max(1, largest_weight-temp_shufflearray_weight[k]);
+                
+            if (selection <= 0)
+                break;
+                
+            k = (k+1)%copysize;
+        }
+        
+        // Copy the resulting item to our shuffled array and subtract the weight
+        round_current[curround] = temp_shufflearray[k];
+        wrng_minigames[temp_shufflearray[k]-1] += 100;
+        total_weight -= temp_shufflearray_weight[temp_shufflearray[k]-1];
+		temp_shufflearray_weight[temp_shufflearray[k]-1] += 100;
+        
+        // Remove the item from our array
+        for (int j=k; j<copysize-1; j++)
+        {
+            temp_shufflearray[j] = temp_shufflearray[j+1];
+            temp_shufflearray_weight[j] = temp_shufflearray_weight[j+1];
+        }
+        curround++;
+    }
 }
 
-function void DoomWare_Shuffle_Wackychance(void) // Shuffles the wackymodschance shufflebag
+function int DoomWare_WRng_1v1(void) // Returns a randomly (weighted) selected value from the 1v1 minigames
+{
+	int i;
+    int total_weight = 0;
+    int largest_weight = 0;
+	int selection;
+    
+    // Get the total weight and the largest weight
+    for (i=0; i<NUMBEROFTIEBREAKERS; i++)
+    {
+        total_weight += wrng_1v1[i];
+        if (wrng_1v1[i] > largest_weight)
+            largest_weight = wrng_1v1[i];
+    }
+        
+	selection = random(0, total_weight);
+	i = 0;
+	
+	// Subtract weights until it's less than zero
+	while (1)
+	{
+		selection -= Max(1, largest_weight - wrng_1v1[i]);
+			
+		if (selection <= 0)
+			break;
+			
+		i = (i+1)%NUMBEROFTIEBREAKERS;
+	}
+	
+	// Increase the weight of this round and return the calculated value
+	wrng_1v1[i] += 100;
+	return i+1;
+}
+
+function int DoomWare_WRng_1vM(void) // Returns a randomly (weighted) selected value from the 1vM minigames
+{
+	int i;
+    int total_weight = 0;
+    int largest_weight = 0;
+	int selection;
+    
+    // Get the total weight and the largest weight
+    for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
+    {
+        total_weight += wrng_1vM[i];
+        if (wrng_1vM[i] > largest_weight)
+            largest_weight = wrng_1vM[i];
+    }
+        
+	selection = random(0, total_weight);
+	i = 0;
+	
+	// Subtract weights until it's less than zero
+	while (1)
+	{
+		selection -= Max(1, largest_weight - wrng_1vM[i]);
+			
+		if (selection <= 0)
+			break;
+			
+		i = (i+1)%NUMBEROFTIEBREAKERSM;
+	}
+	
+	// Increase the weight of this round and return the calculated value
+	wrng_1vM[i] += 100;
+	return i+1;
+}
+
+function int DoomWare_WRng_WackyMod(void) // Returns a randomly (weighted) selected value from the WackyMods
+{
+	int i;
+    int total_weight = 0;
+    int largest_weight = 0;
+	int selection;
+    
+    // Get the total weight and the largest weight
+    for (i=0; i<NUMBEROFWACKYMODS; i++)
+    {
+        total_weight += wrng_wackymods[i];
+        if (wrng_wackymods[i] > largest_weight)
+            largest_weight = wrng_wackymods[i];
+    }
+        
+	selection = random(0, total_weight);
+	i = 0;
+	
+	// Subtract weights until it's less than zero
+	while (1)
+	{
+		selection -= Max(1, largest_weight - wrng_wackymods[i]);
+			
+		if (selection <= 0)
+			break;
+			
+		i = (i+1)%NUMBEROFWACKYMODS;
+	}
+	
+	// Increase the weight of this wackymod and return the calculated value
+	wrng_wackymods[i] += 100;
+	return i+1;
+}
+
+function void DoomWare_SBagShuffle_NextWacky(void) // Shuffles the nextwacky shufflebag
 {
 	int i;
 	
 	// Create a temporary array with all the values
-	temp_shufflearray[0] = 1;
-    for (i=1; i<GetCVar("doomware_wackymodschance"); i++)
-		temp_shufflearray[i] = 0;
+    for (i=0; i<GetCVar("doomware_wackymodschance"); i++)
+		temp_shufflearray[i] = i;
     
 	// Shuffle the temp array
 	for (i=0; i<GetCVar("doomware_wackymodschance"); i++)
@@ -946,134 +1039,18 @@ function void DoomWare_Shuffle_Wackychance(void) // Shuffles the wackymodschance
 	
 	// Copy the values from the temp array to our shufflebag
 	for (i=0; i<GetCVar("doomware_wackymodschance"); i++)
-		sbag_wackymodschance[i] = temp_shufflearray[i];
-	sbag_track_wackymodschance = 1;
+		sbag_nextwacky[i] = temp_shufflearray[i];
+	sbagtrack_nextwacky = 1;
 }
 
-function void DoomWare_Shuffle_Minigames(void) // Shuffles the minigames shufflebag
+function int DoomWare_SBagNext_NextWacky(void) // Get the next value in the nextwacky shufflebag
 {
-	int i;
-	
-	// Create a temporary array with all the values
-    for (i=0; i<NUMBEROFGAMES; i++)
-		temp_shufflearray[i] = i+1;
-    
-	// Shuffle the temp array
-	for (i=0; i<NUMBEROFGAMES; i++)
-	{
-		int j = random(i, NUMBEROFGAMES-1);
-		int k = temp_shufflearray[i];
-		temp_shufflearray[i] = temp_shufflearray[j];
-		temp_shufflearray[j] = k;
-	}
-	
-	// Copy the values from the temp array to our shufflebag
-	for (i=0; i<NUMBEROFGAMES; i++)
-		sbag_minigames[i] = temp_shufflearray[i];
-	sbag_track_minigames = 1;
-}
-
-function void DoomWare_Shuffle_1V1(void) // Shuffles the 1V1 shufflebag
-{
-	int i;
-	
-	// Create a temporary array with all the values
-    for (i=0; i<NUMBEROFTIEBREAKERS; i++)
-		temp_shufflearray[i] = i+1;
-    
-	// Shuffle the temp array
-	for (i=0; i<NUMBEROFTIEBREAKERS; i++)
-	{
-		int j = random(i, NUMBEROFTIEBREAKERS-1);
-		int k = temp_shufflearray[i];
-		temp_shufflearray[i] = temp_shufflearray[j];
-		temp_shufflearray[j] = k;
-	}
-	
-	// Copy the values from the temp array to our shufflebag
-	for (i=0; i<NUMBEROFTIEBREAKERS; i++)
-		sbag_1v1[i] = temp_shufflearray[i];
-	sbag_track_1v1 = 1;
-}
-
-function void DoomWare_Shuffle_1VM(void) // Shuffles the 1VM shufflebag
-{
-	int i;
-	
-	// Create a temporary array with all the values
-    for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
-		temp_shufflearray[i] = i+1;
-    
-	// Shuffle the temp array
-	for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
-	{
-		int j = random(i, NUMBEROFTIEBREAKERSM-1);
-		int k = temp_shufflearray[i];
-		temp_shufflearray[i] = temp_shufflearray[j];
-		temp_shufflearray[j] = k;
-	}
-	
-	// Copy the values from the temp array to our shufflebag
-	for (i=0; i<NUMBEROFTIEBREAKERSM; i++)
-		sbag_1vm[i] = temp_shufflearray[i];
-	sbag_track_1vm = 1;
-}
-
-function int DoomWare_SBagNext_WackyMod(void) // Get the next value in the Wackymods shufflebag
-{
-	int val = sbag_wackymods[sbag_track_wackymods-1];
+	int val = sbag_nextwacky[sbagtrack_nextwacky-1];
 	
 	// Shuffle again if we've gone over
-	sbag_track_wackymods++;
-	DoomWare_CheckSBag_WackyMod();
-	
-	// Return the result
-	return val;
-}
-
-function int DoomWare_SBagNext_WackyChance(void) // Get the next value in the Wackymodschance shufflebag
-{
-	int val = sbag_wackymodschance[sbag_track_wackymodschance-1];
-	
-	// Shuffle again if we've gone over
-	sbag_track_wackymodschance++;
-	DoomWare_CheckSBag_WackyChance();
-	
-	// Return the result
-	return val;
-}
-
-function int DoomWare_SBagNext_Minigames(void) // Get the next value in the minigames shufflebag
-{
-	int val = sbag_minigames[sbag_track_minigames-1];
-	
-	// Shuffle again if we've gone over
-	sbag_track_minigames++;
-	DoomWare_CheckSBag_Minigames();
-	
-	// Return the result
-	return val;
-}
-
-function int DoomWare_SBagNext_1V1(void) // Get the next value in the 1v1 minigames shufflebag
-{
-	int val = sbag_1v1[sbag_track_1v1-1];
-	
-	// Shuffle again if we've gone over
-	sbag_track_1v1++;
-	DoomWare_CheckSBag_1V1();
-	
-	// Return the result
-	return val;
-}
-
-function int DoomWare_SBagNext_1VM(void) // Get the next value in the 1vM minigames shufflebag
-{
-	int val = sbag_1vm[sbag_track_1vm-1];
-	
-	// Shuffle again if we've gone over
-	sbag_track_1vm++;
-	DoomWare_CheckSBag_1VM();
+	sbagtrack_nextwacky++;
+	if (sbagtrack_nextwacky == 0 || sbagtrack_nextwacky-1 > GetCVar("doomware_wackymodschance"))
+		DoomWare_SBagShuffle_NextWacky();
 	
 	// Return the result
 	return val;
@@ -1289,7 +1266,7 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
 				if (DEBUG_TIEB > 0)
 					round_tiebreaker = DEBUG_TIEB;
 				else if (GetCVar("doomware_fakerandom"))
-					round_tiebreaker = DoomWare_SBagNext_1V1();
+					round_tiebreaker = DoomWare_WRng_1v1();
 				else
 					round_tiebreaker = random(1, NUMBEROFTIEBREAKERS);
 			}
@@ -1298,7 +1275,7 @@ Script "DoomWare_Server_GameLogic" (void) // Main game logic "thread"
 				if (DEBUG_TIEBM > 0)
 					round_tiebreaker = DEBUG_TIEBM;
 				else if (GetCVar("doomware_fakerandom"))
-					round_tiebreaker = DoomWare_SBagNext_1VM();
+					round_tiebreaker = DoomWare_WRng_1vM();
 				else 
 					round_tiebreaker = random(1, NUMBEROFTIEBREAKERSM);
 				round_is1vmtiebreaker = true;
